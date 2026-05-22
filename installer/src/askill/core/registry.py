@@ -47,7 +47,7 @@ def _fetch_url(url: str, client: httpx.Client | None) -> object:
         response = client.get(url)
         response.raise_for_status()
         return response.json()
-    with httpx.Client() as owned_client:
+    with httpx.Client(follow_redirects=True) as owned_client:
         response = owned_client.get(url)
         response.raise_for_status()
         return response.json()

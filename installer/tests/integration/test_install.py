@@ -90,6 +90,21 @@ def test_install_success_user_scope(
     assert state["skills"]["learning-mode"]["version"] == "0.1.0"
 
 
+def test_install_follows_archive_redirect(
+    tmp_path: Path, httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """GitHub 302-redirects /archive/<sha>.tar.gz to codeload; the download must follow it."""
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    archive, checksum = _build_archive(tmp_path, "learning-mode", {"SKILL.md": "hello"})
+    reg = _registry_file(tmp_path, "learning-mode", "0.1.0", checksum)
+    codeload = "https://codeload.github.com/example/agent-skills/tar.gz/deadbeef"
+    httpx_mock.add_response(url=ARCHIVE_URL, status_code=302, headers={"Location": codeload})
+    httpx_mock.add_response(url=codeload, content=archive)
+    result = runner.invoke(app, _args(reg))
+    assert result.exit_code == 0
+    assert (_installed(tmp_path) / "SKILL.md").read_text() == "hello"
+
+
 def test_install_json(
     tmp_path: Path, httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
 ) -> None:

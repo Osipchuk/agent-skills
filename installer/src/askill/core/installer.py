@@ -58,7 +58,8 @@ def _download(url: str, client: httpx.Client | None) -> bytes:
             response = client.get(url)
             response.raise_for_status()
             return response.content
-        with httpx.Client() as owned_client:
+        # follow_redirects: GitHub 302-redirects /archive/<sha>.tar.gz to codeload.github.com.
+        with httpx.Client(follow_redirects=True) as owned_client:
             response = owned_client.get(url)
             response.raise_for_status()
             return response.content
