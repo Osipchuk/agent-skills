@@ -10,6 +10,7 @@ dependencies = [
     "pydantic>=2.6",
     "httpx>=0.27",
     "packaging>=23.0",
+    "pyyaml>=6.0",
 ]
 
 [project.scripts]
@@ -22,6 +23,7 @@ dev = [
     "pytest-cov>=5.0",
     "ruff>=0.4",
     "mypy>=1.10",
+    "types-pyyaml>=6.0",
 ]
 
 [build-system]

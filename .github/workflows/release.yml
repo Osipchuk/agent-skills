@@ -1,0 +1,42 @@
+name: Regenerate registry
+
+# On every push to main, rebuild registry.json (+ schema) from skill frontmatter
+# and commit it back, pinned to the pushed commit. The regenerated commit carries
+# [skip ci] so it does not retrigger this workflow (GitHub also skips runs whose
+# head commit message contains [skip ci]).
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        working-directory: installer
+        run: uv sync
+      - name: Regenerate registry.json
+        working-directory: installer
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+        run: uv run python scripts/generate_registry.py --commit "$COMMIT_SHA" --schema
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- registry.json registry.schema.json; then
+            echo "registry.json already up to date"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add registry.json registry.schema.json
+            git commit -m "chore: regenerate registry.json [skip ci]"
+            git push
+          fi

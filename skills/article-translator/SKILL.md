@@ -1,6 +1,11 @@
 ---
 name: article-translator
 description: Translate articles, essays, blog posts, threads, and other longer-form prose between any pair of languages while preserving the author's voice, register, and rhetorical structure. Use this whenever the user asks to translate, localize, render, or "give me in [language]" any text longer than a few paragraphs — news articles, op-eds, essays, blog posts, longreads, newsletters, technical writeups, conference transcripts, Twitter/X threads, or non-fiction excerpts. Trigger even when the user does not say the word "translate" explicitly — for example "I need this in English for our investors", "rewrite this for a Russian audience", or "make this readable to a German reader" all count. Do not use for single sentences, UI strings, code-only inputs, or short slogans — those are too small to benefit from this workflow.
+version: 0.1.0
+summary: Translate long-form articles and prose between languages while preserving the author's voice, structure, and formatting.
+tags: [translation, writing]
+compatible_agents: [claude-code]
+license: MIT
 ---
 
 # Article Translator
