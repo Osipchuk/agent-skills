@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+installer/.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.DS_Store
+**/.installed.json
+
+# Local-only — never published (agent instructions, design spec, Claude state)
+.claude/
+/CLAUDE.md
+/skills-library-spec.md

@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "library": {
+    "name": "askill-library",
+    "repo": "https://github.com/Osipchuk/agent-skills",
+    "generated_at": "2026-05-21T10:00:00Z",
+    "commit": "0000000000000000000000000000000000000000"
+  },
+  "skills": [
+    {
+      "name": "learning-mode",
+      "version": "0.1.0",
+      "description": "Turn a Claude Code session into a learn-by-doing coding tutorial with a spaced-repetition review log.",
+      "path": "skills/learning-mode",
+      "entry": "SKILL.md",
+      "tags": ["learning", "coaching", "tdd"],
+      "compatible_agents": ["claude-code"],
+      "dependencies": [],
+      "checksum": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "license": "MIT"
+    },
+    {
+      "name": "article-translator",
+      "version": "0.1.0",
+      "description": "Translate technical articles into another language while preserving code blocks and structure.",
+      "path": "skills/article-translator",
+      "entry": "SKILL.md",
+      "tags": ["translation", "writing"],
+      "compatible_agents": ["claude-code"],
+      "dependencies": [],
+      "checksum": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "license": "MIT"
+    }
+  ]
+}
