@@ -1,0 +1,172 @@
+{
+  "$defs": {
+    "Library": {
+      "additionalProperties": false,
+      "description": "The ``library`` block of registry.json (spec §6.2).",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "repo": {
+          "title": "Repo",
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "commit": {
+          "title": "Commit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "repo",
+        "generated_at",
+        "commit"
+      ],
+      "title": "Library",
+      "type": "object"
+    },
+    "RegistrySkill": {
+      "additionalProperties": false,
+      "description": "One skill entry in registry.json (spec §6.4).",
+      "properties": {
+        "name": {
+          "pattern": "^[a-z][a-z0-9-]{2,63}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "entry": {
+          "default": "SKILL.md",
+          "title": "Entry",
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "compatible_agents": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Compatible Agents",
+          "type": "array"
+        },
+        "dependencies": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependencies",
+          "type": "array"
+        },
+        "checksum": {
+          "title": "Checksum",
+          "type": "string"
+        },
+        "min_cli_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Cli Version"
+        },
+        "size_bytes": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Size Bytes"
+        },
+        "author": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Author"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "License"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "description",
+        "path",
+        "compatible_agents",
+        "checksum"
+      ],
+      "title": "RegistrySkill",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The full registry.json manifest (spec §6.2).",
+  "properties": {
+    "schema_version": {
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "library": {
+      "$ref": "#/$defs/Library"
+    },
+    "skills": {
+      "items": {
+        "$ref": "#/$defs/RegistrySkill"
+      },
+      "title": "Skills",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "library",
+    "skills"
+  ],
+  "title": "Registry",
+  "type": "object"
+}

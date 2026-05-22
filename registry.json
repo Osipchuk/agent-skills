@@ -3,32 +3,43 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-05-21T10:00:00Z",
-    "commit": "0000000000000000000000000000000000000000"
+    "generated_at": "2026-05-22T13:33:09.833272Z",
+    "commit": "4e35ab3005ee2b0d94ea571ce919c448023a692e"
   },
   "skills": [
+    {
+      "name": "article-translator",
+      "version": "0.1.0",
+      "description": "Translate long-form articles and prose between languages while preserving the author's voice, structure, and formatting.",
+      "path": "skills/article-translator",
+      "entry": "SKILL.md",
+      "tags": [
+        "translation",
+        "writing"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "dependencies": [],
+      "checksum": "sha256:d77db445b0f82e1b5a367020820a84488213921cd626ccecfa307f6a9a4ce62f",
+      "license": "MIT"
+    },
     {
       "name": "learning-mode",
       "version": "0.1.0",
       "description": "Turn a Claude Code session into a learn-by-doing coding tutorial with a spaced-repetition review log.",
       "path": "skills/learning-mode",
       "entry": "SKILL.md",
-      "tags": ["learning", "coaching", "tdd"],
-      "compatible_agents": ["claude-code"],
+      "tags": [
+        "learning",
+        "coaching",
+        "tdd"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
       "dependencies": [],
-      "checksum": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "license": "MIT"
-    },
-    {
-      "name": "article-translator",
-      "version": "0.1.0",
-      "description": "Translate technical articles into another language while preserving code blocks and structure.",
-      "path": "skills/article-translator",
-      "entry": "SKILL.md",
-      "tags": ["translation", "writing"],
-      "compatible_agents": ["claude-code"],
-      "dependencies": [],
-      "checksum": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "checksum": "sha256:c897f72a8e86f831e75a6b78b35bbe4061c939cbcea7ff797bf674a331d039b1",
       "license": "MIT"
     }
   ]
