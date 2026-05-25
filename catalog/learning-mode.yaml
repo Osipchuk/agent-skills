@@ -1,0 +1,34 @@
+# Catalog metadata for the learning-mode skill.
+# Read by scripts/generate_registry.py to build registry.json + catalog.json.
+# This file is NEVER installed to a user — it lives outside skills/ so the
+# installer (which copies skills/<name>/ verbatim) never sees it, and editing
+# it never changes the skill's checksum.
+
+summary: Turn a Claude Code session into a learn-by-doing coding tutorial with a spaced-repetition review log.
+tags: [learning, coaching, tdd]
+compatible_agents: [claude-code]
+license: MIT
+
+when: >-
+  Fires when you ask to learn, practice, or be coached on something during a
+  coding session — and at the start of any session in a repo that already has a
+  .claude/learning/ plan with topics due for review.
+
+highlights:
+  - Hands you one atomic piece to write yourself, then reviews it like a senior pair-programmer.
+  - Keeps a per-repo learning plan and a spaced-repetition log under .claude/learning/.
+  - Resurfaces due topics at the right time, so what you practiced sticks before you forget it.
+
+example:
+  title: coaching handoff in a real repo
+  turns: 2
+  tokens: 90
+  caption: Without learning-mode, Claude would just write the decorator for you — no practice, no retention.
+  input:
+    - kind: user
+      text: Teach me Python decorators while we build this retry helper.
+  output:
+    - kind: anchor
+      text: "[learning-mode] handoff — write `retry` yourself; brief in .claude/learning/active-task.md"
+    - kind: assistant
+      text: "Scaffold's in place with `timed` next to it as the worked example. Your turn: write `retry`. Ping me when you want a review."

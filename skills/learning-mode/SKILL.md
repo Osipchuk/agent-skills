@@ -2,10 +2,6 @@
 name: learning-mode
 description: Turn a regular Claude Code session into a learn-by-doing coding tutorial. The user codes alongside Claude in a real repository, but at deliberate moments Claude hands off a focused chunk (a function, an endpoint, a refactor, a test) for the user to write by hand, then reviews their work. Maintains a per-repo learning plan and a spaced-repetition log under .claude/learning/ so topics resurface for review at the right time. Use this skill whenever the user mentions wanting to learn, practice, train, "do it themselves", improve at programming, or asks Claude to coach, teach, tutor, mentor, or pair-learn with them in a coding context. Also consult this skill at the very start of any session in a repo that contains a .claude/learning/ directory — there's an active learning plan that may have topics due for review or homework in flight. Trigger phrases include "coach me", "teach me X", "I want to learn Y", "help me practice Z", "let me try it myself", "review what I wrote", "give me a task", "what should I learn next", as well as any signal that the user wants to grow as a developer rather than just ship code.
 version: 0.1.0
-summary: Turn a Claude Code session into a learn-by-doing coding tutorial with a spaced-repetition review log.
-tags: [learning, coaching, tdd]
-compatible_agents: [claude-code]
-license: MIT
 ---
 
 # Learning Mode

@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.0",
+  "library": {
+    "name": "askill-library",
+    "repo": "https://github.com/Osipchuk/agent-skills",
+    "generated_at": "2026-05-25T10:31:26.812181Z",
+    "commit": "f59b4d8df4bfca0b0855cfda0b2e271ba8670cb0"
+  },
+  "skills": [
+    {
+      "name": "article-translator",
+      "version": "0.1.0",
+      "description": "Translate long-form articles and prose between languages while preserving the author's voice, structure, and formatting.",
+      "description_long": "Translate articles, essays, blog posts, threads, and other longer-form prose between any pair of languages while preserving the author's voice, register, and rhetorical structure. Use this whenever the user asks to translate, localize, render, or \"give me in [language]\" any text longer than a few paragraphs — news articles, op-eds, essays, blog posts, longreads, newsletters, technical writeups, conference transcripts, Twitter/X threads, or non-fiction excerpts. Trigger even when the user does not say the word \"translate\" explicitly — for example \"I need this in English for our investors\", \"rewrite this for a Russian audience\", or \"make this readable to a German reader\" all count. Do not use for single sentences, UI strings, code-only inputs, or short slogans — those are too small to benefit from this workflow.",
+      "path": "skills/article-translator",
+      "entry": "SKILL.md",
+      "tags": [
+        "translation",
+        "writing"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "license": "MIT",
+      "updated_at": "2026-05-25T12:20:52+02:00",
+      "when": "Fires when you ask to translate, localize, or \"give me in [language]\" any prose longer than a few paragraphs — articles, essays, posts, threads. Not for single sentences, UI strings, or code-only inputs.",
+      "highlights": [
+        "Builds a glossary first, so names and domain terms stay consistent across a long text.",
+        "Translates in paragraph-sized units to preserve argument flow and the author's voice.",
+        "Writes the result to a sibling file and summarizes the judgment calls in chat."
+      ],
+      "example": {
+        "title": "long-form EN→DE with a glossary",
+        "turns": 4,
+        "tokens": 210,
+        "caption": "Sentence-by-sentence translation drifts on terminology by the 60% mark — the glossary pass prevents it.",
+        "input": [
+          {
+            "kind": "user",
+            "text": "Translate this essay into German for our investors."
+          },
+          {
+            "kind": "tool",
+            "text": "read(article.md) → 1,800 words"
+          }
+        ],
+        "output": [
+          {
+            "kind": "anchor",
+            "text": "[article-translator] glossary built (12 terms) · translating in paragraph units"
+          },
+          {
+            "kind": "assistant",
+            "text": "Wrote article-de.md. Flagged two idioms I rendered idiomatically rather than literally — see the decision log."
+          }
+        ]
+      }
+    },
+    {
+      "name": "learning-mode",
+      "version": "0.1.0",
+      "description": "Turn a Claude Code session into a learn-by-doing coding tutorial with a spaced-repetition review log.",
+      "description_long": "Turn a regular Claude Code session into a learn-by-doing coding tutorial. The user codes alongside Claude in a real repository, but at deliberate moments Claude hands off a focused chunk (a function, an endpoint, a refactor, a test) for the user to write by hand, then reviews their work. Maintains a per-repo learning plan and a spaced-repetition log under .claude/learning/ so topics resurface for review at the right time. Use this skill whenever the user mentions wanting to learn, practice, train, \"do it themselves\", improve at programming, or asks Claude to coach, teach, tutor, mentor, or pair-learn with them in a coding context. Also consult this skill at the very start of any session in a repo that contains a .claude/learning/ directory — there's an active learning plan that may have topics due for review or homework in flight. Trigger phrases include \"coach me\", \"teach me X\", \"I want to learn Y\", \"help me practice Z\", \"let me try it myself\", \"review what I wrote\", \"give me a task\", \"what should I learn next\", as well as any signal that the user wants to grow as a developer rather than just ship code.",
+      "path": "skills/learning-mode",
+      "entry": "SKILL.md",
+      "tags": [
+        "learning",
+        "coaching",
+        "tdd"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "license": "MIT",
+      "updated_at": "2026-05-25T12:20:52+02:00",
+      "when": "Fires when you ask to learn, practice, or be coached on something during a coding session — and at the start of any session in a repo that already has a .claude/learning/ plan with topics due for review.",
+      "highlights": [
+        "Hands you one atomic piece to write yourself, then reviews it like a senior pair-programmer.",
+        "Keeps a per-repo learning plan and a spaced-repetition log under .claude/learning/.",
+        "Resurfaces due topics at the right time, so what you practiced sticks before you forget it."
+      ],
+      "example": {
+        "title": "coaching handoff in a real repo",
+        "turns": 2,
+        "tokens": 90,
+        "caption": "Without learning-mode, Claude would just write the decorator for you — no practice, no retention.",
+        "input": [
+          {
+            "kind": "user",
+            "text": "Teach me Python decorators while we build this retry helper."
+          }
+        ],
+        "output": [
+          {
+            "kind": "anchor",
+            "text": "[learning-mode] handoff — write `retry` yourself; brief in .claude/learning/active-task.md"
+          },
+          {
+            "kind": "assistant",
+            "text": "Scaffold's in place with `timed` next to it as the worked example. Your turn: write `retry`. Ping me when you want a review."
+          }
+        ]
+      }
+    },
+    {
+      "name": "toxic-senior-reviewer",
+      "version": "0.1.0",
+      "description": "Code reviewer in the voice of a toxic, no-nonsense senior developer — sharp criticism only, no empty praise, curt approval when code is actually good.",
+      "description_long": "Code review in the voice of a toxic senior developer — dry sarcasm without profanity, no fluff, no empty praise. Use this skill whenever the user asks for a code review, says \"how can I improve this\", \"what do you think of this code\", \"take a look at this\", \"rate this solution\", \"critique this\", \"do a code review\", drops a code snippet asking for feedback, or explicitly asks for a \"harsh review\", \"senior-level review\", \"brutal review\", \"toxic review\", \"tear this apart\". The skill focuses on suboptimal code, duplication, over-engineering, bad-practice violations, and weak naming. If the code is genuinely good, the senior gives a curt approval rather than inventing problems.",
+      "path": "skills/toxic-senior-reviewer",
+      "entry": "SKILL.md",
+      "tags": [
+        "code-review",
+        "persona",
+        "refactoring",
+        "best-practices",
+        "critique"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "license": "MIT",
+      "when": "Triggers when the user asks for a code review, drops a code snippet asking\nfor feedback, or explicitly requests a \"harsh\", \"senior-level\", or \"brutal\"\nreview. Also fires on intent phrases like \"how can I improve this\", \"what do\nyou think of this code\", \"rate this solution\", or \"tear this apart\". Does\nnot fire on requests to write new code from scratch or to explain how\nexisting code works.\n",
+      "highlights": [
+        "Sarcastic but clean tone — sharp critique, no profanity, no personal attacks on the author.",
+        "Hits the high-impact targets: duplication, over-engineering, weak naming, magic numbers, sloppy error handling, algorithmic inefficiency.",
+        "Every observation comes with a fix direction — concept of the solution plus why it's better, not just complaints.",
+        "Refuses to give empty praise. If the code is actually good, it gives a one-line approval (\"Approved.\", \"Ships to merge.\") instead of inventing problems.",
+        "Severity scales with impact — flags duplication and O(n²) in hot paths; leaves whitespace and trivia to linters."
+      ],
+      "example": {
+        "title": "Three near-identical lookup functions",
+        "turns": 2,
+        "tokens": 280,
+        "caption": "User submits three copy-pasted lookup functions; senior flags the DRY violation, linear search at scale, and a shadowed builtin.",
+        "input": [
+          {
+            "kind": "user",
+            "text": "Is this code OK?\n\ndef get_user_by_id(users, id):\n    for u in users:\n        if u['id'] == id:\n            return u\n    return None\n\ndef get_user_by_email(users, email):\n    for u in users:\n        if u['email'] == email:\n            return u\n    return None\n\ndef get_user_by_phone(users, phone):\n    for u in users:\n        if u['phone'] == phone:\n            return u\n    return None\n"
+          }
+        ],
+        "output": [
+          {
+            "kind": "anchor",
+            "text": "[toxic-senior-reviewer] activating senior reviewer persona"
+          },
+          {
+            "kind": "assistant",
+            "text": "Three nearly-identical functions. You copy-pasted them by hand or wrote a script? The only thing changing is the field name. That's the textbook definition of a DRY violation.\n\nParametrize the field:\n\n```python\ndef find_user(users, field, value):\n    return next((u for u in users if u[field] == value), None)\n```\n\nOne function, generator with `next` instead of a hand-rolled loop, default `None` without a separate line. Thin typed wrappers on top are fine if you want named call sites — they're now one-liners.\n\nSecond issue, more serious: you're doing linear search over a list. Ten users? Forget it. Ten thousand and you're searching in a loop? That's `O(n²)`, and prod will find it under load. If id lookups are frequent, build an index — a dict `{user['id']: user}`. `O(1)` access. Any decent ORM does this for you — why are you flattening users into a list and then walking it?\n\nAlso: `id` is a builtin in Python. Shadowing it is sloppy. `user_id` won't kill you.\n\nRewrite.\n"
+          }
+        ]
+      }
+    }
+  ]
+}

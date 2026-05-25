@@ -4,43 +4,78 @@ A library of reusable **skills** for AI coding agents — plus **`askill`**, a s
 
 A *skill* is a self-contained folder (a `SKILL.md` plus optional scripts and references) that teaches an agent a repeatable workflow. This repo collects skills under [`skills/`](skills/), describes them in a manifest ([`registry.json`](registry.json)), and ships an installer so any agent — Claude Code first — can pull a skill into `~/.claude/skills/` with one command.
 
-> **Status: early, under active development.** The `askill` core and the `list` / `info` / `install` / `uninstall` commands are implemented and well-tested. A hosted registry with real checksums, the remaining commands (`update`, `outdated`, `search`, `validate`, `wizard`, `self-update`), and CI are on the [roadmap](#roadmap).
+> **Status: early, under active development.** The `askill` core and the `list` / `info` / `install` / `uninstall` commands are implemented and well-tested, and a one-line installer is live. The remaining commands (`update`, `outdated`, `search`, `validate`, `wizard`, `self-update`) and a PyPI release are on the [roadmap](#roadmap).
 
-## What's here
+## Quick install
 
-- **[`skills/`](skills/)** — the skill library. Today: `learning-mode` (turns a coding session into a coached, spaced-repetition tutorial) and `article-translator`.
-- **[`installer/`](installer/)** — the `askill` CLI (Python 3.10+, built with Typer and pydantic v2).
-- **[`registry.json`](registry.json)** — the manifest every client reads. Clients never parse skill folders directly; they read the manifest or call `askill … --json`.
+One command — in your terminal **or** via your agent. You don't need anything but `curl`; the script installs [uv](https://docs.astral.sh/uv/) if it's missing.
+
+**In your terminal:**
+
+```bash
+# install a skill straight away (user scope -> ~/.claude/skills/):
+curl -fsSL https://raw.githubusercontent.com/Osipchuk/agent-skills/main/install.sh | sh -s -- learning-mode
+
+# into the current project instead (-> <cwd>/.claude/skills/):
+curl -fsSL https://raw.githubusercontent.com/Osipchuk/agent-skills/main/install.sh | ASKILL_SCOPE=project sh -s -- learning-mode
+
+# or install the askill CLI once, then drive it yourself:
+curl -fsSL https://raw.githubusercontent.com/Osipchuk/agent-skills/main/install.sh | sh
+askill list
+askill install learning-mode
+```
+
+**Via your coding agent** (Claude Code, Cursor, …) — tell it:
+
+> Install the `learning-mode` skill from the agent-skills library by running:
+> `uvx --from "git+https://github.com/Osipchuk/agent-skills#subdirectory=installer" askill install learning-mode --scope user`
+
+The agent runs the command and the skill lands in `~/.claude/skills/`. To install into the current project instead, ask it to add `--scope project`.
+
+## Available skills
+
+- **[`learning-mode`](skills/learning-mode/)** — turn a Claude Code session into a learn-by-doing tutorial with a spaced-repetition review log.
+- **[`article-translator`](skills/article-translator/)** — translate long-form articles and prose between languages while preserving the author's voice, structure, and formatting.
+- **[`toxic-senior-reviewer`](skills/toxic-senior-reviewer/)** — code review in the voice of a blunt senior dev: sharp criticism only, curt approval when the code is actually good.
 
 ## askill CLI
 
-No PyPI release yet — run it from a clone with [uv](https://docs.astral.sh/uv/):
+Once installed, `askill` reads its skills from the published [`registry.json`](registry.json) by default — no `--registry` flag needed:
+
+```bash
+askill list                          # all skills in the manifest
+askill list --json                   # machine-readable
+askill info learning-mode
+askill install learning-mode --scope user
+askill uninstall learning-mode --scope user
+```
+
+Implemented: `list`, `info`, `install`, `uninstall` — with `--scope user|project`, `--json` everywhere, deterministic checksum verification, and the conflict handling from the spec (already-installed no-op, version conflicts, `--force`, `--dry-run`, `--no-checksum`). Exit codes: `0` ok, `1` user error, `2` system error, `3` conflict.
+
+## From source (development)
+
+Run it from a clone with [uv](https://docs.astral.sh/uv/), pointing at the local manifest:
 
 ```bash
 git clone https://github.com/Osipchuk/agent-skills
 cd agent-skills/installer
 uv sync
 
-uv run askill --help
-uv run askill list   --registry ../registry.json            # all skills in the manifest
-uv run askill list   --registry ../registry.json --json     # machine-readable
-uv run askill info   learning-mode --registry ../registry.json
+uv run askill list   --registry ../registry.json
 uv run askill install learning-mode --registry ../registry.json --scope user
-uv run askill uninstall learning-mode --scope user
+uv run pytest
 ```
-
-Implemented: `list`, `info`, `install`, `uninstall` — with `--scope user|project`, `--json` everywhere, deterministic checksum verification, and the conflict handling from the spec (already-installed no-op, version conflicts, `--force`, `--dry-run`, `--no-checksum`). Exit codes: `0` ok, `1` user error, `2` system error, `3` conflict.
 
 ## Authoring a skill
 
-A skill is a folder `skills/<name>/` with a `SKILL.md` whose frontmatter carries `name` and a trigger-oriented `description`. Bulky helpers live in `scripts/` and `references/` and are pulled in on demand (progressive disclosure). See [CONTRIBUTING.md](CONTRIBUTING.md) for the full format and a checklist.
+A skill is a folder `skills/<name>/` with a `SKILL.md` whose frontmatter carries `name`, a trigger-oriented `description`, and a pinned `version`. Bulky helpers live in `scripts/` and `references/` and are pulled in on demand (progressive disclosure). Presentation metadata (summary, tags, etc.) lives in `catalog/<name>.yaml`. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full format and a checklist.
 
 ## Roadmap
 
-- [ ] Hosted registry + real checksums generated by CI (makes `askill install <name>` work end-to-end without `--registry`)
+- [x] One-line bootstrap (`curl … | sh`) and a default published registry
 - [ ] `update`, `outdated`, `search`, `validate`
 - [ ] Interactive `wizard`, `self-update`
-- [ ] One-line bootstrap (`curl … | sh`) and a PyPI release
+- [ ] PyPI release (turns the install into `uvx askill install <name>`)
 - [ ] Multi-agent adapters (Codex, Cursor)
 
 ## Contributing

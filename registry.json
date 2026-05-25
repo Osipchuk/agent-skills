@@ -3,8 +3,8 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-05-22T13:57:34.482157Z",
-    "commit": "bac96695dba10b7bf543d8d98e69e9e945d90474"
+    "generated_at": "2026-05-25T10:31:26.788752Z",
+    "commit": "f59b4d8df4bfca0b0855cfda0b2e271ba8670cb0"
   },
   "skills": [
     {
@@ -21,7 +21,7 @@
         "claude-code"
       ],
       "dependencies": [],
-      "checksum": "sha256:d77db445b0f82e1b5a367020820a84488213921cd626ccecfa307f6a9a4ce62f",
+      "checksum": "sha256:8472477b1063525175f984f10fee4c47b06aa08b6b6f7cd9af2dbd56b856be69",
       "license": "MIT"
     },
     {
@@ -39,7 +39,27 @@
         "claude-code"
       ],
       "dependencies": [],
-      "checksum": "sha256:c897f72a8e86f831e75a6b78b35bbe4061c939cbcea7ff797bf674a331d039b1",
+      "checksum": "sha256:f6239e271258e8a5a95f897c994c538de6ca83996e9459bf588a3e05456f5c27",
+      "license": "MIT"
+    },
+    {
+      "name": "toxic-senior-reviewer",
+      "version": "0.1.0",
+      "description": "Code reviewer in the voice of a toxic, no-nonsense senior developer — sharp criticism only, no empty praise, curt approval when code is actually good.",
+      "path": "skills/toxic-senior-reviewer",
+      "entry": "SKILL.md",
+      "tags": [
+        "code-review",
+        "persona",
+        "refactoring",
+        "best-practices",
+        "critique"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "dependencies": [],
+      "checksum": "sha256:913027309efdfb8cd12bd91ae07bb1bc54c0d451c0422ebdb72bc78b9c5cc0fa",
       "license": "MIT"
     }
   ]

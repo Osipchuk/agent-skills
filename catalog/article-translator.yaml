@@ -1,0 +1,36 @@
+# Catalog metadata for the article-translator skill.
+# Read by scripts/generate_registry.py to build registry.json + catalog.json.
+# This file is NEVER installed to a user — it lives outside skills/ so the
+# installer (which copies skills/<name>/ verbatim) never sees it, and editing
+# it never changes the skill's checksum.
+
+summary: Translate long-form articles and prose between languages while preserving the author's voice, structure, and formatting.
+tags: [translation, writing]
+compatible_agents: [claude-code]
+license: MIT
+
+when: >-
+  Fires when you ask to translate, localize, or "give me in [language]" any
+  prose longer than a few paragraphs — articles, essays, posts, threads.
+  Not for single sentences, UI strings, or code-only inputs.
+
+highlights:
+  - Builds a glossary first, so names and domain terms stay consistent across a long text.
+  - Translates in paragraph-sized units to preserve argument flow and the author's voice.
+  - Writes the result to a sibling file and summarizes the judgment calls in chat.
+
+example:
+  title: long-form EN→DE with a glossary
+  turns: 4
+  tokens: 210
+  caption: Sentence-by-sentence translation drifts on terminology by the 60% mark — the glossary pass prevents it.
+  input:
+    - kind: user
+      text: Translate this essay into German for our investors.
+    - kind: tool
+      text: read(article.md) → 1,800 words
+  output:
+    - kind: anchor
+      text: "[article-translator] glossary built (12 terms) · translating in paragraph units"
+    - kind: assistant
+      text: Wrote article-de.md. Flagged two idioms I rendered idiomatically rather than literally — see the decision log.
