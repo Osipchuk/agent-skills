@@ -4,7 +4,7 @@ A library of reusable **skills** for AI coding agents — plus **`askill`**, a s
 
 A *skill* is a self-contained folder (a `SKILL.md` plus optional scripts and references) that teaches an agent a repeatable workflow. This repo collects skills under [`skills/`](skills/), describes them in a manifest ([`registry.json`](registry.json)), and ships an installer so any agent — Claude Code first — can pull a skill into `~/.claude/skills/` with one command.
 
-> **Status: early, under active development.** The `askill` core and the `list` / `info` / `install` / `uninstall` commands are implemented and well-tested, and a one-line installer is live. The remaining commands (`update`, `outdated`, `search`, `validate`, `wizard`, `self-update`) are on the [roadmap](#roadmap).
+> **Status: early, under active development.** The `askill` core and the `list` / `info` / `install` / `uninstall` / `wizard` commands are implemented and well-tested; a one-line installer and a Claude Code plugin marketplace are live. The remaining commands (`update`, `outdated`, `search`, `validate`, `self-update`) are on the [roadmap](#roadmap).
 
 ## Quick install
 
@@ -21,7 +21,15 @@ That installs the whole library as the `skills` plugin. Claude picks the right s
 
 ### In your terminal
 
-One command; needs only `curl` (the script installs [uv](https://docs.astral.sh/uv/) if it's missing):
+**Interactive picker** — one command opens a checklist of skills and a scope prompt; check what you want, pick where, Enter:
+
+```bash
+uvx --from "git+https://github.com/Osipchuk/agent-skills#subdirectory=installer" askill wizard
+```
+
+(Already have the CLI? Just run `askill` with no arguments.)
+
+**Or non-interactively** — needs only `curl` (the script installs [uv](https://docs.astral.sh/uv/) if it's missing):
 
 ```bash
 # install a skill straight away (user scope -> ~/.claude/skills/):
@@ -89,8 +97,9 @@ A skill is a folder `skills/<name>/` with a `SKILL.md` whose frontmatter carries
 
 - [x] One-line bootstrap (`curl … | sh`) and a default published registry
 - [x] Claude Code plugin marketplace (`/plugin install skills@askill`)
+- [x] Interactive `wizard` (`askill wizard` — checklist + scope picker)
 - [ ] `update`, `outdated`, `search`, `validate`
-- [ ] Interactive `wizard`, `self-update`
+- [ ] `self-update`
 - [ ] Multi-agent adapters (Codex, Cursor)
 
 ## Contributing
