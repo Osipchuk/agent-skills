@@ -25,12 +25,14 @@ askill list
 askill install learning-mode
 ```
 
-**Via your coding agent** (Claude Code, Cursor, …) — tell it:
+**Via your coding agent** (Claude Code, Cursor, …) — tell it (replace `<skill>` with the name you want, e.g. `toxic-senior-reviewer`):
 
-> Install the `learning-mode` skill from the agent-skills library by running:
-> `uvx --from "git+https://github.com/Osipchuk/agent-skills#subdirectory=installer" askill install learning-mode --scope user`
+> Install the `<skill>` skill from the agent-skills library by running this exact command, substituting the skill name I asked for:
+> `uvx --from "git+https://github.com/Osipchuk/agent-skills#subdirectory=installer" askill install <skill> --scope user`
 
 The agent runs the command and the skill lands in `~/.claude/skills/`. To install into the current project instead, ask it to add `--scope project`.
+
+> **Note:** in Claude Code's default permission mode the agent may refuse this, since `uvx` runs code from a remote repo and writes into your `~/.claude`. That refusal is expected — run the command yourself in a terminal instead. (A trusted, first-class Claude Code plugin install is in the works.)
 
 ## Available skills
 
