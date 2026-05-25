@@ -7,10 +7,12 @@ from pathlib import Path
 
 import typer
 
-# Default registry source. In the distribution sub-project this becomes the
-# GitHub raw URL; for now it's a cwd-relative path that manual runs and tests
-# override with --registry.
-DEFAULT_REGISTRY = "registry.json"
+# Default registry source: the published manifest on the main branch, so
+# `askill install <name>` / `list` / `info` work with no --registry flag.
+# The registry's library.commit is pinned, so installs stay reproducible even
+# though the manifest is read from main. Local development overrides this with
+# --registry ../registry.json (as do the tests).
+DEFAULT_REGISTRY = "https://raw.githubusercontent.com/Osipchuk/agent-skills/main/registry.json"
 
 
 def report_action(
