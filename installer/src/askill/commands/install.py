@@ -72,6 +72,9 @@ def install(
 
         if no_checksum:
             typer.echo(f"warning: installing {name} without checksum verification", err=True)
+        # Whether this install creates the scope's .claude/skills/ dir for the first time —
+        # Claude Code won't watch a top-level skills dir created mid-session until restarted.
+        skills_dir_created = not target.parent.exists()
         fetch_and_place(skill, registry_data.library, target, verify_checksum=not no_checksum)
 
         if state is None:
@@ -86,7 +89,15 @@ def install(
             path=str(target),
         )
         save_state(state, resolved, root)
-        report_action(json_mode, "installed", name, skill.version, resolved, target)
+        report_action(
+            json_mode,
+            "installed",
+            name,
+            skill.version,
+            resolved,
+            target,
+            skills_dir_created=skills_dir_created,
+        )
     except AskillError as exc:
         typer.echo(exc.message, err=True)
         raise typer.Exit(exc.exit_code) from exc

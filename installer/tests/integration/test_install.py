@@ -196,3 +196,44 @@ def test_install_no_checksum_bypass(
     result = runner.invoke(app, _args(reg, "--no-checksum"))
     assert result.exit_code == 0
     assert (_installed(tmp_path) / "SKILL.md").exists()
+
+
+def test_install_flags_new_skills_dir_for_restart(
+    tmp_path: Path, httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A first install creates .claude/skills/ fresh; flag it — Claude Code won't watch a
+    top-level skills dir created mid-session until restarted."""
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    archive, checksum = _build_archive(tmp_path, "learning-mode", {"SKILL.md": "hello"})
+    reg = _registry_file(tmp_path, "learning-mode", "0.1.0", checksum)
+    httpx_mock.add_response(url=ARCHIVE_URL, content=archive)
+    assert not (tmp_path / ".claude" / "skills").exists()
+    result = runner.invoke(app, _args(reg, "--json"))
+    assert result.exit_code == 0
+    assert json.loads(result.output)["skills_dir_created"] is True
+
+
+def test_install_no_restart_flag_when_skills_dir_exists(
+    tmp_path: Path, httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """If .claude/skills/ already exists, Claude Code live-reloads — no restart flag."""
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    (tmp_path / ".claude" / "skills").mkdir(parents=True)
+    archive, checksum = _build_archive(tmp_path, "learning-mode", {"SKILL.md": "hello"})
+    reg = _registry_file(tmp_path, "learning-mode", "0.1.0", checksum)
+    httpx_mock.add_response(url=ARCHIVE_URL, content=archive)
+    result = runner.invoke(app, _args(reg, "--json"))
+    assert result.exit_code == 0
+    assert json.loads(result.output)["skills_dir_created"] is False
+
+
+def test_install_human_output_hints_restart_for_new_dir(
+    tmp_path: Path, httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    archive, checksum = _build_archive(tmp_path, "learning-mode", {"SKILL.md": "hello"})
+    reg = _registry_file(tmp_path, "learning-mode", "0.1.0", checksum)
+    httpx_mock.add_response(url=ARCHIVE_URL, content=archive)
+    result = runner.invoke(app, _args(reg))
+    assert result.exit_code == 0
+    assert "restart" in result.output.lower()
