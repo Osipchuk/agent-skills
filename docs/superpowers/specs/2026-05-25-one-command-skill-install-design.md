@@ -33,7 +33,9 @@ works **today, with no PyPI release**.
   more skill names → install each skill directly (one-shot).
 - **Agent path:** a copy-paste prompt block in the README (no AGENTS.md, no
   meta-skill).
-- **Scope:** skill installs default to `--scope user` (`~/.claude/skills/`).
+- **Scope:** skill installs default to `user` (`~/.claude/skills/`). `install.sh`
+  exposes scope via the `ASKILL_SCOPE` env var (default `user`); the agent prompt
+  documents adding `--scope project` for project-local installs.
 
 ## Package source (single source of truth)
 
@@ -81,7 +83,12 @@ Logic:
    if present) so the following commands find `uv`.
 2. **No arguments** → `uv tool install "$PKG"`; print a hint (`askill list`,
    `askill install <name>`).
-3. **One or more names** → for each: `uvx --from "$PKG" askill install "$name" --scope user`.
+3. **One or more names** → resolve scope once (`SCOPE="${ASKILL_SCOPE:-user}"`),
+   then for each name: `uvx --from "$PKG" askill install "$name" --scope "$SCOPE"`.
+
+Scope is taken from the `ASKILL_SCOPE` env var (default `user`), keeping
+positional args as skill names — this preserves multi-skill installs and avoids
+flag-parsing in POSIX `sh`. `project` installs into `<cwd>/.claude/skills/`.
 
 Constraints: `#!/bin/sh`, `set -e`, no bashisms (`command -v`, `[ "$#" -eq 0 ]`,
 `for name in "$@"`), friendly echo output. Must run correctly when piped to `sh`.
@@ -91,8 +98,10 @@ Usage:
 ```bash
 # install the CLI:
 curl -fsSL https://raw.githubusercontent.com/Osipchuk/agent-skills/main/install.sh | sh
-# install a skill directly:
+# install a skill directly (user scope):
 curl -fsSL https://raw.githubusercontent.com/Osipchuk/agent-skills/main/install.sh | sh -s -- learning-mode
+# install into the current project (<cwd>/.claude/skills/):
+curl -fsSL https://raw.githubusercontent.com/Osipchuk/agent-skills/main/install.sh | ASKILL_SCOPE=project sh -s -- learning-mode
 ```
 
 ### 2. Agent prompt (README block)
@@ -104,10 +113,16 @@ Copy-paste block telling an agent the exact command to run:
 > > `uvx --from "git+https://github.com/Osipchuk/agent-skills#subdirectory=installer" askill install learning-mode --scope user`
 >
 > The agent runs the command; the skill lands in `~/.claude/skills/`.
+>
+> To install into the current project instead, ask the agent to add
+> `--scope project` (the skill lands in `<project>/.claude/skills/`). Run from a
+> directory that already contains `.claude/` and `askill` auto-selects project
+> scope even without the flag.
 
 ### 3. README updates
 
-- New **Quick install** section at the top with the two `curl | sh` commands.
+- New **Quick install** section at the top with the `curl | sh` commands
+  (install CLI, install a skill, and the `ASKILL_SCOPE=project` variant).
 - **Install via your agent** subsection with the prompt block above.
 - **Available skills** section — one brief line per skill (sourced from the
   registry `description`):
