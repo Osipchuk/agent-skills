@@ -4,7 +4,7 @@ A library of reusable **skills** for AI coding agents — plus **`askill`**, a s
 
 A *skill* is a self-contained folder (a `SKILL.md` plus optional scripts and references) that teaches an agent a repeatable workflow. This repo collects skills under [`skills/`](skills/), describes them in a manifest ([`registry.json`](registry.json)), and ships an installer so any agent — Claude Code first — can pull a skill into `~/.claude/skills/` with one command.
 
-> **Status: early, under active development.** The `askill` core and the `list` / `info` / `install` / `uninstall` commands are implemented and well-tested, and a one-line installer is live. The remaining commands (`update`, `outdated`, `search`, `validate`, `wizard`, `self-update`) and a PyPI release are on the [roadmap](#roadmap).
+> **Status: early, under active development.** The `askill` core and the `list` / `info` / `install` / `uninstall` commands are implemented and well-tested, and a one-line installer is live. The remaining commands (`update`, `outdated`, `search`, `validate`, `wizard`, `self-update`) are on the [roadmap](#roadmap).
 
 ## Quick install
 
@@ -77,7 +77,6 @@ A skill is a folder `skills/<name>/` with a `SKILL.md` whose frontmatter carries
 - [x] One-line bootstrap (`curl … | sh`) and a default published registry
 - [ ] `update`, `outdated`, `search`, `validate`
 - [ ] Interactive `wizard`, `self-update`
-- [ ] PyPI release (turns the install into `uvx askill install <name>`)
 - [ ] Multi-agent adapters (Codex, Cursor)
 
 ## Contributing
