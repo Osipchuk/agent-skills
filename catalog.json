@@ -3,8 +3,8 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-05-25T10:31:26.812181Z",
-    "commit": "f59b4d8df4bfca0b0855cfda0b2e271ba8670cb0"
+    "generated_at": "2026-05-25T12:21:42.645456Z",
+    "commit": "e0f8343f1a0f31116f2e764abf5881c7717c3683"
   },
   "skills": [
     {
@@ -120,6 +120,7 @@
         "claude-code"
       ],
       "license": "MIT",
+      "updated_at": "2026-05-25T12:31:43+02:00",
       "when": "Triggers when the user asks for a code review, drops a code snippet asking\nfor feedback, or explicitly requests a \"harsh\", \"senior-level\", or \"brutal\"\nreview. Also fires on intent phrases like \"how can I improve this\", \"what do\nyou think of this code\", \"rate this solution\", or \"tear this apart\". Does\nnot fire on requests to write new code from scratch or to explain how\nexisting code works.\n",
       "highlights": [
         "Sarcastic but clean tone — sharp critique, no profanity, no personal attacks on the author.",
