@@ -8,9 +8,20 @@ A *skill* is a self-contained folder (a `SKILL.md` plus optional scripts and ref
 
 ## Quick install
 
-One command — in your terminal **or** via your agent. You don't need anything but `curl`; the script installs [uv](https://docs.astral.sh/uv/) if it's missing.
+### In Claude Code — native plugin (recommended)
 
-**In your terminal:**
+A trusted, first-class install — no permission prompts, no remote-code-execution dance:
+
+```
+/plugin marketplace add Osipchuk/agent-skills
+/plugin install skills@askill
+```
+
+That installs the whole library as the `skills` plugin. Claude picks the right skill by context, or invoke one explicitly as `/skills:learning-mode`. Non-interactive equivalent: `claude plugin marketplace add Osipchuk/agent-skills` then `claude plugin install skills@askill`.
+
+### In your terminal
+
+One command; needs only `curl` (the script installs [uv](https://docs.astral.sh/uv/) if it's missing):
 
 ```bash
 # install a skill straight away (user scope -> ~/.claude/skills/):
@@ -25,14 +36,16 @@ askill list
 askill install learning-mode
 ```
 
-**Via your coding agent** (Claude Code, Cursor, …) — tell it (replace `<skill>` with the name you want, e.g. `toxic-senior-reviewer`):
+> **Heads-up:** the first install into a project's `.claude/skills/` *creates* that directory; Claude Code doesn't watch a skills directory created mid-session, so restart it (or open a new session) to load the skill. `askill` prints this reminder when it applies.
+
+### Via a non-Claude agent (Cursor, …)
+
+Tell it (replace `<skill>` with the name you want, e.g. `toxic-senior-reviewer`):
 
 > Install the `<skill>` skill from the agent-skills library by running this exact command, substituting the skill name I asked for:
 > `uvx --from "git+https://github.com/Osipchuk/agent-skills#subdirectory=installer" askill install <skill> --scope user`
 
-The agent runs the command and the skill lands in `~/.claude/skills/`. To install into the current project instead, ask it to add `--scope project`.
-
-> **Note:** in Claude Code's default permission mode the agent may refuse this, since `uvx` runs code from a remote repo and writes into your `~/.claude`. That refusal is expected — run the command yourself in a terminal instead. (A trusted, first-class Claude Code plugin install is in the works.)
+> **Note:** in **Claude Code**, use the plugin install above — its default permission mode (rightly) refuses `uvx`, since that runs remote code and writes into your `~/.claude`. The `uvx` line is for other agents, or run it yourself in a terminal.
 
 ## Available skills
 
@@ -75,6 +88,7 @@ A skill is a folder `skills/<name>/` with a `SKILL.md` whose frontmatter carries
 ## Roadmap
 
 - [x] One-line bootstrap (`curl … | sh`) and a default published registry
+- [x] Claude Code plugin marketplace (`/plugin install skills@askill`)
 - [ ] `update`, `outdated`, `search`, `validate`
 - [ ] Interactive `wizard`, `self-update`
 - [ ] Multi-agent adapters (Codex, Cursor)
