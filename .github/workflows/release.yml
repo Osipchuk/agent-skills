@@ -30,21 +30,22 @@ jobs:
       - name: Install dependencies
         working-directory: installer
         run: uv sync
-      - name: Regenerate registry.json + catalog.json
+      - name: Regenerate registry.json + catalog.json + plugin marketplace
         working-directory: installer
         env:
           COMMIT_SHA: ${{ github.sha }}
         run: uv run python scripts/generate_registry.py --commit "$COMMIT_SHA" --schema
       - name: Commit if changed
         env:
-          ARTIFACTS: registry.json registry.schema.json catalog.json catalog.schema.json
+          # Directories cover newly added skills under plugins/ as well as edits.
+          ARTIFACTS: registry.json registry.schema.json catalog.json catalog.schema.json .claude-plugin plugins
         run: |
-          if git diff --quiet -- $ARTIFACTS; then
-            echo "registry/catalog already up to date"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add $ARTIFACTS
+          if git diff --cached --quiet; then
+            echo "registry/catalog/marketplace already up to date"
           else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add $ARTIFACTS
-            git commit -m "chore: regenerate registry.json + catalog.json [skip ci]"
+            git commit -m "chore: regenerate registry.json + catalog.json + marketplace [skip ci]"
             git push
           fi

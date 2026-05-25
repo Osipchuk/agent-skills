@@ -22,13 +22,14 @@ a sha256 checksum, and copies it into the target scope. The gap is purely
 
 `uvx` (`uv tool run`) is the Python analog of `npx`: it fetches and runs a package
 ephemerally. uv can install directly from a git repo with a subdirectory, so this
-works **today, with no PyPI release**.
+works **straight from git, with no package registry** — `askill` is not published
+as a package.
 
 ## Decisions
 
-- **Distribution:** git-based (`uv` installs from `git+…#subdirectory=installer`).
-  No PyPI release now. The package source is kept in a single variable so a later
-  PyPI swap is a one-line change (git URL → `askill`).
+- **Distribution:** git-based and permanent — `uv` installs from
+  `git+…#subdirectory=installer`. `askill` is **not** published as a package; the
+  git URL is the canonical source, kept in a single variable for maintainability.
 - **`install.sh` behavior:** no argument → install the CLI persistently; one or
   more skill names → install each skill directly (one-shot).
 - **Agent path:** a copy-paste prompt block in the README (no AGENTS.md, no
@@ -146,13 +147,11 @@ Copy-paste block telling an agent the exact command to run:
 
 ## Non-goals (YAGNI)
 
-- PyPI publish now (only keep the `PKG` variable swappable).
+- Publishing `askill` as a package (PyPI or otherwise) — install is git-based by design.
 - Interactive skill picker / per-agent selection (the reference's prompts).
 - Windows `.ps1` installer.
 - `AGENTS.md` / `llms.txt` / a meta-skill for the agent path.
 
 ## Future (cheap follow-ups)
 
-- Publish `askill` to PyPI → swap `PKG` to `askill`, giving
-  `uvx askill install <name>` and `uv tool install askill`.
 - Auto-generate the README skill list from the registry.

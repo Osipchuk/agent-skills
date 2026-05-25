@@ -9,7 +9,8 @@
 # Skill name(s) -> installs each skill one-shot (uvx), into ASKILL_SCOPE (default user).
 set -eu
 
-# Single source of truth for the package. Swap to "askill" once it's on PyPI.
+# Single source of truth for the package. askill is installed straight from git
+# (it is not published as a package), so this URL is the canonical source.
 PKG="git+https://github.com/Osipchuk/agent-skills#subdirectory=installer"
 
 say() { printf '%s\n' "$*"; }

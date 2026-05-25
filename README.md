@@ -4,13 +4,32 @@ A library of reusable **skills** for AI coding agents — plus **`askill`**, a s
 
 A *skill* is a self-contained folder (a `SKILL.md` plus optional scripts and references) that teaches an agent a repeatable workflow. This repo collects skills under [`skills/`](skills/), describes them in a manifest ([`registry.json`](registry.json)), and ships an installer so any agent — Claude Code first — can pull a skill into `~/.claude/skills/` with one command.
 
-> **Status: early, under active development.** The `askill` core and the `list` / `info` / `install` / `uninstall` commands are implemented and well-tested, and a one-line installer is live. The remaining commands (`update`, `outdated`, `search`, `validate`, `wizard`, `self-update`) and a PyPI release are on the [roadmap](#roadmap).
+> **Status: early, under active development.** The `askill` core and the `list` / `info` / `install` / `uninstall` / `wizard` commands are implemented and well-tested; a one-line installer and a Claude Code plugin marketplace are live. The remaining commands (`update`, `outdated`, `search`, `validate`, `self-update`) are on the [roadmap](#roadmap).
 
 ## Quick install
 
-One command — in your terminal **or** via your agent. You don't need anything but `curl`; the script installs [uv](https://docs.astral.sh/uv/) if it's missing.
+### In Claude Code — native plugin (recommended)
 
-**In your terminal:**
+A trusted, first-class install — no permission prompts, no remote-code-execution dance:
+
+```
+/plugin marketplace add Osipchuk/agent-skills
+/plugin install skills@askill
+```
+
+That installs the whole library as the `skills` plugin. Claude picks the right skill by context, or invoke one explicitly as `/skills:learning-mode`. Non-interactive equivalent: `claude plugin marketplace add Osipchuk/agent-skills` then `claude plugin install skills@askill`.
+
+### In your terminal
+
+**Interactive picker** — one command opens a checklist of skills and a scope prompt; check what you want, pick where, Enter:
+
+```bash
+uvx --from "git+https://github.com/Osipchuk/agent-skills#subdirectory=installer" askill wizard
+```
+
+(Already have the CLI? Just run `askill` with no arguments.)
+
+**Or non-interactively** — needs only `curl` (the script installs [uv](https://docs.astral.sh/uv/) if it's missing):
 
 ```bash
 # install a skill straight away (user scope -> ~/.claude/skills/):
@@ -25,12 +44,16 @@ askill list
 askill install learning-mode
 ```
 
-**Via your coding agent** (Claude Code, Cursor, …) — tell it:
+> **Heads-up:** the first install into a project's `.claude/skills/` *creates* that directory; Claude Code doesn't watch a skills directory created mid-session, so restart it (or open a new session) to load the skill. `askill` prints this reminder when it applies.
 
-> Install the `learning-mode` skill from the agent-skills library by running:
-> `uvx --from "git+https://github.com/Osipchuk/agent-skills#subdirectory=installer" askill install learning-mode --scope user`
+### Via a non-Claude agent (Cursor, …)
 
-The agent runs the command and the skill lands in `~/.claude/skills/`. To install into the current project instead, ask it to add `--scope project`.
+Tell it (replace `<skill>` with the name you want, e.g. `toxic-senior-reviewer`):
+
+> Install the `<skill>` skill from the agent-skills library by running this exact command, substituting the skill name I asked for:
+> `uvx --from "git+https://github.com/Osipchuk/agent-skills#subdirectory=installer" askill install <skill> --scope user`
+
+> **Note:** in **Claude Code**, use the plugin install above — its default permission mode (rightly) refuses `uvx`, since that runs remote code and writes into your `~/.claude`. The `uvx` line is for other agents, or run it yourself in a terminal.
 
 ## Available skills
 
@@ -73,9 +96,10 @@ A skill is a folder `skills/<name>/` with a `SKILL.md` whose frontmatter carries
 ## Roadmap
 
 - [x] One-line bootstrap (`curl … | sh`) and a default published registry
+- [x] Claude Code plugin marketplace (`/plugin install skills@askill`)
+- [x] Interactive `wizard` (`askill wizard` — checklist + scope picker)
 - [ ] `update`, `outdated`, `search`, `validate`
-- [ ] Interactive `wizard`, `self-update`
-- [ ] PyPI release (turns the install into `uvx askill install <name>`)
+- [ ] `self-update`
 - [ ] Multi-agent adapters (Codex, Cursor)
 
 ## Contributing

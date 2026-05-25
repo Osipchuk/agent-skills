@@ -1,0 +1,7 @@
+{
+  "name": "skills",
+  "description": "Reusable agent skills: article-translator, learning-mode, toxic-senior-reviewer.",
+  "author": {
+    "name": "Evgenii Osipchuk"
+  }
+}
