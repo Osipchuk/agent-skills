@@ -29,17 +29,24 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
 
-from askill.core.manifest import build_catalog, build_registry
+from askill.core.manifest import build_catalog, build_marketplace_manifests, build_registry
 from askill.core.models import Catalog, Registry
 
 DEFAULT_REPO = "https://github.com/Osipchuk/agent-skills"
 # scripts/ -> installer/ -> <repo root>
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+# Claude Code plugin marketplace: the whole library ships as one bundled plugin.
+# "agent-skills" is a reserved marketplace name, so the marketplace is "askill".
+MARKETPLACE_NAME = "askill"
+PLUGIN_NAME = "skills"
+DEFAULT_OWNER = "Evgenii Osipchuk"
 
 
 def _git_head(repo_root: Path) -> str:
@@ -73,7 +80,35 @@ def _git_last_commit_dt(repo_root: Path, rel_path: str) -> datetime | None:
 
 def _write_json(path: Path, payload: object) -> None:
     """Write ``payload`` as pretty JSON (indent 2, trailing newline)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def _write_marketplace(repo_root: Path, skill_names: list[str], owner: str) -> None:
+    """Emit the Claude Code plugin marketplace: ``.claude-plugin/marketplace.json``
+    plus the bundled plugin under ``plugins/<PLUGIN_NAME>/`` with every skill copied
+    in (plugins are copied to a cache on install and can't reference files outside
+    their dir, so the skills must live inside the plugin)."""
+    marketplace, plugin = build_marketplace_manifests(
+        skill_names,
+        marketplace_name=MARKETPLACE_NAME,
+        plugin_name=PLUGIN_NAME,
+        owner_name=owner,
+    )
+    plugin_root = repo_root / "plugins" / PLUGIN_NAME
+
+    # Re-copy the skill folders fresh so removals/renames don't leave stragglers.
+    plugin_skills = plugin_root / "skills"
+    shutil.rmtree(plugin_skills, ignore_errors=True)
+    for name in skill_names:
+        shutil.copytree(repo_root / "skills" / name, plugin_skills / name)
+
+    _write_json(plugin_root / ".claude-plugin" / "plugin.json", plugin)
+    _write_json(repo_root / ".claude-plugin" / "marketplace.json", marketplace)
+    print(
+        f"wrote marketplace '{MARKETPLACE_NAME}' + plugin '{PLUGIN_NAME}' "
+        f"({len(skill_names)} skills)"
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -91,6 +126,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--schema", action="store_true", help="also write registry.schema.json next to the output"
     )
+    parser.add_argument("--owner", default=DEFAULT_OWNER, help="marketplace/plugin owner name")
     args = parser.parse_args(argv)
 
     repo_root: Path = args.repo_root.resolve()
@@ -121,6 +157,8 @@ def main(argv: list[str] | None = None) -> int:
     catalog_output = output.with_name("catalog.json")
     _write_json(catalog_output, catalog.model_dump(mode="json", exclude_none=True))
     print(f"wrote {catalog_output} — {len(catalog.skills)} skills")
+
+    _write_marketplace(repo_root, [skill.name for skill in registry.skills], args.owner)
 
     if args.schema:
         schema_path = output.with_name("registry.schema.json")

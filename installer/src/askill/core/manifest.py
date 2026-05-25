@@ -179,3 +179,42 @@ def build_catalog(
         commit=commit,
     )
     return Catalog(schema_version="1.0", library=library, skills=skills)
+
+
+def build_marketplace_manifests(
+    skill_names: list[str],
+    *,
+    marketplace_name: str,
+    plugin_name: str,
+    owner_name: str,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Build the ``(marketplace.json, plugin.json)`` dicts for the bundled plugin.
+
+    The whole library ships as ONE Claude Code plugin (``plugin_name``) inside a
+    marketplace (``marketplace_name``); ``/plugin install <plugin>@<marketplace>``
+    installs every skill. ``version`` is intentionally omitted from plugin.json so
+    Claude Code falls back to the git commit SHA — every push is a new version.
+
+    Pure: returns plain dicts; the generator script writes them and copies the
+    skill folders into ``plugins/<plugin_name>/skills/``.
+    """
+    listed = ", ".join(skill_names)
+    plugin = {
+        "name": plugin_name,
+        "description": f"Reusable agent skills: {listed}.",
+        "author": {"name": owner_name},
+    }
+    marketplace = {
+        "name": marketplace_name,
+        "owner": {"name": owner_name},
+        "description": "Reusable agent skills, installable into Claude Code as a plugin.",
+        "plugins": [
+            {
+                "name": plugin_name,
+                "source": f"./plugins/{plugin_name}",
+                "description": plugin["description"],
+                "keywords": ["skills", "claude-code"],
+            }
+        ],
+    }
+    return marketplace, plugin
