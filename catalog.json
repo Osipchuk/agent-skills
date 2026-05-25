@@ -3,8 +3,8 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-05-23T07:32:50.995162Z",
-    "commit": "65723dcb8eb6dd38c638a06a9469339e0160164f"
+    "generated_at": "2026-05-25T10:31:26.812181Z",
+    "commit": "f59b4d8df4bfca0b0855cfda0b2e271ba8670cb0"
   },
   "skills": [
     {
@@ -22,7 +22,7 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-05-22T15:32:34+02:00",
+      "updated_at": "2026-05-25T12:20:52+02:00",
       "when": "Fires when you ask to translate, localize, or \"give me in [language]\" any prose longer than a few paragraphs — articles, essays, posts, threads. Not for single sentences, UI strings, or code-only inputs.",
       "highlights": [
         "Builds a glossary first, so names and domain terms stay consistent across a long text.",
@@ -72,7 +72,7 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-05-22T15:32:34+02:00",
+      "updated_at": "2026-05-25T12:20:52+02:00",
       "when": "Fires when you ask to learn, practice, or be coached on something during a coding session — and at the start of any session in a repo that already has a .claude/learning/ plan with topics due for review.",
       "highlights": [
         "Hands you one atomic piece to write yourself, then reviews it like a senior pair-programmer.",
@@ -98,6 +98,55 @@
           {
             "kind": "assistant",
             "text": "Scaffold's in place with `timed` next to it as the worked example. Your turn: write `retry`. Ping me when you want a review."
+          }
+        ]
+      }
+    },
+    {
+      "name": "toxic-senior-reviewer",
+      "version": "0.1.0",
+      "description": "Code reviewer in the voice of a toxic, no-nonsense senior developer — sharp criticism only, no empty praise, curt approval when code is actually good.",
+      "description_long": "Code review in the voice of a toxic senior developer — dry sarcasm without profanity, no fluff, no empty praise. Use this skill whenever the user asks for a code review, says \"how can I improve this\", \"what do you think of this code\", \"take a look at this\", \"rate this solution\", \"critique this\", \"do a code review\", drops a code snippet asking for feedback, or explicitly asks for a \"harsh review\", \"senior-level review\", \"brutal review\", \"toxic review\", \"tear this apart\". The skill focuses on suboptimal code, duplication, over-engineering, bad-practice violations, and weak naming. If the code is genuinely good, the senior gives a curt approval rather than inventing problems.",
+      "path": "skills/toxic-senior-reviewer",
+      "entry": "SKILL.md",
+      "tags": [
+        "code-review",
+        "persona",
+        "refactoring",
+        "best-practices",
+        "critique"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "license": "MIT",
+      "when": "Triggers when the user asks for a code review, drops a code snippet asking\nfor feedback, or explicitly requests a \"harsh\", \"senior-level\", or \"brutal\"\nreview. Also fires on intent phrases like \"how can I improve this\", \"what do\nyou think of this code\", \"rate this solution\", or \"tear this apart\". Does\nnot fire on requests to write new code from scratch or to explain how\nexisting code works.\n",
+      "highlights": [
+        "Sarcastic but clean tone — sharp critique, no profanity, no personal attacks on the author.",
+        "Hits the high-impact targets: duplication, over-engineering, weak naming, magic numbers, sloppy error handling, algorithmic inefficiency.",
+        "Every observation comes with a fix direction — concept of the solution plus why it's better, not just complaints.",
+        "Refuses to give empty praise. If the code is actually good, it gives a one-line approval (\"Approved.\", \"Ships to merge.\") instead of inventing problems.",
+        "Severity scales with impact — flags duplication and O(n²) in hot paths; leaves whitespace and trivia to linters."
+      ],
+      "example": {
+        "title": "Three near-identical lookup functions",
+        "turns": 2,
+        "tokens": 280,
+        "caption": "User submits three copy-pasted lookup functions; senior flags the DRY violation, linear search at scale, and a shadowed builtin.",
+        "input": [
+          {
+            "kind": "user",
+            "text": "Is this code OK?\n\ndef get_user_by_id(users, id):\n    for u in users:\n        if u['id'] == id:\n            return u\n    return None\n\ndef get_user_by_email(users, email):\n    for u in users:\n        if u['email'] == email:\n            return u\n    return None\n\ndef get_user_by_phone(users, phone):\n    for u in users:\n        if u['phone'] == phone:\n            return u\n    return None\n"
+          }
+        ],
+        "output": [
+          {
+            "kind": "anchor",
+            "text": "[toxic-senior-reviewer] activating senior reviewer persona"
+          },
+          {
+            "kind": "assistant",
+            "text": "Three nearly-identical functions. You copy-pasted them by hand or wrote a script? The only thing changing is the field name. That's the textbook definition of a DRY violation.\n\nParametrize the field:\n\n```python\ndef find_user(users, field, value):\n    return next((u for u in users if u[field] == value), None)\n```\n\nOne function, generator with `next` instead of a hand-rolled loop, default `None` without a separate line. Thin typed wrappers on top are fine if you want named call sites — they're now one-liners.\n\nSecond issue, more serious: you're doing linear search over a list. Ten users? Forget it. Ten thousand and you're searching in a loop? That's `O(n²)`, and prod will find it under load. If id lookups are frequent, build an index — a dict `{user['id']: user}`. `O(1)` access. Any decent ORM does this for you — why are you flattening users into a list and then walking it?\n\nAlso: `id` is a builtin in Python. Shadowing it is sloppy. `user_id` won't kill you.\n\nRewrite.\n"
           }
         ]
       }
