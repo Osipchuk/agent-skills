@@ -6,11 +6,12 @@ import io
 import tarfile
 from pathlib import Path
 
+import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
 from askill.core.checksum import skill_checksum
-from askill.core.installer import archive_url, fetch_and_place
+from askill.core.installer import archive_url, download_archive, fetch_and_place
 from askill.core.models import Library, RegistrySkill
 from askill.utils.errors import ChecksumError, RegistryError
 
@@ -95,3 +96,23 @@ def test_download_404_raises(tmp_path: Path, httpx_mock: HTTPXMock) -> None:
     httpx_mock.add_response(url=ARCHIVE_URL, status_code=404)
     with pytest.raises(RegistryError):
         fetch_and_place(_skill("learning-mode", "sha256:" + "0" * 64), LIBRARY, tmp_path / "out")
+
+
+def test_download_retries_transient_then_succeeds(
+    httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A dropped connection is transient — retry instead of failing the install."""
+    monkeypatch.setattr("askill.core.installer.time.sleep", lambda *_: None)
+    httpx_mock.add_exception(httpx.TransportError("Server disconnected"), url=ARCHIVE_URL)
+    httpx_mock.add_response(url=ARCHIVE_URL, content=b"archive-bytes")
+    assert download_archive(LIBRARY) == b"archive-bytes"
+
+
+def test_download_gives_up_after_retries(
+    httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("askill.core.installer.time.sleep", lambda *_: None)
+    for _ in range(3):  # retries=2 -> 3 attempts
+        httpx_mock.add_exception(httpx.TransportError("Server disconnected"), url=ARCHIVE_URL)
+    with pytest.raises(RegistryError, match="failed to download"):
+        download_archive(LIBRARY)
