@@ -1,0 +1,289 @@
+{
+  "$defs": {
+    "CatalogSkill": {
+      "additionalProperties": false,
+      "description": "One skill entry in catalog.json (the web/presentation artifact).",
+      "properties": {
+        "name": {
+          "pattern": "^[a-z][a-z0-9-]{2,63}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "description_long": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description Long"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "entry": {
+          "default": "SKILL.md",
+          "title": "Entry",
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "compatible_agents": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Compatible Agents",
+          "type": "array"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "License"
+        },
+        "updated_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Updated At"
+        },
+        "when": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "When"
+        },
+        "highlights": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Highlights",
+          "type": "array"
+        },
+        "example": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Example"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "description",
+        "path",
+        "compatible_agents"
+      ],
+      "title": "CatalogSkill",
+      "type": "object"
+    },
+    "Example": {
+      "additionalProperties": false,
+      "description": "A worked input→output trace shown on a skill's detail page.",
+      "properties": {
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        },
+        "turns": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turns"
+        },
+        "tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tokens"
+        },
+        "caption": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Caption"
+        },
+        "trace_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trace Url"
+        },
+        "input": {
+          "items": {
+            "$ref": "#/$defs/ExampleTurn"
+          },
+          "title": "Input",
+          "type": "array"
+        },
+        "output": {
+          "items": {
+            "$ref": "#/$defs/ExampleTurn"
+          },
+          "title": "Output",
+          "type": "array"
+        }
+      },
+      "title": "Example",
+      "type": "object"
+    },
+    "ExampleTurn": {
+      "additionalProperties": false,
+      "description": "One message in an example trace (spec: catalog ``example`` block).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "user",
+            "tool",
+            "tool_out",
+            "assistant",
+            "anchor"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "text"
+      ],
+      "title": "ExampleTurn",
+      "type": "object"
+    },
+    "Library": {
+      "additionalProperties": false,
+      "description": "The ``library`` block of registry.json (spec §6.2).",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "repo": {
+          "title": "Repo",
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "commit": {
+          "title": "Commit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "repo",
+        "generated_at",
+        "commit"
+      ],
+      "title": "Library",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The full catalog.json manifest the blog fetches over HTTPS.",
+  "properties": {
+    "schema_version": {
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "library": {
+      "$ref": "#/$defs/Library"
+    },
+    "skills": {
+      "items": {
+        "$ref": "#/$defs/CatalogSkill"
+      },
+      "title": "Skills",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "library",
+    "skills"
+  ],
+  "title": "Catalog",
+  "type": "object"
+}

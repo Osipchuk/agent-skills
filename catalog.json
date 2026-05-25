@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "library": {
+    "name": "askill-library",
+    "repo": "https://github.com/Osipchuk/agent-skills",
+    "generated_at": "2026-05-23T07:32:50.995162Z",
+    "commit": "65723dcb8eb6dd38c638a06a9469339e0160164f"
+  },
+  "skills": [
+    {
+      "name": "article-translator",
+      "version": "0.1.0",
+      "description": "Translate long-form articles and prose between languages while preserving the author's voice, structure, and formatting.",
+      "description_long": "Translate articles, essays, blog posts, threads, and other longer-form prose between any pair of languages while preserving the author's voice, register, and rhetorical structure. Use this whenever the user asks to translate, localize, render, or \"give me in [language]\" any text longer than a few paragraphs — news articles, op-eds, essays, blog posts, longreads, newsletters, technical writeups, conference transcripts, Twitter/X threads, or non-fiction excerpts. Trigger even when the user does not say the word \"translate\" explicitly — for example \"I need this in English for our investors\", \"rewrite this for a Russian audience\", or \"make this readable to a German reader\" all count. Do not use for single sentences, UI strings, code-only inputs, or short slogans — those are too small to benefit from this workflow.",
+      "path": "skills/article-translator",
+      "entry": "SKILL.md",
+      "tags": [
+        "translation",
+        "writing"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "license": "MIT",
+      "updated_at": "2026-05-22T15:32:34+02:00",
+      "when": "Fires when you ask to translate, localize, or \"give me in [language]\" any prose longer than a few paragraphs — articles, essays, posts, threads. Not for single sentences, UI strings, or code-only inputs.",
+      "highlights": [
+        "Builds a glossary first, so names and domain terms stay consistent across a long text.",
+        "Translates in paragraph-sized units to preserve argument flow and the author's voice.",
+        "Writes the result to a sibling file and summarizes the judgment calls in chat."
+      ],
+      "example": {
+        "title": "long-form EN→DE with a glossary",
+        "turns": 4,
+        "tokens": 210,
+        "caption": "Sentence-by-sentence translation drifts on terminology by the 60% mark — the glossary pass prevents it.",
+        "input": [
+          {
+            "kind": "user",
+            "text": "Translate this essay into German for our investors."
+          },
+          {
+            "kind": "tool",
+            "text": "read(article.md) → 1,800 words"
+          }
+        ],
+        "output": [
+          {
+            "kind": "anchor",
+            "text": "[article-translator] glossary built (12 terms) · translating in paragraph units"
+          },
+          {
+            "kind": "assistant",
+            "text": "Wrote article-de.md. Flagged two idioms I rendered idiomatically rather than literally — see the decision log."
+          }
+        ]
+      }
+    },
+    {
+      "name": "learning-mode",
+      "version": "0.1.0",
+      "description": "Turn a Claude Code session into a learn-by-doing coding tutorial with a spaced-repetition review log.",
+      "description_long": "Turn a regular Claude Code session into a learn-by-doing coding tutorial. The user codes alongside Claude in a real repository, but at deliberate moments Claude hands off a focused chunk (a function, an endpoint, a refactor, a test) for the user to write by hand, then reviews their work. Maintains a per-repo learning plan and a spaced-repetition log under .claude/learning/ so topics resurface for review at the right time. Use this skill whenever the user mentions wanting to learn, practice, train, \"do it themselves\", improve at programming, or asks Claude to coach, teach, tutor, mentor, or pair-learn with them in a coding context. Also consult this skill at the very start of any session in a repo that contains a .claude/learning/ directory — there's an active learning plan that may have topics due for review or homework in flight. Trigger phrases include \"coach me\", \"teach me X\", \"I want to learn Y\", \"help me practice Z\", \"let me try it myself\", \"review what I wrote\", \"give me a task\", \"what should I learn next\", as well as any signal that the user wants to grow as a developer rather than just ship code.",
+      "path": "skills/learning-mode",
+      "entry": "SKILL.md",
+      "tags": [
+        "learning",
+        "coaching",
+        "tdd"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "license": "MIT",
+      "updated_at": "2026-05-22T15:32:34+02:00",
+      "when": "Fires when you ask to learn, practice, or be coached on something during a coding session — and at the start of any session in a repo that already has a .claude/learning/ plan with topics due for review.",
+      "highlights": [
+        "Hands you one atomic piece to write yourself, then reviews it like a senior pair-programmer.",
+        "Keeps a per-repo learning plan and a spaced-repetition log under .claude/learning/.",
+        "Resurfaces due topics at the right time, so what you practiced sticks before you forget it."
+      ],
+      "example": {
+        "title": "coaching handoff in a real repo",
+        "turns": 2,
+        "tokens": 90,
+        "caption": "Without learning-mode, Claude would just write the decorator for you — no practice, no retention.",
+        "input": [
+          {
+            "kind": "user",
+            "text": "Teach me Python decorators while we build this retry helper."
+          }
+        ],
+        "output": [
+          {
+            "kind": "anchor",
+            "text": "[learning-mode] handoff — write `retry` yourself; brief in .claude/learning/active-task.md"
+          },
+          {
+            "kind": "assistant",
+            "text": "Scaffold's in place with `timed` next to it as the worked example. Your turn: write `retry`. Ping me when you want a review."
+          }
+        ]
+      }
+    }
+  ]
+}

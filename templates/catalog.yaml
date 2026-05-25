@@ -1,0 +1,37 @@
+# Catalog metadata for <name>. Save as catalog/<name>.yaml — the filename MUST
+# equal the skill folder name and the SKILL.md `name`. Read by
+# scripts/generate_registry.py to build registry.json + catalog.json.
+# This file is NEVER installed to a user (it lives outside skills/), so it does
+# not affect the skill's checksum.
+
+# --- required ---
+summary: One single line, 10-1024 chars, no newlines. The short "dek" shown in lists.
+
+# --- optional ---
+tags: [tag-one, tag-two]          # kebab-case, max 10 — discovery/filter facets
+compatible_agents: [claude-code]  # defaults to [claude-code] if omitted
+license: MIT                      # SPDX identifier
+
+when: >-                          # the "When it fires" paragraph (detail page)
+  A sentence or two on the situations that should trigger this skill.
+
+highlights:                       # the "What it does" bullets (detail page)
+  - First thing it does.
+  - Second thing it does.
+
+example:                          # a worked input -> output trace (detail page)
+  title: short label for the trace
+  turns: 3
+  tokens: 120
+  caption: one line of context shown under the example
+  trace_url: null                 # optional link to a full trace
+  input:                          # ordered list of turns
+    - kind: user                  # kind in: user | tool | tool_out | assistant | anchor
+      text: what the user said
+    - kind: tool
+      text: a tool call / result
+  output:
+    - kind: anchor                # `anchor` = the skill firing
+      text: "[my-skill] what the skill did"
+    - kind: assistant
+      text: the assistant's resulting answer

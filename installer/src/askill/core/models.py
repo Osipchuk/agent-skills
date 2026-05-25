@@ -45,6 +45,39 @@ def _ensure_checksum(value: str) -> str:
     return value
 
 
+def _ensure_short_description(value: str) -> str:
+    """Validate a short, single-line description (10..1024 chars)."""
+    if not 10 <= len(value) <= 1024:
+        raise ValueError("description must be 10..1024 characters")
+    if "\n" in value or "\r" in value:
+        raise ValueError("description must be a single line (no newlines)")
+    return value
+
+
+def _ensure_relative_path(value: str) -> str:
+    """Reject absolute paths — registry/catalog paths are relative to the repo root."""
+    if value.startswith("/"):
+        raise ValueError("path must be relative to the repo root, not absolute")
+    return value
+
+
+def _ensure_kebab_tags(value: list[str]) -> list[str]:
+    """Validate a tag list: at most 10 kebab-case strings."""
+    if len(value) > 10:
+        raise ValueError("at most 10 tags are allowed")
+    for tag in value:
+        if not _KEBAB_RE.fullmatch(tag):
+            raise ValueError(f"tag is not kebab-case: {tag!r}")
+    return value
+
+
+def _ensure_has_claude_code(value: list[str]) -> list[str]:
+    """v1 rule: ``compatible_agents`` must include ``claude-code``."""
+    if "claude-code" not in value:
+        raise ValueError("compatible_agents must include 'claude-code' (v1)")
+    return value
+
+
 # --------------------------------------------------------------------------- #
 # registry.json models
 # --------------------------------------------------------------------------- #
@@ -98,35 +131,22 @@ class RegistrySkill(BaseModel):
     @field_validator("description")
     @classmethod
     def _validate_description(cls, value: str) -> str:
-        if not 10 <= len(value) <= 1024:
-            raise ValueError("description must be 10..1024 characters")
-        if "\n" in value or "\r" in value:
-            raise ValueError("description must be a single line (no newlines)")
-        return value
+        return _ensure_short_description(value)
 
     @field_validator("path")
     @classmethod
     def _validate_path_relative(cls, value: str) -> str:
-        if value.startswith("/"):
-            raise ValueError("path must be relative to the repo root, not absolute")
-        return value
+        return _ensure_relative_path(value)
 
     @field_validator("tags")
     @classmethod
     def _validate_tags(cls, value: list[str]) -> list[str]:
-        if len(value) > 10:
-            raise ValueError("at most 10 tags are allowed")
-        for tag in value:
-            if not _KEBAB_RE.fullmatch(tag):
-                raise ValueError(f"tag is not kebab-case: {tag!r}")
-        return value
+        return _ensure_kebab_tags(value)
 
     @field_validator("compatible_agents")
     @classmethod
     def _validate_compatible_agents(cls, value: list[str]) -> list[str]:
-        if "claude-code" not in value:
-            raise ValueError("compatible_agents must include 'claude-code' (v1)")
-        return value
+        return _ensure_has_claude_code(value)
 
 
 class Registry(BaseModel):
@@ -141,6 +161,106 @@ class Registry(BaseModel):
     @model_validator(mode="after")
     def _check_unique_skill_names(self) -> Registry:
         """Reject a manifest containing two skills with the same ``name``."""
+        counts = Counter(skill.name for skill in self.skills)
+        duplicates = sorted(name for name, count in counts.items() if count > 1)
+        if duplicates:
+            raise ValueError("duplicate skill names: " + ", ".join(duplicates))
+        return self
+
+
+# --------------------------------------------------------------------------- #
+# catalog.json models — the rich, presentation-oriented web artifact
+#
+# Clients (e.g. a Skills Library web page) consume catalog.json, NOT
+# registry.json. CatalogSkill is a superset of the registry fields the UI needs
+# minus install-only ones (no checksum/dependencies): it carries the short
+# ``description`` (the design's "dek"), the full ``description_long`` trigger
+# text, the editorial ``when``/``highlights``, a structured ``example`` trace,
+# and a git-derived ``updated_at``. None of this is installed to a user; it is
+# authored in ``catalog/<name>.yaml`` (see askill.core.manifest).
+# --------------------------------------------------------------------------- #
+
+
+class ExampleTurn(BaseModel):
+    """One message in an example trace (spec: catalog ``example`` block)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: Literal["user", "tool", "tool_out", "assistant", "anchor"]
+    text: str
+
+
+class Example(BaseModel):
+    """A worked input→output trace shown on a skill's detail page."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    title: str | None = None
+    turns: int | None = Field(default=None, ge=0)
+    tokens: int | None = Field(default=None, ge=0)
+    caption: str | None = None
+    trace_url: str | None = None
+    input: list[ExampleTurn] = Field(default_factory=list)
+    output: list[ExampleTurn] = Field(default_factory=list)
+
+
+class CatalogSkill(BaseModel):
+    """One skill entry in catalog.json (the web/presentation artifact)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(pattern=r"^[a-z][a-z0-9-]{2,63}$")
+    version: str
+    description: str
+    description_long: str | None = None
+    path: str
+    entry: str = "SKILL.md"
+    tags: list[str] = Field(default_factory=list)
+    compatible_agents: list[str]
+    license: str | None = None
+    updated_at: datetime | None = None
+    when: str | None = None
+    highlights: list[str] = Field(default_factory=list)
+    example: Example | None = None
+
+    @field_validator("version")
+    @classmethod
+    def _validate_version(cls, value: str) -> str:
+        return _ensure_strict_semver(value)
+
+    @field_validator("description")
+    @classmethod
+    def _validate_description(cls, value: str) -> str:
+        return _ensure_short_description(value)
+
+    @field_validator("path")
+    @classmethod
+    def _validate_path_relative(cls, value: str) -> str:
+        return _ensure_relative_path(value)
+
+    @field_validator("tags")
+    @classmethod
+    def _validate_tags(cls, value: list[str]) -> list[str]:
+        return _ensure_kebab_tags(value)
+
+    @field_validator("compatible_agents")
+    @classmethod
+    def _validate_compatible_agents(cls, value: list[str]) -> list[str]:
+        return _ensure_has_claude_code(value)
+
+
+class Catalog(BaseModel):
+    """The full catalog.json manifest the blog fetches over HTTPS."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str
+    library: Library
+    skills: list[CatalogSkill]
+
+    @model_validator(mode="after")
+    def _check_unique_skill_names(self) -> Catalog:
+        """Reject a catalog containing two skills with the same ``name``."""
         counts = Counter(skill.name for skill in self.skills)
         duplicates = sorted(name for name, count in counts.items() if count > 1)
         if duplicates:
