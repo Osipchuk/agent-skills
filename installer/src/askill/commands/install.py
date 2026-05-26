@@ -2,21 +2,19 @@
 
 from __future__ import annotations
 
-import os
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
 
 import typer
 from packaging.version import Version
 
 from askill import __version__
-from askill.commands import DEFAULT_REGISTRY, report_action
+from askill.commands import DEFAULT_REGISTRY, cli_errors, report_action, resolve_target
 from askill.core.installer import fetch_and_place
 from askill.core.models import InstalledSkill, InstalledState
 from askill.core.registry import load_registry
-from askill.core.scope import find_project_root, resolve_scope, target_dir
+from askill.core.scope import target_dir
 from askill.core.state import load_state, save_state
-from askill.utils.errors import AskillError, ConflictError, UserError
+from askill.utils.errors import ConflictError, UserError
 
 
 def install(
@@ -30,19 +28,21 @@ def install(
     json_mode: bool = typer.Option(False, "--json", help="Machine-readable JSON output."),
 ) -> None:
     """Install a skill from the registry into the resolved scope."""
-    try:
+    with cli_errors():
         registry_data = load_registry(registry)
         skill = next((s for s in registry_data.skills if s.name == name), None)
         if skill is None:
             raise UserError(f"skill not found in registry: {name}")
+        # packaging.Version for the *comparison* is deliberate (it orders versions
+        # correctly); models.py rejects packaging for *validation* because it's too
+        # lax. Different jobs, different tools.
         if skill.min_cli_version and Version(__version__) < Version(skill.min_cli_version):
             raise UserError(
                 f"{name} requires askill >= {skill.min_cli_version} "
                 f"(you have {__version__}); run 'askill self-update'"
             )
 
-        resolved = resolve_scope(scope, Path.cwd(), os.environ)
-        root = find_project_root(Path.cwd(), os.environ) if resolved == "project" else None
+        resolved, root = resolve_target(scope)
         target = target_dir(resolved, name, root)
         state = load_state(resolved, root)
         existing = state.skills.get(name) if state else None
@@ -83,7 +83,7 @@ def install(
             )
         state.skills[name] = InstalledSkill(
             version=skill.version,
-            installed_at=datetime.now(timezone.utc),
+            installed_at=datetime.now(UTC),
             source_commit=registry_data.library.commit,
             checksum=skill.checksum,
             path=str(target),
@@ -98,6 +98,3 @@ def install(
             target,
             skills_dir_created=skills_dir_created,
         )
-    except AskillError as exc:
-        typer.echo(exc.message, err=True)
-        raise typer.Exit(exc.exit_code) from exc

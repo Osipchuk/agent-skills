@@ -2,9 +2,9 @@
 
 The archive is the GitHub repo tarball derived from the library's repo + pinned
 commit (``<repo>/archive/<commit>.tar.gz``). We download it (with a couple of
-retries, since codeload occasionally drops a connection), locate the skill folder
-(``skills/<name>``) regardless of the archive's top-level prefix, verify the
-§13.3 checksum, and copy the folder to the install target.
+retries, since codeload occasionally drops a connection), resolve the skill folder
+by its manifest ``path`` joined onto the archive's single top-level prefix, verify
+the §13.3 checksum, and copy the folder to the install target.
 
 The archive is the *whole* repo at one commit, so a multi-skill install should
 download it once and place many — see ``download_archive`` + ``extracted_archive``
@@ -26,6 +26,7 @@ import httpx
 
 from askill.core.checksum import skill_checksum
 from askill.core.filesystem import copy_tree
+from askill.core.http import http_get
 from askill.core.models import Library, RegistrySkill
 from askill.utils.errors import ChecksumError, RegistryError
 
@@ -67,15 +68,7 @@ def download_archive(
 
 
 def _get(url: str, client: httpx.Client | None) -> bytes:
-    if client is not None:
-        response = client.get(url)
-        response.raise_for_status()
-        return response.content
-    # follow_redirects: GitHub 302-redirects /archive/<sha>.tar.gz to codeload.github.com.
-    with httpx.Client(follow_redirects=True) as owned_client:
-        response = owned_client.get(url)
-        response.raise_for_status()
-        return response.content
+    return http_get(url, client).content
 
 
 @contextlib.contextmanager
@@ -88,6 +81,8 @@ def extracted_archive(data: bytes) -> Iterator[Path]:
     with tempfile.TemporaryDirectory() as tmpdir:
         extracted = Path(tmpdir)
         with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
+            # filter="data" blocks path-traversal / absolute members; the tarfile
+            # extraction filters are always present on our 3.12+ floor.
             tar.extractall(extracted, filter="data")
         yield extracted
 
@@ -100,9 +95,9 @@ def place_skill(
     verify_checksum: bool = True,
 ) -> None:
     """Locate ``skill`` in an extracted archive, verify it, and copy it to ``target``."""
-    folder = _find_skill_folder(extracted, skill.name)
-    if folder is None:
-        raise RegistryError(f"skill folder 'skills/{skill.name}' not found in archive")
+    folder = _archive_root(extracted) / skill.path
+    if not folder.is_dir():
+        raise RegistryError(f"skill folder {skill.path!r} not found in archive")
     if verify_checksum:
         actual = skill_checksum(folder)
         if actual != skill.checksum:
@@ -126,8 +121,18 @@ def fetch_and_place(
         place_skill(extracted, skill, target, verify_checksum=verify_checksum)
 
 
-def _find_skill_folder(extracted: Path, name: str) -> Path | None:
-    for path in extracted.rglob(name):
-        if path.is_dir() and path.parent.name == "skills":
-            return path
-    return None
+def _archive_root(extracted: Path) -> Path:
+    """The single ``<repo>-<sha>/`` directory a GitHub tarball unpacks into.
+
+    The skill is resolved by its manifest ``path`` (e.g. ``skills/<name>``) joined
+    onto this root, never by searching the tree for a folder named ``<name>``: the
+    published archive contains each skill folder *twice* — once at ``skills/<name>``
+    and once mirrored under ``plugins/<plugin>/skills/<name>`` (the bundled Claude
+    Code plugin) — so a name search is ambiguous and order-dependent, while the
+    manifest path is exact.
+
+    Falls back to ``extracted`` itself when there isn't exactly one directory entry,
+    so a flat/prefixless archive still resolves sensibly.
+    """
+    dirs = [child for child in extracted.iterdir() if child.is_dir()]
+    return dirs[0] if len(dirs) == 1 else extracted

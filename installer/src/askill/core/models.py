@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import re
 from collections import Counter
+from collections.abc import Iterable
 from datetime import datetime
 from typing import Literal
 
@@ -76,6 +77,12 @@ def _ensure_has_claude_code(value: list[str]) -> list[str]:
     if "claude-code" not in value:
         raise ValueError("compatible_agents must include 'claude-code' (v1)")
     return value
+
+
+def _duplicate_skill_names(names: Iterable[str]) -> list[str]:
+    """Sorted list of names that occur more than once (empty when all unique)."""
+    counts = Counter(names)
+    return sorted(name for name, count in counts.items() if count > 1)
 
 
 # --------------------------------------------------------------------------- #
@@ -161,8 +168,7 @@ class Registry(BaseModel):
     @model_validator(mode="after")
     def _check_unique_skill_names(self) -> Registry:
         """Reject a manifest containing two skills with the same ``name``."""
-        counts = Counter(skill.name for skill in self.skills)
-        duplicates = sorted(name for name, count in counts.items() if count > 1)
+        duplicates = _duplicate_skill_names(skill.name for skill in self.skills)
         if duplicates:
             raise ValueError("duplicate skill names: " + ", ".join(duplicates))
         return self
@@ -261,8 +267,7 @@ class Catalog(BaseModel):
     @model_validator(mode="after")
     def _check_unique_skill_names(self) -> Catalog:
         """Reject a catalog containing two skills with the same ``name``."""
-        counts = Counter(skill.name for skill in self.skills)
-        duplicates = sorted(name for name, count in counts.items() if count > 1)
+        duplicates = _duplicate_skill_names(skill.name for skill in self.skills)
         if duplicates:
             raise ValueError("duplicate skill names: " + ", ".join(duplicates))
         return self

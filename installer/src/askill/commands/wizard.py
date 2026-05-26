@@ -13,7 +13,7 @@ earlier install), and isolates per-skill errors into the summary.
 from __future__ import annotations
 
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import questionary
@@ -103,7 +103,7 @@ def _wizard(registry: str, scope: str | None, no_checksum: bool) -> None:
                     continue
                 state.skills[name] = InstalledSkill(
                     version=skill.version,
-                    installed_at=datetime.now(timezone.utc),
+                    installed_at=datetime.now(UTC),
                     source_commit=registry_data.library.commit,
                     checksum=skill.checksum,
                     path=str(target),
@@ -131,6 +131,7 @@ def _render_summary(console: Console, results: list[tuple[str, str, str, str]], 
     table.add_column("Version")
     table.add_column("Result")
     for name, version, status, detail in results:
-        mark = "[green]✓ installed[/]" if status == "installed" else f"[red]✗ {detail}[/]"
+        # ``detail`` is the install path on success and the error message on failure.
+        mark = f"[green]✓ {detail}[/]" if status == "installed" else f"[red]✗ {detail}[/]"
         table.add_row(name, version, mark)
     console.print(table)

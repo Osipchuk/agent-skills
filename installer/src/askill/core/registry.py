@@ -14,6 +14,7 @@ from pathlib import Path
 import httpx
 from pydantic import ValidationError
 
+from askill.core.http import http_get
 from askill.core.models import Registry
 from askill.utils.errors import RegistryError
 
@@ -43,11 +44,4 @@ def load_registry(source: str, *, client: httpx.Client | None = None) -> Registr
 
 
 def _fetch_url(url: str, client: httpx.Client | None) -> object:
-    if client is not None:
-        response = client.get(url)
-        response.raise_for_status()
-        return response.json()
-    with httpx.Client(follow_redirects=True) as owned_client:
-        response = owned_client.get(url)
-        response.raise_for_status()
-        return response.json()
+    return http_get(url, client).json()

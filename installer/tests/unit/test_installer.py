@@ -92,6 +92,34 @@ def test_skill_not_in_archive_raises(tmp_path: Path, httpx_mock: HTTPXMock) -> N
         fetch_and_place(_skill("learning-mode", checksum), LIBRARY, tmp_path / "out")
 
 
+def test_place_skill_prefers_canonical_over_plugin_mirror(
+    tmp_path: Path, httpx_mock: HTTPXMock
+) -> None:
+    """The published archive ships each skill twice: ``skills/<name>`` (the canonical,
+    checksummed copy) and ``plugins/<plugin>/skills/<name>`` (the bundled plugin
+    mirror). Both have a parent dir named ``skills``, so a name search is ambiguous;
+    resolution must follow the manifest ``path`` to the canonical copy. The mirror
+    here holds different bytes, so picking it would fail the checksum."""
+    prefix = "agent-skills-deadbeef"
+    build = tmp_path / "build" / prefix
+    canonical = build / "skills" / "learning-mode"
+    canonical.mkdir(parents=True)
+    (canonical / "SKILL.md").write_text("canonical")
+    mirror = build / "plugins" / "skills" / "skills" / "learning-mode"
+    mirror.mkdir(parents=True)
+    (mirror / "SKILL.md").write_text("plugin mirror — the wrong copy")
+    checksum = skill_checksum(canonical)
+
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode="w:gz") as tar:
+        tar.add(build, arcname=prefix)
+    httpx_mock.add_response(url=ARCHIVE_URL, content=buffer.getvalue())
+
+    target = tmp_path / "out" / "learning-mode"
+    fetch_and_place(_skill("learning-mode", checksum), LIBRARY, target)
+    assert (target / "SKILL.md").read_text() == "canonical"
+
+
 def test_download_404_raises(tmp_path: Path, httpx_mock: HTTPXMock) -> None:
     httpx_mock.add_response(url=ARCHIVE_URL, status_code=404)
     with pytest.raises(RegistryError):
