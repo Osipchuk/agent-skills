@@ -13,7 +13,6 @@ htmlcov/
 .DS_Store
 **/.installed.json
 
-# Local-only — never published (agent instructions, design spec, Claude state)
+# Local-only — Claude Code session state (not the agent instructions: CLAUDE.md
+# and skills-library-spec.md are tracked and published).
 .claude/
-/CLAUDE.md
-/skills-library-spec.md

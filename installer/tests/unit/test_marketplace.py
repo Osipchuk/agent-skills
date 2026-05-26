@@ -23,8 +23,9 @@ def test_marketplace_lists_single_bundled_plugin() -> None:
     assert isinstance(plugins, list) and len(plugins) == 1
     entry = plugins[0]
     assert entry["name"] == "skills"
-    # Relative-path source must start with ./ and point at the generated plugin dir.
-    assert entry["source"] == "./plugins/skills"
+    # The repo root is the plugin: source "." means skills/ is the plugin's skills
+    # dir, so there's no duplicated tree to keep in sync.
+    assert entry["source"] == "."
 
 
 def test_plugin_manifest_omits_version_for_git_sha_updates() -> None:

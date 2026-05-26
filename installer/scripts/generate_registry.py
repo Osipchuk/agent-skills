@@ -85,29 +85,25 @@ def _write_json(path: Path, payload: object) -> None:
 
 
 def _write_marketplace(repo_root: Path, skill_names: list[str], owner: str) -> None:
-    """Emit the Claude Code plugin marketplace: ``.claude-plugin/marketplace.json``
-    plus the bundled plugin under ``plugins/<PLUGIN_NAME>/`` with every skill copied
-    in (plugins are copied to a cache on install and can't reference files outside
-    their dir, so the skills must live inside the plugin)."""
+    """Emit the Claude Code plugin marketplace at the repo root: both
+    ``.claude-plugin/marketplace.json`` and ``.claude-plugin/plugin.json``.
+
+    The repo root *is* the plugin (``source: "."``) and the canonical ``skills/``
+    is its skills dir, so nothing is copied — there is no second skill tree to fall
+    out of sync. Any legacy ``plugins/`` mirror from the old layout is removed."""
     marketplace, plugin = build_marketplace_manifests(
         skill_names,
         marketplace_name=MARKETPLACE_NAME,
         plugin_name=PLUGIN_NAME,
         owner_name=owner,
     )
-    plugin_root = repo_root / "plugins" / PLUGIN_NAME
-
-    # Re-copy the skill folders fresh so removals/renames don't leave stragglers.
-    plugin_skills = plugin_root / "skills"
-    shutil.rmtree(plugin_skills, ignore_errors=True)
-    for name in skill_names:
-        shutil.copytree(repo_root / "skills" / name, plugin_skills / name)
-
-    _write_json(plugin_root / ".claude-plugin" / "plugin.json", plugin)
-    _write_json(repo_root / ".claude-plugin" / "marketplace.json", marketplace)
+    shutil.rmtree(repo_root / "plugins", ignore_errors=True)
+    claude_plugin = repo_root / ".claude-plugin"
+    _write_json(claude_plugin / "plugin.json", plugin)
+    _write_json(claude_plugin / "marketplace.json", marketplace)
     print(
         f"wrote marketplace '{MARKETPLACE_NAME}' + plugin '{PLUGIN_NAME}' "
-        f"({len(skill_names)} skills)"
+        f"(root .claude-plugin/, {len(skill_names)} skills)"
     )
 
 

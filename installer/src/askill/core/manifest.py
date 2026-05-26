@@ -202,8 +202,9 @@ def build_marketplace_manifests(
     installs every skill. ``version`` is intentionally omitted from plugin.json so
     Claude Code falls back to the git commit SHA — every push is a new version.
 
-    Pure: returns plain dicts; the generator script writes them and copies the
-    skill folders into ``plugins/<plugin_name>/skills/``.
+    The repo root *is* the plugin (``source: "."``): the canonical ``skills/`` is
+    the plugin's skills dir, so there's no separate copied tree to drift. Pure:
+    returns plain dicts; the generator writes both to the root ``.claude-plugin/``.
     """
     listed = ", ".join(skill_names)
     plugin = {
@@ -218,7 +219,7 @@ def build_marketplace_manifests(
         "plugins": [
             {
                 "name": plugin_name,
-                "source": f"./plugins/{plugin_name}",
+                "source": ".",
                 "description": plugin["description"],
                 "keywords": ["skills", "claude-code"],
             }

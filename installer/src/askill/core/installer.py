@@ -125,11 +125,9 @@ def _archive_root(extracted: Path) -> Path:
     """The single ``<repo>-<sha>/`` directory a GitHub tarball unpacks into.
 
     The skill is resolved by its manifest ``path`` (e.g. ``skills/<name>``) joined
-    onto this root, never by searching the tree for a folder named ``<name>``: the
-    published archive contains each skill folder *twice* — once at ``skills/<name>``
-    and once mirrored under ``plugins/<plugin>/skills/<name>`` (the bundled Claude
-    Code plugin) — so a name search is ambiguous and order-dependent, while the
-    manifest path is exact.
+    onto this root, never by searching the tree for a folder named ``<name>``. The
+    manifest path is exact; a name search is order-dependent and would happily match
+    an unrelated or nested directory that merely shares the skill's name.
 
     Falls back to ``extracted`` itself when there isn't exactly one directory entry,
     so a flat/prefixless archive still resolves sensibly.

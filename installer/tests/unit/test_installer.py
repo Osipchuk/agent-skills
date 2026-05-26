@@ -92,22 +92,21 @@ def test_skill_not_in_archive_raises(tmp_path: Path, httpx_mock: HTTPXMock) -> N
         fetch_and_place(_skill("learning-mode", checksum), LIBRARY, tmp_path / "out")
 
 
-def test_place_skill_prefers_canonical_over_plugin_mirror(
+def test_place_skill_resolves_by_path_not_name_search(
     tmp_path: Path, httpx_mock: HTTPXMock
 ) -> None:
-    """The published archive ships each skill twice: ``skills/<name>`` (the canonical,
-    checksummed copy) and ``plugins/<plugin>/skills/<name>`` (the bundled plugin
-    mirror). Both have a parent dir named ``skills``, so a name search is ambiguous;
-    resolution must follow the manifest ``path`` to the canonical copy. The mirror
-    here holds different bytes, so picking it would fail the checksum."""
+    """Resolution must follow the manifest ``path``, not search the tree for a dir
+    named ``<name>``. We plant a same-named decoy elsewhere in the archive (a parent
+    also called ``skills``) holding different bytes: a name search could pick it and
+    fail the checksum, while path resolution lands on the canonical ``skills/<name>``."""
     prefix = "agent-skills-deadbeef"
     build = tmp_path / "build" / prefix
     canonical = build / "skills" / "learning-mode"
     canonical.mkdir(parents=True)
     (canonical / "SKILL.md").write_text("canonical")
-    mirror = build / "plugins" / "skills" / "skills" / "learning-mode"
-    mirror.mkdir(parents=True)
-    (mirror / "SKILL.md").write_text("plugin mirror — the wrong copy")
+    decoy = build / "vendor" / "skills" / "learning-mode"
+    decoy.mkdir(parents=True)
+    (decoy / "SKILL.md").write_text("decoy — the wrong copy")
     checksum = skill_checksum(canonical)
 
     buffer = io.BytesIO()
