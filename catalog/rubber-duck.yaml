@@ -5,7 +5,7 @@
 # it never changes the skill's checksum.
 
 summary: "A thinking partner that guides you to your own answer — listens first, reflects back your assumptions, and only sharpens into pointed questions when you're stuck."
-tags: [debugging, thinking-partner, socratic, mentoring, learning]
+tags: [debugging, learning]
 compatible_agents: [claude-code]
 license: MIT
 

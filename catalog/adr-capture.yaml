@@ -5,7 +5,7 @@
 # it never changes the skill's checksum.
 
 summary: "Catch an architectural decision as it is made and draft an ADR in your team's format, with explicit TODOs for missing mandatory fields. Never auto-commits."
-tags: [adr, documentation, decision-record, architecture, governance]
+tags: [documentation, architecture, decision-making]
 compatible_agents: [claude-code]
 license: MIT
 

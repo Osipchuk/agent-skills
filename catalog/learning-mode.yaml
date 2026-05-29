@@ -5,7 +5,7 @@
 # it never changes the skill's checksum.
 
 summary: Turn a Claude Code session into a learn-by-doing coding tutorial with a spaced-repetition review log.
-tags: [learning, coaching, tdd]
+tags: [learning]
 compatible_agents: [claude-code]
 license: MIT
 
