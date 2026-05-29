@@ -3,10 +3,67 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-05-29T09:48:26.985387Z",
-    "commit": "de26dcc331ce5d5efae8923c797b5a2a0db856a1"
+    "generated_at": "2026-05-29T09:49:15.297856Z",
+    "commit": "abfbef22b603b2528804aa1ad7d16974e1fcd6d7"
   },
   "skills": [
+    {
+      "name": "adr-capture",
+      "version": "0.1.0",
+      "description": "Catch an architectural decision as it is made and draft an ADR in your team's format, with explicit TODOs for missing mandatory fields. Never auto-commits.",
+      "description_long": "Catch an architectural or technical decision as it is being made and draft an Architecture Decision Record (ADR) in the team's format, leaving explicit TODOs for fields the conversation did not cover. Never writes or commits without explicit confirmation. Use this when the user asks to \"draft an ADR\", \"record this decision\", \"capture this as an ADR\", AND proactively offer it when the conversation shows a commitment pattern — \"we'll go with X over Y because Z\", \"let's standardize on...\", \"decided to...\", \"we're choosing...\" — paired with a rationale. It assigns the next ADR id, fills what the discussion supports, and flags team-mandatory sections (e.g. regulatory impact, data classification, rollback plan) as TODO when missing. Do NOT use for: exploratory discussion with no commitment (\"we might try\", \"could consider\", \"what if we\"), non-architectural decisions (scheduling, naming, trivial style), or generating product/requirements specs. When unsure whether a real decision was actually made, ask one question rather than draft.",
+      "path": "skills/adr-capture",
+      "entry": "SKILL.md",
+      "tags": [
+        "adr",
+        "documentation",
+        "decision-record",
+        "architecture",
+        "governance"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "license": "MIT",
+      "updated_at": "2026-05-29T11:49:14+02:00",
+      "when": "Fires on an explicit request (\"draft an ADR\", \"record this decision\") and proactively when the conversation shows a commitment plus a rationale (\"we'll go with X over Y because Z\"). It assigns the next id, fills what was said, and flags mandatory regulated sections as TODO. It stays quiet during exploratory discussion and never writes without confirmation.",
+      "highlights": [
+        "Catches the decision while it's warm — the friction of writing ADRs by hand is exactly why they don't get written.",
+        "Biases to false negatives: asks once rather than spamming the log with drafts of things merely floated.",
+        "Knows your mandatory sections (regulatory impact, data classification, rollback) and TODOs them rather than inventing content.",
+        "Review-then-write: drafts in chat, writes only on confirmation, never past Status: Proposed."
+      ],
+      "example": {
+        "title": "Vector store decision captured",
+        "turns": 3,
+        "tokens": 610,
+        "caption": "Two engineers settle on pgvector with a stated rationale; the skill drafts the ADR and leaves regulated fields as TODO.",
+        "input": [
+          {
+            "kind": "user",
+            "text": "OK, going with pgvector over Qdrant — closed-contour rules out the cloud, self-hosting Qdrant adds a service to operate, and we already run Postgres well. Risk is scaling past ~10M vectors."
+          }
+        ],
+        "output": [
+          {
+            "kind": "anchor",
+            "text": "[adr-capture] commitment plus rationale detected, offering to draft"
+          },
+          {
+            "kind": "tool",
+            "text": "scan docs/adr for the next id"
+          },
+          {
+            "kind": "tool_out",
+            "text": "highest is 0041, next is 0042"
+          },
+          {
+            "kind": "assistant",
+            "text": "Looks like a decision — want me to capture it? Draft of ADR-0042 (vector store): Decision is pgvector on the existing cluster. Alternatives: Qdrant Cloud rejected (closed-contour), self-hosted Qdrant rejected (extra ops). Consequences: reuses PG ops and audit pipeline; minus, scaling past ~10M vectors is unproven. Regulatory impact and rollback plan are left as TODO for you to fill. I won't write the file until you confirm."
+          }
+        ]
+      }
+    },
     {
       "name": "article-translator",
       "version": "0.1.0",
@@ -98,6 +155,161 @@
           {
             "kind": "assistant",
             "text": "Scaffold's in place with `timed` next to it as the worked example. Your turn: write `retry`. Ping me when you want a review."
+          }
+        ]
+      }
+    },
+    {
+      "name": "onboard-our-stack",
+      "version": "0.1.0",
+      "description": "Teach a newcomer how your own system works by walking a curated, topic-scoped reading list from a repo-local config, then synthesizing the mental model.",
+      "description_long": "Build a newcomer's mental model of THIS codebase by walking a curated, topic-scoped reading list and then synthesizing how the pieces fit together. Reads a repo-local .onboard/topics.yaml that maps each subsystem to its load-bearing files (in the order they make sense), its gotchas, and the ADRs that explain the why. Use this whenever someone asks how the team's own system works — \"explain our auth flow\", \"how does our orchestrator route between agents\", \"walk me through our RAG pipeline\", \"I'm new, how does our X work\", \"where does Y live in our code\" — even if they don't say the word \"onboard\". Do NOT use for: generic programming or public-library questions (\"how does OAuth work in general\", \"how do Postgres GIN indexes work\"), debugging a specific error or stack trace, writing or modifying code, or a repo that has no .onboard/topics.yaml. This skill teaches an existing system; it does not generate documentation or code.",
+      "path": "skills/onboard-our-stack",
+      "entry": "SKILL.md",
+      "tags": [
+        "onboarding",
+        "knowledge-transfer",
+        "codebase",
+        "documentation",
+        "mental-model"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "license": "MIT",
+      "updated_at": "2026-05-29T11:49:14+02:00",
+      "when": "Fires when someone asks how the team's own system works — \"explain our auth flow\", \"how does our orchestrator route between agents\", \"I'm new, walk me through our RAG pipeline\" — rather than a generic programming question. It expects a repo-local .onboard/topics.yaml mapping each subsystem to its load-bearing files, gotchas, and ADRs.",
+      "highlights": [
+        "Curated reading-list-per-topic beats RAG-over-repo: the mental model is in which files to read in what order, not in the prose.",
+        "Single source of truth in .onboard/topics.yaml, PR-reviewed alongside the code it describes.",
+        "Degrades loudly when the config is stale instead of confidently teaching a wrong model.",
+        "Ships a stdlib CI check (scripts/check_topics.py) to catch stale reading lists before they mislead anyone."
+      ],
+      "example": {
+        "title": "New hire asks about the orchestrator",
+        "turns": 4,
+        "tokens": 520,
+        "caption": "A newcomer asks how the agent orchestrator routes work; the skill reads the curated topic and explains the model.",
+        "input": [
+          {
+            "kind": "user",
+            "text": "I'm new here. How does our orchestrator route between the subagents?"
+          }
+        ],
+        "output": [
+          {
+            "kind": "anchor",
+            "text": "[onboard-our-stack] question matches topic agent_orchestrator"
+          },
+          {
+            "kind": "tool",
+            "text": "read .onboard/topics.yaml then the files in read_in_order"
+          },
+          {
+            "kind": "tool_out",
+            "text": "ADR-0023, supervisor.py, schemas/message.py, workers/_base.py"
+          },
+          {
+            "kind": "assistant",
+            "text": "Model in one line: a single supervisor dispatches to N stateless workers over a Postgres-backed queue. Following the code, supervisor.py claims a queue row and hands the message schema to a worker. Watch out: workers hold no state, everything lives on the queue row, and retries are at-least-once so workers must be idempotent. Read ADR-0023 first for the why. Want me to walk the RAG pipeline next?"
+          }
+        ]
+      }
+    },
+    {
+      "name": "rubber-duck",
+      "version": "0.1.0",
+      "description": "A thinking partner that guides you to your own answer — listens first, reflects back your assumptions, and only sharpens into pointed questions when you're stuck.",
+      "description_long": "A thinking partner that helps you reach your OWN answer instead of handing you one. It opens passively — invites you to explain the problem, reflects back the key facts and the assumptions it heard — and escalates to pointed diagnostic questions only when you're stuck or going in circles. Use this when the user wants to reason something out: \"help me think through this\", \"rubber duck this with me\", \"I'm stuck on this bug\", \"talk me through this design\", \"let me think out loud\". Do NOT fire when the user wants a direct answer — \"just tell me the fix\", \"give me the answer\", \"what's the bug\" — that is a different intent and should get a straight reply, not questions. Also not for factual lookups, time-pressured incidents where speed beats learning, or requests to write code. The withholding is the feature, but withholding past usefulness is a failure: there is an explicit escape hatch.",
+      "path": "skills/rubber-duck",
+      "entry": "SKILL.md",
+      "tags": [
+        "debugging",
+        "thinking-partner",
+        "socratic",
+        "mentoring",
+        "learning"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "license": "MIT",
+      "updated_at": "2026-05-29T11:49:14+02:00",
+      "when": "Fires when the user wants to reason something out — \"help me think through this\", \"rubber duck this with me\", \"I'm stuck on this bug\" — not when they want a direct answer. It opens passively and escalates to diagnostic questions only if they're spinning, with an explicit escape hatch when they ask for the answer outright or it's an emergency.",
+      "highlights": [
+        "Passive-first, teeth-on-demand: a real duck listens; this one only sharpens into questions when you're stuck.",
+        "Reflects back your implicit assumptions — often that alone surfaces the answer.",
+        "One question per turn, never a solution dump, never smug.",
+        "Escape hatch: drops the method and answers when you ask twice or it's urgent — withholding past usefulness is the failure, not the goal."
+      ],
+      "example": {
+        "title": "Stuck on a flaky test",
+        "turns": 2,
+        "tokens": 240,
+        "caption": "An engineer is stuck; the skill reflects the problem back and asks one narrow diagnostic question instead of guessing the fix.",
+        "input": [
+          {
+            "kind": "user",
+            "text": "Rubber duck this with me — my integration test passes locally but fails in CI and I can't figure out why."
+          }
+        ],
+        "output": [
+          {
+            "kind": "anchor",
+            "text": "[rubber-duck] reasoning-out intent, opening at Gear 0"
+          },
+          {
+            "kind": "assistant",
+            "text": "So: same test, green locally, red in CI, and nothing obvious changed. The assumption baked into that is that local and CI run the same thing — same env, same clock, same ordering. Walk me through one concrete difference: what does the failure actually say in CI, and is it the same assertion failing every run or a different one each time?"
+          }
+        ]
+      }
+    },
+    {
+      "name": "steelman-then-break",
+      "version": "0.1.0",
+      "description": "Pressure-test a design or tech choice in two forced passes — strongest case for, then strongest case against, then a calibrated verdict that's willing to say 'proceed'.",
+      "description_long": "Pressure-test a design proposal or technology choice in two separated passes: first the strongest possible case FOR it (steelman — argue the best version, even stronger than the author put it), then a rigorous case AGAINST it (red-team — name the anti-pattern, lead with what breaks first, cite the team's prior scars), then finish with a calibrated verdict. Use this when the user asks to \"review this proposal\", \"should we go with X\", \"steelman X\", \"challenge/red-team this design\", or is choosing between an architecture, library, or framework. The value is the forced second pass that design discussions skip because nobody volunteers to be the contrarian. Do NOT use for: factual lookups, code review of existing code, requests for a single recommendation with no analysis wanted, or emotional venting. Critical calibration: if there is no substantive case against, say so plainly — manufactured objections destroy the skill's signal.",
+      "path": "skills/steelman-then-break",
+      "entry": "SKILL.md",
+      "tags": [
+        "design-review",
+        "decision-making",
+        "red-team",
+        "architecture",
+        "critique"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "license": "MIT",
+      "updated_at": "2026-05-29T11:49:14+02:00",
+      "when": "Fires on \"review this proposal\", \"should we go with X\", \"steelman X\", \"red-team this design\", or when choosing between an architecture, library, or framework. It forces the second pass that design discussions skip, and pulls prior failures from references/scars.md so objections argue from the team's own evidence.",
+      "highlights": [
+        "Forced separation: the case-for has no caveats, the case-against leads with what breaks first — no hedging mush.",
+        "Cites the team's own scars (references/scars.md), so the red-team argues from evidence not generic risk.",
+        "Calibrated verdict: willing to conclude 'the steelman holds, proceed' instead of reflexively finding fault.",
+        "Built-in guard against the failure mode — manufactured objections destroy the signal, so it says when there's no real case against."
+      ],
+      "example": {
+        "title": "Should we adopt a graph orchestration framework?",
+        "turns": 2,
+        "tokens": 700,
+        "caption": "An engineer proposes adopting a framework; the skill argues both sides and lands a calibrated call against, citing a prior scar.",
+        "input": [
+          {
+            "kind": "user",
+            "text": "We should adopt a graph-based orchestration framework for our agents. Steelman it then break it."
+          }
+        ],
+        "output": [
+          {
+            "kind": "anchor",
+            "text": "[steelman-then-break] proposal restated, running both passes"
+          },
+          {
+            "kind": "assistant",
+            "text": "Target: replace our orchestration with a graph framework. STEELMAN: an explicit, serializable DAG gives checkpoints, resume, replay, and first-class human-in-the-loop for dual-control steps; a well-funded ecosystem lowers API risk. BREAK: you already have a working orchestrator, so migration cost dwarfs the benefit; the framework taxes you without solving your hard parts (queue, auth, audit); debug-by-graph is harder than debug-by-stack-trace for closed-contour on-call; pre-1.0 API churn. Scar 2024-Q3: we did exactly this and unwound it after 11 months. VERDICT: don't adopt now — the deciding factor is that your complexity isn't where the framework helps. What would flip it: if orchestration logic itself became the bottleneck rather than the surrounding services."
           }
         ]
       }

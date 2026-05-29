@@ -3,10 +3,30 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-05-29T09:48:26.970944Z",
-    "commit": "de26dcc331ce5d5efae8923c797b5a2a0db856a1"
+    "generated_at": "2026-05-29T09:49:15.244312Z",
+    "commit": "abfbef22b603b2528804aa1ad7d16974e1fcd6d7"
   },
   "skills": [
+    {
+      "name": "adr-capture",
+      "version": "0.1.0",
+      "description": "Catch an architectural decision as it is made and draft an ADR in your team's format, with explicit TODOs for missing mandatory fields. Never auto-commits.",
+      "path": "skills/adr-capture",
+      "entry": "SKILL.md",
+      "tags": [
+        "adr",
+        "documentation",
+        "decision-record",
+        "architecture",
+        "governance"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "dependencies": [],
+      "checksum": "sha256:ba54b5114c6805890c48ab4f70308d1b2f853463efb1e060037411b3766be029",
+      "license": "MIT"
+    },
     {
       "name": "article-translator",
       "version": "0.1.0",
@@ -40,6 +60,66 @@
       ],
       "dependencies": [],
       "checksum": "sha256:f6239e271258e8a5a95f897c994c538de6ca83996e9459bf588a3e05456f5c27",
+      "license": "MIT"
+    },
+    {
+      "name": "onboard-our-stack",
+      "version": "0.1.0",
+      "description": "Teach a newcomer how your own system works by walking a curated, topic-scoped reading list from a repo-local config, then synthesizing the mental model.",
+      "path": "skills/onboard-our-stack",
+      "entry": "SKILL.md",
+      "tags": [
+        "onboarding",
+        "knowledge-transfer",
+        "codebase",
+        "documentation",
+        "mental-model"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "dependencies": [],
+      "checksum": "sha256:e08530be45c38e3a8f8966acfdce90ec0a5c1fa62c9507ab8b2b34a9cf72f2cc",
+      "license": "MIT"
+    },
+    {
+      "name": "rubber-duck",
+      "version": "0.1.0",
+      "description": "A thinking partner that guides you to your own answer — listens first, reflects back your assumptions, and only sharpens into pointed questions when you're stuck.",
+      "path": "skills/rubber-duck",
+      "entry": "SKILL.md",
+      "tags": [
+        "debugging",
+        "thinking-partner",
+        "socratic",
+        "mentoring",
+        "learning"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "dependencies": [],
+      "checksum": "sha256:9584f42378bda535a8d8d7f1715d6555f2465affd7448d23a1b4c6363c0105e9",
+      "license": "MIT"
+    },
+    {
+      "name": "steelman-then-break",
+      "version": "0.1.0",
+      "description": "Pressure-test a design or tech choice in two forced passes — strongest case for, then strongest case against, then a calibrated verdict that's willing to say 'proceed'.",
+      "path": "skills/steelman-then-break",
+      "entry": "SKILL.md",
+      "tags": [
+        "design-review",
+        "decision-making",
+        "red-team",
+        "architecture",
+        "critique"
+      ],
+      "compatible_agents": [
+        "claude-code"
+      ],
+      "dependencies": [],
+      "checksum": "sha256:97c230c0c1e31f58c2936afb8d5022af0112c5f8089d5adf23a2473bfd42fce7",
       "license": "MIT"
     },
     {

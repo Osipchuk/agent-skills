@@ -1,0 +1,37 @@
+# Catalog metadata for the onboard-our-stack skill.
+# Read by scripts/generate_registry.py to build registry.json + catalog.json.
+# This file is NEVER installed to a user — it lives outside skills/ so the
+# installer (which copies skills/<name>/ verbatim) never sees it, and editing
+# it never changes the skill's checksum.
+
+summary: "Teach a newcomer how your own system works by walking a curated, topic-scoped reading list from a repo-local config, then synthesizing the mental model."
+tags: [onboarding, knowledge-transfer, codebase, documentation, mental-model]
+compatible_agents: [claude-code]
+license: MIT
+
+when: >-
+  Fires when someone asks how the team's own system works — "explain our auth
+  flow", "how does our orchestrator route between agents", "I'm new, walk me
+  through our RAG pipeline" — rather than a generic programming question. It
+  expects a repo-local .onboard/topics.yaml mapping each subsystem to its
+  load-bearing files, gotchas, and ADRs.
+
+highlights:
+  - "Curated reading-list-per-topic beats RAG-over-repo: the mental model is in which files to read in what order, not in the prose."
+  - "Single source of truth in .onboard/topics.yaml, PR-reviewed alongside the code it describes."
+  - "Degrades loudly when the config is stale instead of confidently teaching a wrong model."
+  - "Ships a stdlib CI check (scripts/check_topics.py) to catch stale reading lists before they mislead anyone."
+
+example:
+  title: "New hire asks about the orchestrator"
+  turns: 4
+  tokens: 520
+  caption: "A newcomer asks how the agent orchestrator routes work; the skill reads the curated topic and explains the model."
+  trace_url: null
+  input:
+    - { kind: user, text: "I'm new here. How does our orchestrator route between the subagents?" }
+  output:
+    - { kind: anchor, text: "[onboard-our-stack] question matches topic agent_orchestrator" }
+    - { kind: tool, text: "read .onboard/topics.yaml then the files in read_in_order" }
+    - { kind: tool_out, text: "ADR-0023, supervisor.py, schemas/message.py, workers/_base.py" }
+    - { kind: assistant, text: "Model in one line: a single supervisor dispatches to N stateless workers over a Postgres-backed queue. Following the code, supervisor.py claims a queue row and hands the message schema to a worker. Watch out: workers hold no state, everything lives on the queue row, and retries are at-least-once so workers must be idempotent. Read ADR-0023 first for the why. Want me to walk the RAG pipeline next?" }
