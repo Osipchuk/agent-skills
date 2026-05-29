@@ -19,7 +19,9 @@ from askill.utils.errors import AskillError
 # The registry's library.commit is pinned, so installs stay reproducible even
 # though the manifest is read from main. Local development overrides this with
 # --registry ../manifest/registry.json (as do the tests).
-DEFAULT_REGISTRY = "https://raw.githubusercontent.com/Osipchuk/agent-skills/main/manifest/registry.json"
+DEFAULT_REGISTRY = (
+    "https://raw.githubusercontent.com/Osipchuk/agent-skills/main/manifest/registry.json"
+)
 
 
 def resolve_target(scope: str | None) -> tuple[Literal["user", "project"], Path | None]:
