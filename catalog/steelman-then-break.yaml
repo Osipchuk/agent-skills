@@ -1,0 +1,35 @@
+# Catalog metadata for the steelman-then-break skill.
+# Read by scripts/generate_registry.py to build registry.json + catalog.json.
+# This file is NEVER installed to a user — it lives outside skills/ so the
+# installer (which copies skills/<name>/ verbatim) never sees it, and editing
+# it never changes the skill's checksum.
+
+summary: "Pressure-test a design or tech choice in two forced passes — strongest case for, then strongest case against, then a calibrated verdict that's willing to say 'proceed'."
+tags: [design-review, decision-making, red-team, architecture, critique]
+compatible_agents: [claude-code]
+license: MIT
+
+when: >-
+  Fires on "review this proposal", "should we go with X", "steelman X",
+  "red-team this design", or when choosing between an architecture, library, or
+  framework. It forces the second pass that design discussions skip, and pulls
+  prior failures from references/scars.md so objections argue from the team's
+  own evidence.
+
+highlights:
+  - "Forced separation: the case-for has no caveats, the case-against leads with what breaks first — no hedging mush."
+  - "Cites the team's own scars (references/scars.md), so the red-team argues from evidence not generic risk."
+  - "Calibrated verdict: willing to conclude 'the steelman holds, proceed' instead of reflexively finding fault."
+  - "Built-in guard against the failure mode — manufactured objections destroy the signal, so it says when there's no real case against."
+
+example:
+  title: "Should we adopt a graph orchestration framework?"
+  turns: 2
+  tokens: 700
+  caption: "An engineer proposes adopting a framework; the skill argues both sides and lands a calibrated call against, citing a prior scar."
+  trace_url: null
+  input:
+    - { kind: user, text: "We should adopt a graph-based orchestration framework for our agents. Steelman it then break it." }
+  output:
+    - { kind: anchor, text: "[steelman-then-break] proposal restated, running both passes" }
+    - { kind: assistant, text: "Target: replace our orchestration with a graph framework. STEELMAN: an explicit, serializable DAG gives checkpoints, resume, replay, and first-class human-in-the-loop for dual-control steps; a well-funded ecosystem lowers API risk. BREAK: you already have a working orchestrator, so migration cost dwarfs the benefit; the framework taxes you without solving your hard parts (queue, auth, audit); debug-by-graph is harder than debug-by-stack-trace for closed-contour on-call; pre-1.0 API churn. Scar 2024-Q3: we did exactly this and unwound it after 11 months. VERDICT: don't adopt now — the deciding factor is that your complexity isn't where the framework helps. What would flip it: if orchestration logic itself became the bottleneck rather than the surrounding services." }

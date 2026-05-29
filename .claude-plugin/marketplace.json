@@ -8,7 +8,7 @@
     {
       "name": "skills",
       "source": ".",
-      "description": "Reusable agent skills: article-translator, learning-mode, toxic-senior-reviewer.",
+      "description": "Reusable agent skills: adr-capture, article-translator, learning-mode, onboard-our-stack, rubber-duck, steelman-then-break, toxic-senior-reviewer.",
       "keywords": [
         "skills",
         "claude-code"

@@ -1,0 +1,37 @@
+# Catalog metadata for the adr-capture skill.
+# Read by scripts/generate_registry.py to build registry.json + catalog.json.
+# This file is NEVER installed to a user — it lives outside skills/ so the
+# installer (which copies skills/<name>/ verbatim) never sees it, and editing
+# it never changes the skill's checksum.
+
+summary: "Catch an architectural decision as it is made and draft an ADR in your team's format, with explicit TODOs for missing mandatory fields. Never auto-commits."
+tags: [adr, documentation, decision-record, architecture, governance]
+compatible_agents: [claude-code]
+license: MIT
+
+when: >-
+  Fires on an explicit request ("draft an ADR", "record this decision") and
+  proactively when the conversation shows a commitment plus a rationale ("we'll
+  go with X over Y because Z"). It assigns the next id, fills what was said, and
+  flags mandatory regulated sections as TODO. It stays quiet during exploratory
+  discussion and never writes without confirmation.
+
+highlights:
+  - "Catches the decision while it's warm — the friction of writing ADRs by hand is exactly why they don't get written."
+  - "Biases to false negatives: asks once rather than spamming the log with drafts of things merely floated."
+  - "Knows your mandatory sections (regulatory impact, data classification, rollback) and TODOs them rather than inventing content."
+  - "Review-then-write: drafts in chat, writes only on confirmation, never past Status: Proposed."
+
+example:
+  title: "Vector store decision captured"
+  turns: 3
+  tokens: 610
+  caption: "Two engineers settle on pgvector with a stated rationale; the skill drafts the ADR and leaves regulated fields as TODO."
+  trace_url: null
+  input:
+    - { kind: user, text: "OK, going with pgvector over Qdrant — closed-contour rules out the cloud, self-hosting Qdrant adds a service to operate, and we already run Postgres well. Risk is scaling past ~10M vectors." }
+  output:
+    - { kind: anchor, text: "[adr-capture] commitment plus rationale detected, offering to draft" }
+    - { kind: tool, text: "scan docs/adr for the next id" }
+    - { kind: tool_out, text: "highest is 0041, next is 0042" }
+    - { kind: assistant, text: "Looks like a decision — want me to capture it? Draft of ADR-0042 (vector store): Decision is pgvector on the existing cluster. Alternatives: Qdrant Cloud rejected (closed-contour), self-hosted Qdrant rejected (extra ops). Consequences: reuses PG ops and audit pipeline; minus, scaling past ~10M vectors is unproven. Regulatory impact and rollback plan are left as TODO for you to fill. I won't write the file until you confirm." }

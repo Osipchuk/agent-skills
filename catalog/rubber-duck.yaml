@@ -1,0 +1,35 @@
+# Catalog metadata for the rubber-duck skill.
+# Read by scripts/generate_registry.py to build registry.json + catalog.json.
+# This file is NEVER installed to a user — it lives outside skills/ so the
+# installer (which copies skills/<name>/ verbatim) never sees it, and editing
+# it never changes the skill's checksum.
+
+summary: "A thinking partner that guides you to your own answer — listens first, reflects back your assumptions, and only sharpens into pointed questions when you're stuck."
+tags: [debugging, thinking-partner, socratic, mentoring, learning]
+compatible_agents: [claude-code]
+license: MIT
+
+when: >-
+  Fires when the user wants to reason something out — "help me think through
+  this", "rubber duck this with me", "I'm stuck on this bug" — not when they
+  want a direct answer. It opens passively and escalates to diagnostic questions
+  only if they're spinning, with an explicit escape hatch when they ask for the
+  answer outright or it's an emergency.
+
+highlights:
+  - "Passive-first, teeth-on-demand: a real duck listens; this one only sharpens into questions when you're stuck."
+  - "Reflects back your implicit assumptions — often that alone surfaces the answer."
+  - "One question per turn, never a solution dump, never smug."
+  - "Escape hatch: drops the method and answers when you ask twice or it's urgent — withholding past usefulness is the failure, not the goal."
+
+example:
+  title: "Stuck on a flaky test"
+  turns: 2
+  tokens: 240
+  caption: "An engineer is stuck; the skill reflects the problem back and asks one narrow diagnostic question instead of guessing the fix."
+  trace_url: null
+  input:
+    - { kind: user, text: "Rubber duck this with me — my integration test passes locally but fails in CI and I can't figure out why." }
+  output:
+    - { kind: anchor, text: "[rubber-duck] reasoning-out intent, opening at Gear 0" }
+    - { kind: assistant, text: "So: same test, green locally, red in CI, and nothing obvious changed. The assumption baked into that is that local and CI run the same thing — same env, same clock, same ordering. Walk me through one concrete difference: what does the failure actually say in CI, and is it the same assertion failing every run or a different one each time?" }

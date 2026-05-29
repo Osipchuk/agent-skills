@@ -1,0 +1,52 @@
+# Copy this to `.onboard/topics.yaml` at your repo root and edit.
+#
+# Schema (per topic):
+#   <topic_key>:
+#     one_liner:      str   - the system in one sentence; shown first
+#     read_in_order:  [str] - load-bearing paths, IN the order they make sense
+#     watch_out_for:  [str] - non-obvious gotchas a newcomer will trip on
+#     adrs:           [str] - (optional) ADR paths for the rationale
+#
+# Rules of thumb:
+#   - 3-6 files per topic. If you need 12, the topic is too big — split it.
+#   - Order matters: ADR (the why) -> entry point -> core -> edges.
+#   - watch_out_for is the highest-value field. It is the stuff that isn't in
+#     the code, only in people's heads.
+
+auth:
+  one_liner: "OAuth2 against the internal IdP; short-lived JWTs for service-to-service; every external call is audit-logged."
+  read_in_order:
+    - docs/adr/0007-auth-architecture.md
+    - docs/adr/0019-jwt-rotation.md
+    - services/auth/router.py
+    - services/auth/policies/
+    - services/auth/audit.py
+  watch_out_for:
+    - "Session TTL and refresh TTL are different — see ADR-0019, this bites everyone."
+    - "Every outbound call goes through middleware/audit.py. Do not bypass it; the regulator cares."
+  adrs:
+    - docs/adr/0007-auth-architecture.md
+    - docs/adr/0019-jwt-rotation.md
+
+agent_orchestrator:
+  one_liner: "A single supervisor dispatches to N stateless workers over a Postgres-backed queue."
+  read_in_order:
+    - docs/adr/0023-agent-topology.md
+    - services/orchestrator/supervisor.py
+    - services/orchestrator/schemas/message.py
+    - services/orchestrator/workers/_base.py
+  watch_out_for:
+    - "Workers are stateless. All state lives on the queue row, not in process memory."
+    - "Retries are at-least-once — every worker must be idempotent."
+  adrs:
+    - docs/adr/0023-agent-topology.md
+
+rag_pipeline:
+  one_liner: "pgvector retrieval + a rerank pass; chunking is fixed-size with overlap, tuned in ADR-0031."
+  read_in_order:
+    - docs/adr/0031-rag-chunking.md
+    - services/rag/ingest.py
+    - services/rag/retrieve.py
+    - services/rag/rerank.py
+  watch_out_for:
+    - "Re-embedding on a model upgrade is a full reindex — there is no online migration path yet."
