@@ -5,7 +5,7 @@
 # it never changes the skill's checksum.
 
 summary: "Teach a newcomer how your own system works by walking a curated, topic-scoped reading list from a repo-local config, then synthesizing the mental model."
-tags: [onboarding, knowledge-transfer, codebase, documentation, mental-model]
+tags: [documentation, learning]
 compatible_agents: [claude-code]
 license: MIT
 

@@ -3,8 +3,8 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-05-29T10:37:08.982726Z",
-    "commit": "8ef533c406f0f53983b847781d5b9ced9d70425a"
+    "generated_at": "2026-05-29T10:50:55.933491Z",
+    "commit": "24b40b726f6fac5b27191884367ed7b8a9530e61"
   },
   "skills": [
     {
@@ -14,11 +14,9 @@
       "path": "skills/adr-capture",
       "entry": "SKILL.md",
       "tags": [
-        "adr",
         "documentation",
-        "decision-record",
         "architecture",
-        "governance"
+        "decision-making"
       ],
       "compatible_agents": [
         "claude-code"
@@ -51,9 +49,7 @@
       "path": "skills/learning-mode",
       "entry": "SKILL.md",
       "tags": [
-        "learning",
-        "coaching",
-        "tdd"
+        "learning"
       ],
       "compatible_agents": [
         "claude-code"
@@ -69,11 +65,8 @@
       "path": "skills/onboard-our-stack",
       "entry": "SKILL.md",
       "tags": [
-        "onboarding",
-        "knowledge-transfer",
-        "codebase",
         "documentation",
-        "mental-model"
+        "learning"
       ],
       "compatible_agents": [
         "claude-code"
@@ -90,9 +83,6 @@
       "entry": "SKILL.md",
       "tags": [
         "debugging",
-        "thinking-partner",
-        "socratic",
-        "mentoring",
         "learning"
       ],
       "compatible_agents": [
@@ -109,11 +99,9 @@
       "path": "skills/steelman-then-break",
       "entry": "SKILL.md",
       "tags": [
-        "design-review",
-        "decision-making",
-        "red-team",
+        "code-review",
         "architecture",
-        "critique"
+        "decision-making"
       ],
       "compatible_agents": [
         "claude-code"
@@ -129,11 +117,7 @@
       "path": "skills/toxic-senior-reviewer",
       "entry": "SKILL.md",
       "tags": [
-        "code-review",
-        "persona",
-        "refactoring",
-        "best-practices",
-        "critique"
+        "code-review"
       ],
       "compatible_agents": [
         "claude-code"

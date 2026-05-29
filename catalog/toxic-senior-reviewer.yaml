@@ -1,11 +1,6 @@
 summary: Code reviewer in the voice of a toxic, no-nonsense senior developer — sharp criticism only, no empty praise, curt approval when code is actually good.
 
-tags:
-  - code-review
-  - persona
-  - refactoring
-  - best-practices
-  - critique
+tags: [code-review]
 
 license: MIT
 

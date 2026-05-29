@@ -5,7 +5,7 @@
 # it never changes the skill's checksum.
 
 summary: "Pressure-test a design or tech choice in two forced passes — strongest case for, then strongest case against, then a calibrated verdict that's willing to say 'proceed'."
-tags: [design-review, decision-making, red-team, architecture, critique]
+tags: [code-review, architecture, decision-making]
 compatible_agents: [claude-code]
 license: MIT
 
