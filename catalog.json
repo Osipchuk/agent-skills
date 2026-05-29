@@ -3,8 +3,8 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-05-29T09:49:02.640176Z",
-    "commit": "057131e8f2d096d462c49bc5f834ccde34df123b"
+    "generated_at": "2026-05-29T09:49:15.297856Z",
+    "commit": "abfbef22b603b2528804aa1ad7d16974e1fcd6d7"
   },
   "skills": [
     {
@@ -25,6 +25,7 @@
         "claude-code"
       ],
       "license": "MIT",
+      "updated_at": "2026-05-29T11:49:14+02:00",
       "when": "Fires on an explicit request (\"draft an ADR\", \"record this decision\") and proactively when the conversation shows a commitment plus a rationale (\"we'll go with X over Y because Z\"). It assigns the next id, fills what was said, and flags mandatory regulated sections as TODO. It stays quiet during exploratory discussion and never writes without confirmation.",
       "highlights": [
         "Catches the decision while it's warm — the friction of writing ADRs by hand is exactly why they don't get written.",
@@ -176,6 +177,7 @@
         "claude-code"
       ],
       "license": "MIT",
+      "updated_at": "2026-05-29T11:49:14+02:00",
       "when": "Fires when someone asks how the team's own system works — \"explain our auth flow\", \"how does our orchestrator route between agents\", \"I'm new, walk me through our RAG pipeline\" — rather than a generic programming question. It expects a repo-local .onboard/topics.yaml mapping each subsystem to its load-bearing files, gotchas, and ADRs.",
       "highlights": [
         "Curated reading-list-per-topic beats RAG-over-repo: the mental model is in which files to read in what order, not in the prose.",
@@ -232,6 +234,7 @@
         "claude-code"
       ],
       "license": "MIT",
+      "updated_at": "2026-05-29T11:49:14+02:00",
       "when": "Fires when the user wants to reason something out — \"help me think through this\", \"rubber duck this with me\", \"I'm stuck on this bug\" — not when they want a direct answer. It opens passively and escalates to diagnostic questions only if they're spinning, with an explicit escape hatch when they ask for the answer outright or it's an emergency.",
       "highlights": [
         "Passive-first, teeth-on-demand: a real duck listens; this one only sharpens into questions when you're stuck.",
@@ -280,6 +283,7 @@
         "claude-code"
       ],
       "license": "MIT",
+      "updated_at": "2026-05-29T11:49:14+02:00",
       "when": "Fires on \"review this proposal\", \"should we go with X\", \"steelman X\", \"red-team this design\", or when choosing between an architecture, library, or framework. It forces the second pass that design discussions skip, and pulls prior failures from references/scars.md so objections argue from the team's own evidence.",
       "highlights": [
         "Forced separation: the case-for has no caveats, the case-against leads with what breaks first — no hedging mush.",
