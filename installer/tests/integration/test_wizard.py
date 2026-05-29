@@ -163,7 +163,10 @@ def test_wizard_partial_failure_keeps_successful_state(
 
     result = runner.invoke(app, ["wizard", "--registry", reg])
 
-    assert result.exit_code == 1  # a skill failed
+    # A checksum mismatch is a system error: the wizard must surface that exit
+    # code (2), not collapse every per-skill failure to a generic 1, so retry
+    # automation can still tell transient/system failures from user errors.
+    assert result.exit_code == 2
     state = _state(tmp_path)
     assert "learning-mode" in state["skills"]  # the good one survived
     assert "toxic-senior-reviewer" not in state["skills"]

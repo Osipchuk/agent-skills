@@ -90,6 +90,7 @@ def _wizard(registry: str, scope: str | None, no_checksum: bool) -> None:
         # Download the whole-repo archive ONCE, then place every selected skill from it.
         archive = download_archive(registry_data.library)
         results: list[tuple[str, str, str, str]] = []
+        failure_codes: list[int] = []
         created_any = False
         with extracted_archive(archive) as extracted:
             for name in selected:
@@ -100,6 +101,7 @@ def _wizard(registry: str, scope: str | None, no_checksum: bool) -> None:
                     place_skill(extracted, skill, target, verify_checksum=not no_checksum)
                 except AskillError as exc:
                     results.append((name, skill.version, "failed", exc.message))
+                    failure_codes.append(exc.exit_code)
                     continue
                 state.skills[name] = InstalledSkill(
                     version=skill.version,
@@ -118,8 +120,12 @@ def _wizard(registry: str, scope: str | None, no_checksum: bool) -> None:
                 "[yellow]note[/]: created .claude/skills/ — restart Claude Code "
                 "(or open a new session) to load newly installed skills"
             )
-        if any(status == "failed" for _, _, status, _ in results):
-            raise typer.Exit(1)
+        if failure_codes:
+            # Preserve the underlying failure's exit code so automation can still
+            # distinguish a user error (1) from a transient/system failure (2,
+            # e.g. checksum/network) or a conflict (3). On mixed failures, surface
+            # the most severe code rather than collapsing everything to 1.
+            raise typer.Exit(max(failure_codes))
     except AskillError as exc:
         console.print(f"[red]error[/]: {exc.message}")
         raise typer.Exit(exc.exit_code) from exc
