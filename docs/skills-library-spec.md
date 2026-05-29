@@ -36,7 +36,7 @@
 
 ### 2.1 В скоупе
 - Монорепо на GitHub со скиллами в формате Claude Code.
-- Файл-манифест `registry.json` в корне.
+- Файл-манифест `manifest/registry.json`.
 - CLI-установщик с командами `install`, `uninstall`, `list`, `info`, `update`, `outdated`, `search`, `validate`, `wizard`.
 - Локальное состояние установленных скиллов (`installed.json`).
 - Установка в user-scope (`~/.claude/skills/`) и project-scope (`.claude/skills/`).
@@ -60,7 +60,7 @@
 |---|---|
 | **Skill** | Папка с `SKILL.md` и опциональными вспомогательными файлами. Минимальная единица установки. |
 | **Library** | Монорепо со скиллами и манифестом. |
-| **Manifest / Registry** | Файл `registry.json` в корне репо со списком всех скиллов. |
+| **Manifest / Registry** | Файл `manifest/registry.json` со списком всех скиллов. |
 | **Scope** | Где установлен скилл: `user` (глобально для пользователя) или `project` (в рамках конкретного проекта). |
 | **CLI** | Утилита-установщик. Рабочее имя — `askill` (agent-skill); финальное имя выбирается отдельно. |
 | **Core layer** | Не-интерактивный слой CLI с детерминированными командами и флагами. Используется GUI/скриптами. |
@@ -171,12 +171,13 @@ installer/
 ```
 skills-library/
 ├── README.md
-├── CONTRIBUTING.md
 ├── LICENSE
-├── registry.json                  ← lean-манифест установщика (автогенерируется CI)
-├── registry.schema.json           ← JSON Schema для registry.json
-├── catalog.json                   ← rich-манифест для веб-клиентов (автогенерируется CI)
-├── catalog.schema.json            ← JSON Schema для catalog.json
+├── install.sh                     ← bootstrap-скрипт (curl|sh entry)
+├── manifest/                          ← сгенерированные манифесты (автогенерируется CI)
+│   ├── registry.json              ← lean-манифест установщика
+│   ├── registry.schema.json       ← JSON Schema для registry.json
+│   ├── catalog.json               ← rich-манифест для веб-клиентов
+│   └── catalog.schema.json        ← JSON Schema для catalog.json
 ├── skills/
 │   ├── pdf-extractor/
 │   │   ├── SKILL.md
@@ -189,12 +190,12 @@ skills-library/
 │   ├── pdf-extractor.yaml
 │   └── ...
 ├── installer/
-│   ├── install.sh                 ← bootstrap-скрипт (curl|sh entry)
 │   └── askill                     ← основная CLI-утилита
 ├── .github/
+│   ├── CONTRIBUTING.md
 │   └── workflows/
 │       ├── validate.yml           ← валидация на PR
-│       └── release.yml            ← регенерация registry.json и тегирование
+│       └── release.yml            ← регенерация manifest/ и тегирование
 └── docs/
     ├── skill-format.md
     ├── cli-reference.md
@@ -211,7 +212,7 @@ skills-library/
 
 ### 6.1 Расположение
 - В корне репо.
-- Доступен по `https://raw.githubusercontent.com/<org>/<repo>/main/registry.json`.
+- Доступен по `https://raw.githubusercontent.com/<org>/<repo>/main/manifest/registry.json`.
 - Регенерируется CI на каждый merge в main.
 
 ### 6.2 Формат
@@ -258,7 +259,7 @@ skills-library/
 - `compatible_agents` — массив из `claude-code` (на v1 — только это).
 
 ### 6.5 JSON Schema
-Лежит в `registry.schema.json`, на неё ссылка из самого манифеста через `$schema`. CI прогоняет валидацию schema.
+Лежит в `manifest/registry.schema.json`. CI прогоняет валидацию schema.
 
 ---
 
@@ -450,7 +451,7 @@ askill validate ./skills/my-new-skill
 {
   "schema_version": "1.0",
   "scope": "user",
-  "registry_url": "https://raw.githubusercontent.com/.../registry.json",
+  "registry_url": "https://raw.githubusercontent.com/.../manifest/registry.json",
   "skills": {
     "pdf-extractor": {
       "version": "1.2.0",

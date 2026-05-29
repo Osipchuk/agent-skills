@@ -6,20 +6,20 @@
 
 ## 1. Источник данных и URL
 
-Единственный источник — сгенерированный файл **`catalog.json`** в корне репозитория.
+Единственный источник — сгенерированный файл **`manifest/catalog.json`** в репозитории.
 Он автоматически пересобирается CI при каждом мердже в `main` и коммитится обратно,
 поэтому всегда доступен по HTTPS:
 
 ```
-https://raw.githubusercontent.com/<owner>/agent-skills/main/catalog.json
+https://raw.githubusercontent.com/<owner>/agent-skills/main/manifest/catalog.json
 ```
 
 Рекомендуется брать `<owner>` из самого `catalog.json` (`library.repo`), а не
 хардкодить. Для кеширования на CDN можно использовать commit-pinned URL или
-jsDelivr (`https://cdn.jsdelivr.net/gh/<owner>/agent-skills@main/catalog.json`).
+jsDelivr (`https://cdn.jsdelivr.net/gh/<owner>/agent-skills@main/manifest/catalog.json`).
 
-`registry.json` (рядом) — это **манифест установщика**, не для блога. Блог читает
-**только** `catalog.json`.
+`manifest/registry.json` (рядом) — это **манифест установщика**, не для блога. Блог читает
+**только** `manifest/catalog.json`.
 
 ## 2. Чего делать НЕ нужно: парсить GitHub
 
@@ -49,7 +49,7 @@ jsDelivr (`https://cdn.jsdelivr.net/gh/<owner>/agent-skills@main/catalog.json`).
 
 ## 4. Схема `catalog.json`
 
-Авторитетная JSON-схема лежит рядом: `catalog.schema.json` (сгенерирована из
+Авторитетная JSON-схема лежит рядом: `manifest/catalog.schema.json` (сгенерирована из
 моделей). Ниже — краткая выжимка.
 
 Верхний уровень:

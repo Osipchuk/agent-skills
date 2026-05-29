@@ -2,7 +2,7 @@
 
 A library of reusable **skills** for AI coding agents — plus **`askill`**, a small CLI that installs them into your agent's environment.
 
-A *skill* is a self-contained folder (a `SKILL.md` plus optional scripts and references) that teaches an agent a repeatable workflow. This repo collects skills under [`skills/`](skills/), describes them in a manifest ([`registry.json`](registry.json)), and ships an installer so any agent — Claude Code first — can pull a skill into `~/.claude/skills/` with one command.
+A *skill* is a self-contained folder (a `SKILL.md` plus optional scripts and references) that teaches an agent a repeatable workflow. This repo collects skills under [`skills/`](skills/), describes them in a manifest ([`manifest/registry.json`](manifest/registry.json)), and ships an installer so any agent — Claude Code first — can pull a skill into `~/.claude/skills/` with one command.
 
 > **Status: early, under active development.** The `askill` core and the `list` / `info` / `install` / `uninstall` / `wizard` commands are implemented and well-tested; a one-line installer and a Claude Code plugin marketplace are live. The remaining commands (`update`, `outdated`, `search`, `validate`, `self-update`) are on the [roadmap](#roadmap).
 
@@ -57,7 +57,7 @@ Tell it (replace `<skill>` with the name you want, e.g. `toxic-senior-reviewer`)
 
 ## askill CLI
 
-Once installed, `askill` reads from the published [`registry.json`](registry.json) by default — no `--registry` flag needed:
+Once installed, `askill` reads from the published [`manifest/registry.json`](manifest/registry.json) by default — no `--registry` flag needed:
 
 ```bash
 askill                                # interactive wizard (checklist + scope picker)
@@ -84,14 +84,14 @@ git clone https://github.com/Osipchuk/agent-skills
 cd agent-skills/installer
 uv sync
 
-uv run askill list   --registry ../registry.json
-uv run askill install learning-mode --registry ../registry.json --scope user
+uv run askill list   --registry ../manifest/registry.json
+uv run askill install learning-mode --registry ../manifest/registry.json --scope user
 uv run pytest
 ```
 
 ## Authoring a skill
 
-A skill is a folder `skills/<name>/` with a `SKILL.md` whose frontmatter carries `name`, a trigger-oriented `description`, and a pinned `version`. Bulky helpers live in `scripts/` and `references/` and are pulled in on demand (progressive disclosure). Presentation metadata (summary, tags, etc.) lives in `catalog/<name>.yaml`. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full format and a checklist.
+A skill is a folder `skills/<name>/` with a `SKILL.md` whose frontmatter carries `name`, a trigger-oriented `description`, and a pinned `version`. Bulky helpers live in `scripts/` and `references/` and are pulled in on demand (progressive disclosure). Presentation metadata (summary, tags, etc.) lives in `catalog/<name>.yaml`. See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for the full format and a checklist.
 
 ## Roadmap
 
@@ -104,7 +104,7 @@ A skill is a folder `skills/<name>/` with a `SKILL.md` whose frontmatter carries
 
 ## Contributing
 
-Contributions of skills and CLI improvements are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions of skills and CLI improvements are welcome — see [CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
 ## License
 

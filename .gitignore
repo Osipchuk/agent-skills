@@ -14,5 +14,5 @@ htmlcov/
 **/.installed.json
 
 # Local-only — Claude Code session state (not the agent instructions: CLAUDE.md
-# and skills-library-spec.md are tracked and published).
+# and docs/skills-library-spec.md are tracked and published).
 .claude/

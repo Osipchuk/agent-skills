@@ -26,10 +26,10 @@ Two repo-specific habits fall out of these:
 
 A library of reusable **skills** for AI agents (Claude Code first), plus a CLI installer (`askill`), a generated registry, and a Claude Code plugin marketplace.
 
-1. [skills-library-spec.md](skills-library-spec.md) — the authoritative design doc (v1.1, **in Russian**) for the `askill` CLI, `registry.json` manifest, and repo layout. Source of truth for the *target* system; mirror its terminology when discussing the design.
+1. [docs/skills-library-spec.md](docs/skills-library-spec.md) — the authoritative design doc (v1.1, **in Russian**) for the `askill` CLI, `registry.json` manifest, and repo layout. Source of truth for the *target* system; mirror its terminology when discussing the design.
 2. Example skills under [skills/](skills/): [learning-mode](skills/learning-mode/), [article-translator](skills/article-translator/), [toxic-senior-reviewer](skills/toxic-senior-reviewer/).
 3. [installer/](installer/) — the `askill` package (uv, src-layout). **Built:** the deterministic core (pydantic models, registry loading from path/URL, scope resolution, read+write state, §13.3 checksum, archive install), the commands `list`/`info`/`install`/`uninstall`/`wizard`, registry/catalog + marketplace generation with CI, and the `install.sh` bootstrap. **Not yet built:** `update`/`outdated`/`search`/`validate`/`self-update`.
-4. [registry.json](registry.json) (lean installer manifest) + [catalog.json](catalog.json) (rich web/presentation manifest) — auto-generated from the skills and committed by CI on merge to `main`.
+4. [manifest/registry.json](manifest/registry.json) (lean installer manifest) + [manifest/catalog.json](manifest/catalog.json) (rich web/presentation manifest) — auto-generated from the skills and committed by CI on merge to `main`.
 
 ## Authoring skills (what the examples actually do)
 
@@ -62,8 +62,8 @@ Skills follow the spec's §5 layout — `skills/<name>/` with `scripts/`+`refere
 The deterministic core, scope/state, checksum + archive install, the `list`/`info`/`install`/`uninstall`/`wizard` commands, and the marketplace are built; `update`/`search`/etc. are still planned.
 
 - **CLI `askill`** — two layers: a **Core** (`src/askill/core/`, `commands/`) that is non-interactive, deterministic, and `--json`-able, and a **Wizard** (TTY-only) that is a thin wrapper *over* Core.
-- **`registry.json` + `catalog.json`** at the repo root: auto-generated, validated against `registry.schema.json` / `catalog.schema.json`. `askill` installs from `registry.json`; web clients render `catalog.json` over HTTPS — see [docs/blog-catalog-integration.md](docs/blog-catalog-integration.md).
-- **Clients never parse skill folders directly** — installers read `registry.json`; GUIs/IDEs/web read `catalog.json`, or call `askill … --json`.
+- **`manifest/registry.json` + `manifest/catalog.json`**: auto-generated, validated against `manifest/registry.schema.json` / `manifest/catalog.schema.json`. `askill` installs from `manifest/registry.json`; web clients render `manifest/catalog.json` over HTTPS — see [docs/blog-catalog-integration.md](docs/blog-catalog-integration.md).
+- **Clients never parse skill folders directly** — installers read `manifest/registry.json`; GUIs/IDEs/web read `manifest/catalog.json`, or call `askill … --json`.
 - **Two install tracks.** Humans: `install.sh` (uvx/`uv tool install` from git). The agent path: the Claude Code plugin marketplace (`.claude-plugin/marketplace.json` → `/plugin install skills@askill`), which is the trusted route when `curl|sh` / `uvx` are blocked by Claude Code permissions.
 - **Archive install** resolves a skill by its manifest `path` joined onto the GitHub tarball's single top-level prefix — never by searching the tree for a folder named `<name>` (`core/installer.py`).
 - **Scope resolution** (install target): explicit `--scope` → `.claude/` in cwd → project-root env var → default `user`. `user` → `~/.claude/skills/`, `project` → `<root>/.claude/skills/`; each scope keeps its own `.installed.json`.
@@ -71,7 +71,7 @@ The deterministic core, scope/state, checksum + archive install, the `list`/`inf
 
 ## Generated artifacts — never hand-edited
 
-`registry.json`, `catalog.json`, `registry.schema.json`, `catalog.schema.json`, and `.claude-plugin/{marketplace,plugin}.json` are produced by [installer/scripts/generate_registry.py](installer/scripts/generate_registry.py) (from each `SKILL.md` + `catalog/<name>.yaml`), committed by CI on merge to `main`, and marked `linguist-generated` in [.gitattributes](.gitattributes). To change any of them, edit the generator and run it — don't touch the output:
+`manifest/{registry,catalog}.json`, `manifest/{registry,catalog}.schema.json`, and `.claude-plugin/{marketplace,plugin}.json` are produced by [installer/scripts/generate_registry.py](installer/scripts/generate_registry.py) (from each `SKILL.md` + `catalog/<name>.yaml`), committed by CI on merge to `main`, and marked `linguist-generated` in [.gitattributes](.gitattributes). To change any of them, edit the generator and run it — don't touch the output:
 
 ```bash
 cd installer
