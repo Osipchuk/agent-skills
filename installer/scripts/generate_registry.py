@@ -8,7 +8,7 @@ Maintenance / CI script — *not* part of the ``askill`` CLI surface. Run from
 It reads every ``skills/<name>/SKILL.md`` plus its sibling
 ``catalog/<name>.yaml``, computes the §13.3 checksum of each folder, builds a
 validated ``Registry`` and ``Catalog`` via :mod:`askill.core.manifest`, and
-writes pretty JSON to the repo root. All validation lives in the pydantic
+writes pretty JSON under ``manifest/``. All validation lives in the pydantic
 models, so a bad input (missing ``catalog/<name>.yaml``, missing ``summary``,
 non-semver ``version``, …) fails loudly here rather than shipping a broken
 manifest.
@@ -114,7 +114,10 @@ def main(argv: list[str] | None = None) -> int:
         "--commit", default=None, help="commit SHA the archive is pinned to (default: git HEAD)"
     )
     parser.add_argument(
-        "--output", type=Path, default=None, help="output path (default: <repo-root>/registry.json)"
+        "--output",
+        type=Path,
+        default=None,
+        help="output path (default: <repo-root>/manifest/registry.json)",
     )
     parser.add_argument(
         "--repo-root", type=Path, default=REPO_ROOT, help="repo root holding skills/ (default: ..)"
@@ -127,7 +130,10 @@ def main(argv: list[str] | None = None) -> int:
 
     repo_root: Path = args.repo_root.resolve()
     commit: str = args.commit or _git_head(repo_root)
-    output: Path = args.output or repo_root / "registry.json"
+    # Generated manifests live under manifest/ so the repo root stays uncluttered.
+    # catalog.json and the *.schema.json siblings are written next to this output
+    # (via Path.with_name), so they all land in the same manifest/ directory.
+    output: Path = args.output or repo_root / "manifest" / "registry.json"
 
     skills_dir = repo_root / "skills"
 

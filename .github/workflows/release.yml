@@ -37,8 +37,9 @@ jobs:
         run: uv run python scripts/generate_registry.py --commit "$COMMIT_SHA" --schema
       - name: Commit if changed
         env:
+          # manifest/ holds the generated manifests + their schemas;
           # .claude-plugin/ holds the generated marketplace.json + plugin.json.
-          ARTIFACTS: registry.json registry.schema.json catalog.json catalog.schema.json .claude-plugin
+          ARTIFACTS: dist .claude-plugin
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

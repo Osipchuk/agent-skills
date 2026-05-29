@@ -18,8 +18,10 @@ from askill.utils.errors import AskillError
 # `askill install <name>` / `list` / `info` work with no --registry flag.
 # The registry's library.commit is pinned, so installs stay reproducible even
 # though the manifest is read from main. Local development overrides this with
-# --registry ../registry.json (as do the tests).
-DEFAULT_REGISTRY = "https://raw.githubusercontent.com/Osipchuk/agent-skills/main/registry.json"
+# --registry ../manifest/registry.json (as do the tests).
+DEFAULT_REGISTRY = (
+    "https://raw.githubusercontent.com/Osipchuk/agent-skills/main/manifest/registry.json"
+)
 
 
 def resolve_target(scope: str | None) -> tuple[Literal["user", "project"], Path | None]:
