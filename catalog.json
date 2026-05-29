@@ -3,8 +3,8 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-05-29T09:37:34.575777Z",
-    "commit": "7433b7bb74d9bcc9a95de0a9ac0805f6fdb431bf"
+    "generated_at": "2026-05-29T09:48:26.985387Z",
+    "commit": "de26dcc331ce5d5efae8923c797b5a2a0db856a1"
   },
   "skills": [
     {
