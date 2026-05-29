@@ -2,16 +2,11 @@
 
 from __future__ import annotations
 
-import os
-from pathlib import Path
-
 import typer
 
-from askill.commands import DEFAULT_REGISTRY
+from askill.commands import DEFAULT_REGISTRY, cli_errors, resolve_target
 from askill.core.registry import load_registry
-from askill.core.scope import find_project_root, resolve_scope
 from askill.core.state import load_state
-from askill.utils.errors import AskillError
 from askill.utils.output import render_skill_list
 
 
@@ -23,17 +18,13 @@ def list_skills(
     json_mode: bool = typer.Option(False, "--json", help="Machine-readable JSON output."),
 ) -> None:
     """List skills available in the registry."""
-    try:
+    with cli_errors():
         registry_data = load_registry(registry)
         skills = [s for s in registry_data.skills if tag is None or tag in s.tags]
         installed_map = None
         if installed:
-            resolved = resolve_scope(scope, Path.cwd(), os.environ)
-            root = find_project_root(Path.cwd(), os.environ) if resolved == "project" else None
+            resolved, root = resolve_target(scope)
             state = load_state(resolved, root)
             installed_map = state.skills if state else {}
             skills = [s for s in skills if s.name in installed_map]
         render_skill_list(skills, installed_map, json_mode)
-    except AskillError as exc:
-        typer.echo(exc.message, err=True)
-        raise typer.Exit(exc.exit_code) from exc

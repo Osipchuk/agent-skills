@@ -220,7 +220,7 @@ def test_build_catalog_skill_rich_meta(tmp_path: Path) -> None:
 
 def test_build_catalog_skill_updated_at_passthrough(tmp_path: Path) -> None:
     skill_dir = _write_skill(tmp_path, "demo-skill")
-    when = dt.datetime(2026, 4, 22, tzinfo=dt.timezone.utc)
+    when = dt.datetime(2026, 4, 22, tzinfo=dt.UTC)
     skill = build_catalog_skill(skill_dir, repo_root=tmp_path, updated_at=when)
     assert skill.updated_at == when
 
@@ -240,7 +240,7 @@ def test_build_catalog_skill_missing_catalog_raises(tmp_path: Path) -> None:
 # build_registry / build_catalog
 # --------------------------------------------------------------------------- #
 
-NOW = dt.datetime(2026, 5, 22, 10, 0, tzinfo=dt.timezone.utc)
+NOW = dt.datetime(2026, 5, 22, 10, 0, tzinfo=dt.UTC)
 
 
 def test_build_registry_two_skills_sorted(tmp_path: Path) -> None:
@@ -298,7 +298,7 @@ def test_build_catalog_library_fields(tmp_path: Path) -> None:
 
 def test_build_catalog_uses_updated_at_resolver(tmp_path: Path) -> None:
     _write_skill(tmp_path, "demo-skill")
-    when = dt.datetime(2026, 4, 22, tzinfo=dt.timezone.utc)
+    when = dt.datetime(2026, 4, 22, tzinfo=dt.UTC)
     cat = build_catalog(
         tmp_path / "skills",
         repo="https://example.com/r",

@@ -48,6 +48,6 @@ class ChecksumError(AskillError):
 
 
 class ConflictError(AskillError):
-    """An install/uninstall conflict (reserved for later sub-projects)."""
+    """An install conflict: a tracked or untracked skill already occupies the target."""
 
     exit_code = EXIT_CONFLICT

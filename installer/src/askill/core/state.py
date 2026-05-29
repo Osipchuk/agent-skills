@@ -1,9 +1,10 @@
-"""Read the installed.json state file (spec §10).
+"""Load and persist the installed.json state file (spec §10).
 
-Read-only in this sub-project: we locate and parse state, but never write it
-(atomic writes, backups, and recreation arrive with the install commands). An
-absent file is a normal "nothing installed yet" → ``None``; a present-but-broken
-file is surfaced as a ``StateError`` rather than silently ignored.
+Reads locate and validate the per-scope state; writes are atomic — serialise to a
+sibling ``.tmp`` then ``os.replace`` (see ``askill.core.filesystem``), so a crash
+never leaves a half-written installed.json. An absent file is a normal "nothing
+installed yet" → ``None``; a present-but-broken file is surfaced as a ``StateError``
+rather than silently ignored.
 """
 
 from __future__ import annotations

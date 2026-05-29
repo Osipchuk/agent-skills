@@ -55,25 +55,25 @@ Tell it (replace `<skill>` with the name you want, e.g. `toxic-senior-reviewer`)
 
 > **Note:** in **Claude Code**, use the plugin install above — its default permission mode (rightly) refuses `uvx`, since that runs remote code and writes into your `~/.claude`. The `uvx` line is for other agents, or run it yourself in a terminal.
 
-## Available skills
-
-- **[`learning-mode`](skills/learning-mode/)** — turn a Claude Code session into a learn-by-doing tutorial with a spaced-repetition review log.
-- **[`article-translator`](skills/article-translator/)** — translate long-form articles and prose between languages while preserving the author's voice, structure, and formatting.
-- **[`toxic-senior-reviewer`](skills/toxic-senior-reviewer/)** — code review in the voice of a blunt senior dev: sharp criticism only, curt approval when the code is actually good.
-
 ## askill CLI
 
-Once installed, `askill` reads its skills from the published [`registry.json`](registry.json) by default — no `--registry` flag needed:
+Once installed, `askill` reads from the published [`registry.json`](registry.json) by default — no `--registry` flag needed:
 
 ```bash
-askill list                          # all skills in the manifest
-askill list --json                   # machine-readable
+askill                                # interactive wizard (checklist + scope picker)
+askill list                           # all skills in the manifest (--json for machine output)
 askill info learning-mode
 askill install learning-mode --scope user
 askill uninstall learning-mode --scope user
 ```
 
-Implemented: `list`, `info`, `install`, `uninstall` — with `--scope user|project`, `--json` everywhere, deterministic checksum verification, and the conflict handling from the spec (already-installed no-op, version conflicts, `--force`, `--dry-run`, `--no-checksum`). Exit codes: `0` ok, `1` user error, `2` system error, `3` conflict.
+Implemented: `wizard`, `list`, `info`, `install`, `uninstall` — with `--scope user|project`, `--json` on the non-interactive commands, deterministic checksum verification, and the spec's conflict handling (already-installed no-op, version conflicts, `--force`, `--dry-run`, `--no-checksum`). Exit codes: `0` ok, `1` user error, `2` system error, `3` conflict.
+
+## Available skills
+
+- **[`learning-mode`](skills/learning-mode/)** — turn a Claude Code session into a learn-by-doing tutorial with a spaced-repetition review log.
+- **[`article-translator`](skills/article-translator/)** — translate long-form articles and prose between languages while preserving the author's voice, structure, and formatting.
+- **[`toxic-senior-reviewer`](skills/toxic-senior-reviewer/)** — code review in the voice of a blunt senior dev: sharp criticism only, curt approval when the code is actually good.
 
 ## From source (development)
 

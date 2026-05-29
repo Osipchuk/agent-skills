@@ -22,7 +22,7 @@ lean registry.json.
 from __future__ import annotations
 
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -77,8 +77,14 @@ def load_catalog_meta(name: str, repo_root: Path) -> dict[str, Any]:
     return data
 
 
-def build_registry_skill(skill_dir: Path, *, repo_root: Path) -> RegistrySkill:
-    """Read a skill's frontmatter + catalog meta + checksum into a RegistrySkill."""
+def _skill_common(
+    skill_dir: Path, *, repo_root: Path
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Shared head of both skill builders: parse the SKILL.md frontmatter and the
+    sibling catalog meta, and assemble the fields common to RegistrySkill and
+    CatalogSkill. Returns ``(front, meta, data)`` so each builder can layer on its
+    format-specific fields without re-reading anything.
+    """
     front = _read_frontmatter(skill_dir)
     name = front.get("name", skill_dir.name)
     meta = load_catalog_meta(name, repo_root)
@@ -90,8 +96,14 @@ def build_registry_skill(skill_dir: Path, *, repo_root: Path) -> RegistrySkill:
         "compatible_agents": meta.get("compatible_agents", ["claude-code"]),
         "license": meta.get("license"),
         "path": skill_dir.relative_to(repo_root).as_posix(),
-        "checksum": skill_checksum(skill_dir),
     }
+    return front, meta, data
+
+
+def build_registry_skill(skill_dir: Path, *, repo_root: Path) -> RegistrySkill:
+    """Read a skill's frontmatter + catalog meta + checksum into a RegistrySkill."""
+    _front, _meta, data = _skill_common(skill_dir, repo_root=repo_root)
+    data["checksum"] = skill_checksum(skill_dir)
     return RegistrySkill.model_validate(data)
 
 
@@ -103,29 +115,32 @@ def build_catalog_skill(
     ``updated_at`` (the git commit date of the folder) is injected by the caller
     so this stays free of git/subprocess side effects.
     """
-    front = _read_frontmatter(skill_dir)
-    name = front.get("name", skill_dir.name)
-    meta = load_catalog_meta(name, repo_root)
-    data = {
-        "name": name,
-        "version": front.get("version"),
-        "description": meta.get("summary"),
-        "description_long": front.get("description"),
-        "tags": meta.get("tags", []),
-        "compatible_agents": meta.get("compatible_agents", ["claude-code"]),
-        "license": meta.get("license"),
-        "path": skill_dir.relative_to(repo_root).as_posix(),
-        "updated_at": updated_at,
-        "when": meta.get("when"),
-        "highlights": meta.get("highlights", []),
-        "example": meta.get("example"),
-    }
+    front, meta, data = _skill_common(skill_dir, repo_root=repo_root)
+    data.update(
+        {
+            "description_long": front.get("description"),
+            "updated_at": updated_at,
+            "when": meta.get("when"),
+            "highlights": meta.get("highlights", []),
+            "example": meta.get("example"),
+        }
+    )
     return CatalogSkill.model_validate(data)
 
 
 def _skill_dirs(skills_dir: Path) -> list[Path]:
     """Every ``<skills_dir>/*/`` that contains a SKILL.md, sorted by path."""
     return [child for child in sorted(skills_dir.iterdir()) if (child / "SKILL.md").is_file()]
+
+
+def _library(repo: str, commit: str, now: datetime | None) -> Library:
+    """The ``library`` block shared by both manifests (spec §6.2)."""
+    return Library(
+        name="askill-library",
+        repo=repo,
+        generated_at=now or datetime.now(UTC),
+        commit=commit,
+    )
 
 
 def build_registry(
@@ -137,15 +152,11 @@ def build_registry(
     now: datetime | None = None,
 ) -> Registry:
     """Assemble a validated Registry from every ``<skills_dir>/*/SKILL.md``."""
-    skills = [build_registry_skill(child, repo_root=repo_root) for child in _skill_dirs(skills_dir)]
-    skills.sort(key=lambda skill: skill.name)
-    library = Library(
-        name="askill-library",
-        repo=repo,
-        generated_at=now or datetime.now(timezone.utc),
-        commit=commit,
+    skills = sorted(
+        (build_registry_skill(child, repo_root=repo_root) for child in _skill_dirs(skills_dir)),
+        key=lambda skill: skill.name,
     )
-    return Registry(schema_version="1.0", library=library, skills=skills)
+    return Registry(schema_version="1.0", library=_library(repo, commit, now), skills=skills)
 
 
 def build_catalog(
@@ -163,22 +174,18 @@ def build_catalog(
     (the generator passes a git-backed resolver); when ``None`` the per-skill
     ``updated_at`` is left unset.
     """
-    skills = [
-        build_catalog_skill(
-            child,
-            repo_root=repo_root,
-            updated_at=updated_at_for(child) if updated_at_for is not None else None,
-        )
-        for child in _skill_dirs(skills_dir)
-    ]
-    skills.sort(key=lambda skill: skill.name)
-    library = Library(
-        name="askill-library",
-        repo=repo,
-        generated_at=now or datetime.now(timezone.utc),
-        commit=commit,
+    skills = sorted(
+        (
+            build_catalog_skill(
+                child,
+                repo_root=repo_root,
+                updated_at=updated_at_for(child) if updated_at_for is not None else None,
+            )
+            for child in _skill_dirs(skills_dir)
+        ),
+        key=lambda skill: skill.name,
     )
-    return Catalog(schema_version="1.0", library=library, skills=skills)
+    return Catalog(schema_version="1.0", library=_library(repo, commit, now), skills=skills)
 
 
 def build_marketplace_manifests(
@@ -195,8 +202,9 @@ def build_marketplace_manifests(
     installs every skill. ``version`` is intentionally omitted from plugin.json so
     Claude Code falls back to the git commit SHA — every push is a new version.
 
-    Pure: returns plain dicts; the generator script writes them and copies the
-    skill folders into ``plugins/<plugin_name>/skills/``.
+    The repo root *is* the plugin (``source: "."``): the canonical ``skills/`` is
+    the plugin's skills dir, so there's no separate copied tree to drift. Pure:
+    returns plain dicts; the generator writes both to the root ``.claude-plugin/``.
     """
     listed = ", ".join(skill_names)
     plugin = {
@@ -211,7 +219,7 @@ def build_marketplace_manifests(
         "plugins": [
             {
                 "name": plugin_name,
-                "source": f"./plugins/{plugin_name}",
+                "source": ".",
                 "description": plugin["description"],
                 "keywords": ["skills", "claude-code"],
             }

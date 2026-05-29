@@ -2,10 +2,17 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
+import os
+from collections.abc import Iterator
 from pathlib import Path
+from typing import Literal
 
 import typer
+
+from askill.core.scope import find_project_root, resolve_scope
+from askill.utils.errors import AskillError
 
 # Default registry source: the published manifest on the main branch, so
 # `askill install <name>` / `list` / `info` work with no --registry flag.
@@ -13,6 +20,31 @@ import typer
 # though the manifest is read from main. Local development overrides this with
 # --registry ../registry.json (as do the tests).
 DEFAULT_REGISTRY = "https://raw.githubusercontent.com/Osipchuk/agent-skills/main/registry.json"
+
+
+def resolve_target(scope: str | None) -> tuple[Literal["user", "project"], Path | None]:
+    """Resolve the install scope and project root from the live cwd/env.
+
+    The command layer always works against the real process; the pure core
+    resolvers take ``cwd``/``env`` explicitly, so this is the one place those live
+    values are read instead of being repeated in every command.
+    """
+    resolved = resolve_scope(scope, Path.cwd(), os.environ)
+    root = find_project_root(Path.cwd(), os.environ) if resolved == "project" else None
+    return resolved, root
+
+
+@contextlib.contextmanager
+def cli_errors() -> Iterator[None]:
+    """Map any ``AskillError`` raised in the block to a ``typer.Exit`` with its code.
+
+    Replaces the identical try/except tail every Typer command used to carry.
+    """
+    try:
+        yield
+    except AskillError as exc:
+        typer.echo(exc.message, err=True)
+        raise typer.Exit(exc.exit_code) from exc
 
 
 def report_action(

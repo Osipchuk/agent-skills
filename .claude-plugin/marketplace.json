@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "skills",
-      "source": "./plugins/skills",
+      "source": ".",
       "description": "Reusable agent skills: article-translator, learning-mode, toxic-senior-reviewer.",
       "keywords": [
         "skills",

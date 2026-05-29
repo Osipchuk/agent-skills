@@ -6,11 +6,12 @@ import io
 import tarfile
 from pathlib import Path
 
+import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
 from askill.core.checksum import skill_checksum
-from askill.core.installer import archive_url, fetch_and_place
+from askill.core.installer import archive_url, download_archive, fetch_and_place
 from askill.core.models import Library, RegistrySkill
 from askill.utils.errors import ChecksumError, RegistryError
 
@@ -91,7 +92,54 @@ def test_skill_not_in_archive_raises(tmp_path: Path, httpx_mock: HTTPXMock) -> N
         fetch_and_place(_skill("learning-mode", checksum), LIBRARY, tmp_path / "out")
 
 
+def test_place_skill_resolves_by_path_not_name_search(
+    tmp_path: Path, httpx_mock: HTTPXMock
+) -> None:
+    """Resolution must follow the manifest ``path``, not search the tree for a dir
+    named ``<name>``. We plant a same-named decoy elsewhere in the archive (a parent
+    also called ``skills``) holding different bytes: a name search could pick it and
+    fail the checksum, while path resolution lands on the canonical ``skills/<name>``."""
+    prefix = "agent-skills-deadbeef"
+    build = tmp_path / "build" / prefix
+    canonical = build / "skills" / "learning-mode"
+    canonical.mkdir(parents=True)
+    (canonical / "SKILL.md").write_text("canonical")
+    decoy = build / "vendor" / "skills" / "learning-mode"
+    decoy.mkdir(parents=True)
+    (decoy / "SKILL.md").write_text("decoy — the wrong copy")
+    checksum = skill_checksum(canonical)
+
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode="w:gz") as tar:
+        tar.add(build, arcname=prefix)
+    httpx_mock.add_response(url=ARCHIVE_URL, content=buffer.getvalue())
+
+    target = tmp_path / "out" / "learning-mode"
+    fetch_and_place(_skill("learning-mode", checksum), LIBRARY, target)
+    assert (target / "SKILL.md").read_text() == "canonical"
+
+
 def test_download_404_raises(tmp_path: Path, httpx_mock: HTTPXMock) -> None:
     httpx_mock.add_response(url=ARCHIVE_URL, status_code=404)
     with pytest.raises(RegistryError):
         fetch_and_place(_skill("learning-mode", "sha256:" + "0" * 64), LIBRARY, tmp_path / "out")
+
+
+def test_download_retries_transient_then_succeeds(
+    httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A dropped connection is transient — retry instead of failing the install."""
+    monkeypatch.setattr("askill.core.installer.time.sleep", lambda *_: None)
+    httpx_mock.add_exception(httpx.TransportError("Server disconnected"), url=ARCHIVE_URL)
+    httpx_mock.add_response(url=ARCHIVE_URL, content=b"archive-bytes")
+    assert download_archive(LIBRARY) == b"archive-bytes"
+
+
+def test_download_gives_up_after_retries(
+    httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("askill.core.installer.time.sleep", lambda *_: None)
+    for _ in range(3):  # retries=2 -> 3 attempts
+        httpx_mock.add_exception(httpx.TransportError("Server disconnected"), url=ARCHIVE_URL)
+    with pytest.raises(RegistryError, match="failed to download"):
+        download_archive(LIBRARY)
