@@ -1,45 +1,115 @@
 ---
 name: onboard-our-stack
-description: 'Build a newcomer''s mental model of THIS codebase by walking a curated, topic-scoped reading list and then synthesizing how the pieces fit together. Reads a repo-local .onboard/topics.yaml that maps each subsystem to its load-bearing files (in the order they make sense), its gotchas, and the ADRs that explain the why. Use this whenever someone asks how the team''s own system works — "explain our auth flow", "how does our orchestrator route between agents", "walk me through our RAG pipeline", "I''m new, how does our X work", "where does Y live in our code" — even if they don''t say the word "onboard". Do NOT use for: generic programming or public-library questions ("how does OAuth work in general", "how do Postgres GIN indexes work"), debugging a specific error or stack trace, writing or modifying code, or a repo that has no .onboard/topics.yaml. This skill teaches an existing system; it does not generate documentation or code.'
-version: 0.1.0
+description: >-
+  Onboard a newcomer to THIS codebase, or answer a targeted "how does our X
+  work" question, by walking curated reading lists and synthesizing the mental
+  model — never by guessing. Works out of the box: if a maintainer has committed
+  .onboard/topics.yaml it uses that curated path; if not, it cold-starts from the
+  repo's own authoritative docs (README, CLAUDE.md / AGENTS.md, ARCHITECTURE.md,
+  docs/, the dependency manifest, the entry point) and is explicit about what
+  curated knowledge is still missing. The newcomer never has to create files, run
+  setup, or change code. Use this for "I'm new, help me understand this project",
+  "where do I start", "onboard me", and for "explain our auth flow", "how does
+  our scheduler work", "walk me through our X". Do NOT use for: generic
+  programming or public-library questions, debugging a specific error or stack
+  trace, or writing/modifying code. This skill teaches an existing system; it
+  does not generate documentation or code, and it does not invent gotchas or
+  assert which files are load-bearing beyond what the sources actually say.
+version: 0.2.0
 ---
 
 # onboard-our-stack
 
-Teach a newcomer how *this* system works by following a curated reading list,
-not by guessing or summarizing the whole repo. The institutional knowledge —
-which few files out of hundreds are load-bearing, and in what order they make
-sense — lives in `.onboard/topics.yaml`, the single source of truth. Never
-invent the reading list.
+Two jobs, one skill:
 
-## Workflow
+- **Broad onboarding** — "I'm new, help me understand this project." The reader
+  needs a *route through* the system, in order.
+- **Targeted** — "explain our scheduler." The reader needs *one subsystem*, on
+  demand.
 
-1. **Locate the config.** Read `.onboard/topics.yaml` from the repo root. If it
-   is missing, stop and tell the user the skill isn't configured yet; point them
-   at `references/topics.example.yaml` to bootstrap it. Do not improvise a
-   reading list from a blind repo scan — a guessed model is worse than none.
+Tell them apart from the request: a named subsystem -> targeted; "new", "onboard
+me", "where do I start", "understand the project" -> broad.
 
-2. **Match the topic.** Map the question to a topic by key or by its
-   `one_liner`. If nothing matches, list the available topic keys and ask which
-   one. If several match, pick the closest and say which you chose and why.
+The institutional knowledge — which files are load-bearing, in what order, and
+the gotchas that live only in people's heads — is curated in `.onboard/topics.yaml`
+by a maintainer, ONCE, and committed. A newcomer just asks; they never author it
+and never change code to make this skill work.
 
-3. **Read in order.** Open each path in `read_in_order` in the given order — the
-   order encodes the mental model. If a path is missing, the config is stale:
-   warn the user, name the missing file, read what remains, and flag the gap
-   rather than papering over it.
+## Availability ladder — the "works out of the box" guarantee
 
-4. **Synthesize, don't dump.** Lead with the topic's `one_liner`, then explain
-   how the parts connect, following the file order. Surface every
-   `watch_out_for` item explicitly. Cite files by path. Point to the listed
-   ADR(s) for rationale ("read ADR-00xx first if you want the why"). This is
-   orientation — a mental model — not a line-by-line code walk.
+Pick the highest tier the repo supports. Never block the newcomer on setup, and
+never demand maintainer input from someone who came here to learn.
 
-5. **Close.** Offer the nearest adjacent topic as a next step.
+1. **Curated config present** (`.onboard/topics.yaml` at repo root) -> use it.
+   Best tier: real ordering, real gotchas. See Broad / Targeted below.
 
-## Maintaining the config
+2. **No config -> COLD START.** Do NOT refuse, and do NOT drop into config
+   authoring (that is a maintainer-only flow, below). Orient the newcomer from
+   the repo's own authoritative sources, in this order if present: README.md,
+   CLAUDE.md / AGENTS.md, ARCHITECTURE.md, docs/ (a product doc and a runbook if
+   they exist), the dependency manifest (pyproject.toml / requirements.txt), and
+   the entry point (main.py / app). Synthesize a grounded orientation, citing
+   each file. Derive getting-started from README/RUNBOOK. Then say plainly:
+   "This is auto-read from your repo's docs, not a curated walk — the tribal
+   knowledge a teammate would warn you about (stale docs, landmines, why it's
+   built this way) isn't captured yet. A maintainer can run the setup, or I can
+   help one author it."
 
-`.onboard/topics.yaml` is PR-able and lives next to the code, so it is reviewed
-as the system changes. Run `scripts/check_topics.py` in CI to fail the build if
-any referenced path stops resolving — stale reading lists teach a wrong model,
-which is the main failure mode for this skill. See
-`references/topics.example.yaml` for the schema and a worked example.
+   The line you must not cross: reading and citing the team's own docs is
+   ALLOWED — that surfaces what's written, it is not a guess. Inventing gotchas,
+   or asserting a file is load-bearing without evidence from a doc or the entry
+   point's own imports, is NOT allowed. When unsure, attribute it or omit it.
+
+3. **No config and no docs -> minimal.** Show the entry point, the dependency
+   manifest, and the top-level tree; say honestly there's little to go on, and
+   suggest a maintainer author `.onboard/topics.yaml`.
+
+## Broad onboarding (curated tier)
+
+Walk `onboarding_path` in order — it is the curriculum the maintainer chose;
+don't reorder it.
+
+1. Lead with the "why" (the product/vision topic): what this is and who it's
+   for, before any code.
+2. Getting started: read the docs the `getting_started` topic points at
+   (RUNBOOK/README) so the run/test commands stay current — do not hardcode or
+   guess them.
+3. The keystone: `request_lifecycle` — narrate ONE request end to end across the
+   layers. This single story is what gives the model; everything else is depth.
+4. Then the deep topics in path order, each as a short synthesis, not a file
+   dump.
+5. Defer per-topic gotchas to their topic — don't open with a barrage of
+   warnings the reader has no model to hold yet. Surface at most one or two
+   *global* landmines up front (e.g. a known doc-vs-code drift).
+6. Close with a concrete first step: a small, safe area for a first change, and
+   which topics to read for it.
+
+Pace it: offer to go one topic at a time rather than dumping all of them.
+
+## Targeted (curated tier)
+
+Match the question to one topic by key or `one_liner`. Read its `read_in_order`
+in order; if a path is missing the config is stale — warn, name the file, read
+the rest, flag the gap. Synthesize the mental model, surface that topic's
+`watch_out_for`, cite files, point at the `adrs`/specs for the why. Orientation,
+not a line-by-line walk. Offer the nearest adjacent topic next.
+
+## Config shape
+
+`.onboard/topics.yaml` has two top-level keys:
+
+- `onboarding_path`: ordered list of topic keys — the broad-mode curriculum.
+- `topics`: map of `<key>` -> { one_liner, read_in_order, watch_out_for,
+  optional adrs }. Two topics are special by convention and belong early in the
+  path: `getting_started` (points at the run/test docs) and `request_lifecycle`
+  (the end-to-end story).
+
+See `references/topics.example.yaml` for the schema and a worked example.
+
+## Maintaining (maintainer-only; never blocks a newcomer)
+
+A maintainer authors the config once, grounded in files they verify exist, and
+commits it. Trigger the authoring flow ONLY when someone explicitly asks to set
+up or curate onboarding — never as the default response to a missing config.
+Run `scripts/check_topics.py` in CI so stale paths fail the build; a stale
+reading list teaches a wrong model, the one failure this skill exists to prevent.

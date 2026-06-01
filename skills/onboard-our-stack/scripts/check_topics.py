@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Fail CI if .onboard/topics.yaml references paths that no longer exist.
+"""Fail CI if .onboard/topics.yaml is malformed or references paths that no
+longer exist.
 
 Stale reading lists make onboard-our-stack teach a wrong mental model, which is
 worse than having no skill. Run this in CI on every PR.
@@ -7,7 +8,7 @@ worse than having no skill. Run this in CI on every PR.
 Usage:
     python scripts/check_topics.py [--config .onboard/topics.yaml] [--root .]
 
-Exit codes: 0 = all paths resolve, 1 = stale references, 2 = config problem.
+Exit codes: 0 = OK, 1 = stale/invalid references, 2 = config problem.
 Requires PyYAML (ships in essentially every Python environment).
 """
 from __future__ import annotations
@@ -23,6 +24,15 @@ except ImportError:  # pragma: no cover
     sys.exit(2)
 
 REQUIRED_KEYS = {"one_liner", "read_in_order"}
+
+
+def extract_topics(data: dict) -> tuple[dict, list]:
+    """Support both the nested form ({onboarding_path, topics}) and the legacy
+    flat form (top level is the topics map)."""
+    if "topics" in data and isinstance(data["topics"], dict):
+        return data["topics"], list(data.get("onboarding_path", []) or [])
+    topics = {k: v for k, v in data.items() if k != "onboarding_path"}
+    return topics, list(data.get("onboarding_path", []) or [])
 
 
 def main() -> int:
@@ -42,35 +52,44 @@ def main() -> int:
     except yaml.YAMLError as exc:
         print(f"check_topics: cannot parse {config}: {exc}", file=sys.stderr)
         return 2
-
     if not isinstance(data, dict):
-        print("check_topics: top level must be a mapping of topics", file=sys.stderr)
+        print("check_topics: top level must be a mapping", file=sys.stderr)
         return 2
+
+    topics, path = extract_topics(data)
 
     stale: list[str] = []
     malformed: list[str] = []
+    bad_path: list[str] = []
 
-    for topic, body in data.items():
+    for topic, body in topics.items():
         if not isinstance(body, dict) or not REQUIRED_KEYS <= body.keys():
-            malformed.append(f"{topic}: missing {REQUIRED_KEYS - body.keys() if isinstance(body, dict) else REQUIRED_KEYS}")
+            missing = REQUIRED_KEYS - body.keys() if isinstance(body, dict) else REQUIRED_KEYS
+            malformed.append(f"{topic}: missing {missing}")
             continue
         paths = list(body.get("read_in_order", [])) + list(body.get("adrs", []) or [])
         for rel in paths:
+            # placeholder slots like "<handler>" are template markers, skip them
+            if rel.strip().startswith("<"):
+                continue
             if not (root / rel).exists():
                 stale.append(f"{topic}: {rel}")
 
-    if malformed:
-        print("Malformed topics:", file=sys.stderr)
-        for m in malformed:
-            print(f"  - {m}", file=sys.stderr)
-    if stale:
-        print("Stale references (path no longer exists):", file=sys.stderr)
-        for s in stale:
-            print(f"  - {s}", file=sys.stderr)
+    for key in path:
+        if key not in topics:
+            bad_path.append(f"onboarding_path references unknown topic '{key}'")
 
-    if malformed or stale:
+    for label, items in (("Malformed topics", malformed),
+                         ("Stale references (path missing)", stale),
+                         ("Broken onboarding_path", bad_path)):
+        if items:
+            print(f"{label}:", file=sys.stderr)
+            for i in items:
+                print(f"  - {i}", file=sys.stderr)
+
+    if malformed or stale or bad_path:
         return 1
-    print(f"check_topics: OK — {len(data)} topic(s), all paths resolve.")
+    print(f"check_topics: OK — {len(topics)} topic(s), {len(path)} in path, all paths resolve.")
     return 0
 
 
