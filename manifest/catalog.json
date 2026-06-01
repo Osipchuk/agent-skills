@@ -3,8 +3,8 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-06-01T12:09:16.045661Z",
-    "commit": "e652d9227ec0a92b393e403f6d28686ec587bc69"
+    "generated_at": "2026-06-01T12:16:21.558618Z",
+    "commit": "fa50db000f8ec1c7aaeb16ccdfeb71265055a6e8"
   },
   "skills": [
     {
@@ -170,7 +170,7 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-05-29T11:49:14+02:00",
+      "updated_at": "2026-06-01T14:10:51+02:00",
       "when": "Fires when someone asks how the team's own system works — broad (\"I'm new, walk me through this project\", \"where do I start\") or targeted (\"how does our scheduler work\"). With a committed .onboard/topics.yaml it walks the curated path; without one it cold-starts from README/ARCHITECTURE/CLAUDE.md/docs and is explicit about the curated gotchas still missing. The newcomer creates nothing and changes no code.",
       "highlights": [
         "Works out of the box: a newcomer just asks — no config to create, no setup, no code changes. The config is a maintainer's one-time committed artifact.",
