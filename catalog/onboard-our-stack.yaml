@@ -4,34 +4,36 @@
 # installer (which copies skills/<name>/ verbatim) never sees it, and editing
 # it never changes the skill's checksum.
 
-summary: "Teach a newcomer how your own system works by walking a curated, topic-scoped reading list from a repo-local config, then synthesizing the mental model."
+summary: "Onboard a newcomer to your codebase or answer a targeted 'how does our X work' question by walking curated reading lists — and cold-starting from the repo's own docs when no curated config exists yet."
 tags: [documentation, learning]
 compatible_agents: [claude-code]
 license: MIT
 
 when: >-
-  Fires when someone asks how the team's own system works — "explain our auth
-  flow", "how does our orchestrator route between agents", "I'm new, walk me
-  through our RAG pipeline" — rather than a generic programming question. It
-  expects a repo-local .onboard/topics.yaml mapping each subsystem to its
-  load-bearing files, gotchas, and ADRs.
+  Fires when someone asks how the team's own system works — broad ("I'm new,
+  walk me through this project", "where do I start") or targeted ("how does our
+  scheduler work"). With a committed .onboard/topics.yaml it walks the curated
+  path; without one it cold-starts from README/ARCHITECTURE/CLAUDE.md/docs and
+  is explicit about the curated gotchas still missing. The newcomer creates
+  nothing and changes no code.
 
 highlights:
-  - "Curated reading-list-per-topic beats RAG-over-repo: the mental model is in which files to read in what order, not in the prose."
-  - "Single source of truth in .onboard/topics.yaml, PR-reviewed alongside the code it describes."
-  - "Degrades loudly when the config is stale instead of confidently teaching a wrong model."
-  - "Ships a stdlib CI check (scripts/check_topics.py) to catch stale reading lists before they mislead anyone."
+  - "Works out of the box: a newcomer just asks — no config to create, no setup, no code changes. The config is a maintainer's one-time committed artifact."
+  - "Cold-start fallback reads and CITES the repo's own docs rather than refusing; it never invents gotchas or guesses which files are load-bearing."
+  - "Broad mode walks an ordered curriculum (why -> getting-started -> one request end-to-end -> deep topics); targeted mode walks a single subsystem."
+  - "The keystone is request_lifecycle: one request narrated end-to-end across the layers — the story that actually hands over the mental model."
+  - "Curated knowledge (load-bearing files, ordering, the gotchas only in people's heads) stays human-authored and PR-reviewed, guarded by a stdlib CI check."
 
 example:
-  title: "New hire asks about the orchestrator"
+  title: "New hire: onboard me to this project"
   turns: 4
-  tokens: 520
-  caption: "A newcomer asks how the agent orchestrator routes work; the skill reads the curated topic and explains the model."
+  tokens: 640
+  caption: "A newcomer asks for a broad walkthrough; the committed config drives an ordered curriculum that opens with the why and the end-to-end request flow."
   trace_url: null
   input:
-    - { kind: user, text: "I'm new here. How does our orchestrator route between the subagents?" }
+    - { kind: user, text: "I just joined and I'm looking at this repo for the first time. Where do I start?" }
   output:
-    - { kind: anchor, text: "[onboard-our-stack] question matches topic agent_orchestrator" }
-    - { kind: tool, text: "read .onboard/topics.yaml then the files in read_in_order" }
-    - { kind: tool_out, text: "ADR-0023, supervisor.py, schemas/message.py, workers/_base.py" }
-    - { kind: assistant, text: "Model in one line: a single supervisor dispatches to N stateless workers over a Postgres-backed queue. Following the code, supervisor.py claims a queue row and hands the message schema to a worker. Watch out: workers hold no state, everything lives on the queue row, and retries are at-least-once so workers must be idempotent. Read ADR-0023 first for the why. Want me to walk the RAG pipeline next?" }
+    - { kind: anchor, text: "[onboard-our-stack] broad intent, curated config present, walking onboarding_path" }
+    - { kind: tool, text: "read .onboard/topics.yaml, then product_vision and request_lifecycle reading lists" }
+    - { kind: tool_out, text: "onboarding_path: product_vision, getting_started, request_lifecycle, ..." }
+    - { kind: assistant, text: "Let's go in order; I'll pause between each. First the why: this is an empathy-first chat companion, not a calorie tracker, and 'stay silent unless there's something worth saying' drives the UX. Next, getting it running locally (I'll read the runbook so the commands are current). Then the one story that ties it together: a meal message hits the webhook, middleware rehydrates your state from the DB, the handler calls the agent which runs a tool-call loop and reaches the DB only through the repository, then streams the reply back. One global landmine up front: ARCHITECTURE.md still says 'two LLM calls' — that's stale, trust the v2 agent. Want me to go deeper on the request flow before we hit the subsystems?" }
