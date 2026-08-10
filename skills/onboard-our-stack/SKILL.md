@@ -4,18 +4,18 @@ description: >-
   Onboard a newcomer to THIS codebase, or answer a targeted "how does our X
   work" question, by walking curated reading lists and synthesizing the mental
   model — never by guessing. Works out of the box: with a committed
-  .onboard/topics.yaml it walks that curated path; without one it cold-starts
-  from the repo's own authoritative docs (README, CLAUDE.md / AGENTS.md,
-  ARCHITECTURE.md, docs/, the dependency manifest, the entry point) and says
-  plainly what curated knowledge is still missing. The newcomer never creates
-  files, runs setup, or changes code. Use for "I'm new, help me understand this
-  project", "where do I start", "onboard me", "explain our auth flow", "how does
-  our scheduler work", "walk me through our X". Do NOT use for generic
-  programming or public-library questions, debugging a specific error, or
-  writing/modifying code. It teaches an existing system; it does not generate
+  .claude/onboard/topics.yaml it walks that curated path; without one it
+  cold-starts from the repo's own authoritative docs (README, CLAUDE.md /
+  AGENTS.md, ARCHITECTURE.md, docs/, the dependency manifest, the entry point)
+  and says plainly what curated knowledge is still missing. The newcomer never
+  creates files, runs setup, or changes code. Use for "I'm new, help me
+  understand this project", "where do I start", "onboard me", "explain our auth
+  flow", "how does our scheduler work", "walk me through our X". Do NOT use for
+  generic programming or public-library questions, debugging a specific error,
+  or writing/modifying code. It teaches an existing system; it does not generate
   documentation or code, and it never invents gotchas or asserts a file is
   load-bearing beyond what the sources actually say.
-version: 0.2.1
+version: 0.3.0
 ---
 
 # onboard-our-stack
@@ -31,17 +31,17 @@ Tell them apart from the request: a named subsystem -> targeted; "new", "onboard
 me", "where do I start", "understand the project" -> broad.
 
 The institutional knowledge — which files are load-bearing, in what order, and
-the gotchas that live only in people's heads — is curated in `.onboard/topics.yaml`
-by a maintainer, ONCE, and committed. A newcomer just asks; they never author it
-and never change code to make this skill work.
+the gotchas that live only in people's heads — is curated in
+`.claude/onboard/topics.yaml` by a maintainer, ONCE, and committed. A newcomer
+just asks; they never author it and never change code to make this skill work.
 
 ## Availability ladder — the "works out of the box" guarantee
 
 Pick the highest tier the repo supports. Never block the newcomer on setup, and
 never demand maintainer input from someone who came here to learn.
 
-1. **Curated config present** (`.onboard/topics.yaml` at repo root) -> use it.
-   Best tier: real ordering, real gotchas. See Broad / Targeted below.
+1. **Curated config present** (`.claude/onboard/topics.yaml` at repo root) ->
+   use it. Best tier: real ordering, real gotchas. See Broad / Targeted below.
 
 2. **No config -> COLD START.** Do NOT refuse, and do NOT drop into config
    authoring (that is a maintainer-only flow, below). Orient the newcomer from
@@ -62,7 +62,7 @@ never demand maintainer input from someone who came here to learn.
 
 3. **No config and no docs -> minimal.** Show the entry point, the dependency
    manifest, and the top-level tree; say honestly there's little to go on, and
-   suggest a maintainer author `.onboard/topics.yaml`.
+   suggest a maintainer author `.claude/onboard/topics.yaml`.
 
 ## Broad onboarding (curated tier)
 
@@ -96,7 +96,7 @@ not a line-by-line walk. Offer the nearest adjacent topic next.
 
 ## Config shape
 
-`.onboard/topics.yaml` has two top-level keys:
+`.claude/onboard/topics.yaml` has two top-level keys:
 
 - `onboarding_path`: ordered list of topic keys — the broad-mode curriculum.
 - `topics`: map of `<key>` -> { one_liner, read_in_order, watch_out_for,
@@ -111,5 +111,6 @@ See `references/topics.example.yaml` for the schema and a worked example.
 A maintainer authors the config once, grounded in files they verify exist, and
 commits it. Trigger the authoring flow ONLY when someone explicitly asks to set
 up or curate onboarding — never as the default response to a missing config.
-Run `scripts/check_topics.py` in CI so stale paths fail the build; a stale
+Copy `scripts/check_topics.py` out of the installed skill into the repo (e.g.
+`ci/check_topics.py`) and run it in CI so stale paths fail the build; a stale
 reading list teaches a wrong model, the one failure this skill exists to prevent.

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Fail CI if .onboard/topics.yaml is malformed or references paths that no
+"""Fail CI if .claude/onboard/topics.yaml is malformed or references paths that no
 longer exist.
 
 Stale reading lists make onboard-our-stack teach a wrong mental model, which is
 worse than having no skill. Run this in CI on every PR.
 
 Usage:
-    python scripts/check_topics.py [--config .onboard/topics.yaml] [--root .]
+    python scripts/check_topics.py [--config .claude/onboard/topics.yaml] [--root .]
 
 Exit codes: 0 = OK, 1 = stale/invalid references, 2 = config problem.
 Requires PyYAML — the one deviation from the library's stdlib-only convention,
@@ -39,7 +39,7 @@ def extract_topics(data: dict) -> tuple[dict, list]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--config", default=".onboard/topics.yaml")
+    ap.add_argument("--config", default=".claude/onboard/topics.yaml")
     ap.add_argument("--root", default=".")
     args = ap.parse_args()
 

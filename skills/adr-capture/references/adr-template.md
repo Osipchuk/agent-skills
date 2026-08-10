@@ -3,8 +3,8 @@
 Base structure is MADR (Markdown Any Decision Records). The sections below the
 `---` are an **example** of a team's mandatory additions — this set fits a
 regulated/closed-contour environment; replace it with your team's own list via
-`mandatory_sections` in `.adr/config.yaml`. Whatever the set, the rule is the
-same: the skill must leave a `<TODO: ...>` for any mandatory section the
+`mandatory_sections` in `.claude/adr/config.yaml`. Whatever the set, the rule is
+the same: the skill must leave a `<TODO: ...>` for any mandatory section the
 conversation did not cover, and must never invent their content.
 
 Filename: `<NNNN>-<slug>.md` (e.g. `0042-vector-store.md`).
@@ -38,8 +38,9 @@ necessary now. 2-5 sentences.>
 - (−) <cost / risk accepted>
 
 ---
-<!-- Example mandatory set (regulated team) — replace via .adr/config.yaml.
-     Do not delete a configured heading; fill it or leave the TODO. -->
+<!-- Example mandatory set (regulated team) — replace via
+     .claude/adr/config.yaml. Do not delete a configured heading; fill it or
+     leave the TODO. -->
 
 ## Regulatory impact
 
