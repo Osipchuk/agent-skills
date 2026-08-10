@@ -3,15 +3,15 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-06-01T12:16:21.558618Z",
-    "commit": "fa50db000f8ec1c7aaeb16ccdfeb71265055a6e8"
+    "generated_at": "2026-08-10T11:09:31.413699Z",
+    "commit": "94a068e4fbf67e195f0b4a454955e20884410161"
   },
   "skills": [
     {
       "name": "adr-capture",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Catch an architectural decision as it is made and draft an ADR in your team's format, with explicit TODOs for missing mandatory fields. Never auto-commits.",
-      "description_long": "Catch an architectural or technical decision as it is being made and draft an Architecture Decision Record (ADR) in the team's format, leaving explicit TODOs for fields the conversation did not cover. Never writes or commits without explicit confirmation. Use this when the user asks to \"draft an ADR\", \"record this decision\", \"capture this as an ADR\", AND proactively offer it when the conversation shows a commitment pattern — \"we'll go with X over Y because Z\", \"let's standardize on...\", \"decided to...\", \"we're choosing...\" — paired with a rationale. It assigns the next ADR id, fills what the discussion supports, and flags team-mandatory sections (e.g. regulatory impact, data classification, rollback plan) as TODO when missing. Do NOT use for: exploratory discussion with no commitment (\"we might try\", \"could consider\", \"what if we\"), non-architectural decisions (scheduling, naming, trivial style), or generating product/requirements specs. When unsure whether a real decision was actually made, ask one question rather than draft.",
+      "description_long": "Catch an architectural or technical decision as it is being made and draft an Architecture Decision Record (ADR) in the team's format, leaving explicit TODOs for fields the conversation did not cover. Never writes or commits without explicit confirmation. Use this when the user asks to \"draft an ADR\", \"record this decision\", \"capture this as an ADR\", AND proactively offer it when the conversation shows a commitment pattern — \"we'll go with X over Y because Z\", \"let's standardize on...\", \"decided to...\", \"we're choosing...\" — paired with a rationale. It assigns the next ADR id, fills what the discussion supports, and flags missing team-mandatory sections as TODO. Do NOT use for: exploratory discussion with no commitment (\"we might try\", \"could consider\", \"what if we\"), non-architectural decisions (scheduling, naming, trivial style), or generating product/requirements specs. When unsure whether a real decision was actually made, ask one question rather than draft.",
       "path": "skills/adr-capture",
       "entry": "SKILL.md",
       "tags": [
@@ -23,7 +23,7 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-05-29T11:49:14+02:00",
+      "updated_at": "2026-08-10T13:09:21+02:00",
       "when": "Fires on an explicit request (\"draft an ADR\", \"record this decision\") and proactively when the conversation shows a commitment plus a rationale (\"we'll go with X over Y because Z\"). It assigns the next id, fills what was said, and flags mandatory regulated sections as TODO. It stays quiet during exploratory discussion and never writes without confirmation.",
       "highlights": [
         "Catches the decision while it's warm — the friction of writing ADRs by hand is exactly why they don't get written.",
@@ -113,9 +113,9 @@
     },
     {
       "name": "learning-mode",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "Turn a Claude Code session into a learn-by-doing coding tutorial with a spaced-repetition review log.",
-      "description_long": "Turn a regular Claude Code session into a learn-by-doing coding tutorial. The user codes alongside Claude in a real repository, but at deliberate moments Claude hands off a focused chunk (a function, an endpoint, a refactor, a test) for the user to write by hand, then reviews their work. Maintains a per-repo learning plan and a spaced-repetition log under .claude/learning/ so topics resurface for review at the right time. Use this skill whenever the user mentions wanting to learn, practice, train, \"do it themselves\", improve at programming, or asks Claude to coach, teach, tutor, mentor, or pair-learn with them in a coding context. Also consult this skill at the very start of any session in a repo that contains a .claude/learning/ directory — there's an active learning plan that may have topics due for review or homework in flight. Trigger phrases include \"coach me\", \"teach me X\", \"I want to learn Y\", \"help me practice Z\", \"let me try it myself\", \"review what I wrote\", \"give me a task\", \"what should I learn next\", as well as any signal that the user wants to grow as a developer rather than just ship code.",
+      "description_long": "Turn a regular Claude Code session into a learn-by-doing coding tutorial. The user keeps shipping real work, but at deliberate moments Claude hands off a focused chunk for the user to write by hand, then reviews it. Maintains a per-repo learning plan and a spaced-repetition log under .claude/learning/ so topics resurface at the right time. Use this whenever the user mentions wanting to learn, practice, train, \"do it themselves\", improve at programming, or asks Claude to coach, teach, tutor, mentor, or pair-learn in a coding context. Also consult it at the start of any session in a repo containing .claude/learning/ — there may be topics due for review or homework in flight. Trigger phrases include \"coach me\", \"teach me X\", \"I want to learn Y\", \"help me practice Z\", \"let me try it myself\", \"review what I wrote\", \"give me a task\", \"what should I learn next\", and any signal the user wants to grow as a developer rather than just ship code. Do not use when the user only wants the work done for them.",
       "path": "skills/learning-mode",
       "entry": "SKILL.md",
       "tags": [
@@ -125,10 +125,11 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-05-25T12:20:52+02:00",
+      "updated_at": "2026-08-10T13:09:21+02:00",
       "when": "Fires when you ask to learn, practice, or be coached on something during a coding session — and at the start of any session in a repo that already has a .claude/learning/ plan with topics due for review.",
       "highlights": [
         "Hands you one atomic piece to write yourself, then reviews it like a senior pair-programmer.",
+        "Splits the work instead of stalling — Claude ships the rest of the feature while your piece is open, and never touches your file.",
         "Keeps a per-repo learning plan and a spaced-repetition log under .claude/learning/.",
         "Resurfaces due topics at the right time, so what you practiced sticks before you forget it."
       ],
@@ -150,16 +151,16 @@
           },
           {
             "kind": "assistant",
-            "text": "Scaffold's in place with `timed` next to it as the worked example. Your turn: write `retry`. Ping me when you want a review."
+            "text": "Scaffold's in place with `timed` next to it as the worked example. Your turn: write `retry`. Meanwhile I wired the call sites and left you a red test — your file's untouched. Ping me when you want a review."
           }
         ]
       }
     },
     {
       "name": "onboard-our-stack",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "description": "Onboard a newcomer to your codebase or answer a targeted 'how does our X work' question by walking curated reading lists — and cold-starting from the repo's own docs when no curated config exists yet.",
-      "description_long": "Onboard a newcomer to THIS codebase, or answer a targeted \"how does our X work\" question, by walking curated reading lists and synthesizing the mental model — never by guessing. Works out of the box: if a maintainer has committed .onboard/topics.yaml it uses that curated path; if not, it cold-starts from the repo's own authoritative docs (README, CLAUDE.md / AGENTS.md, ARCHITECTURE.md, docs/, the dependency manifest, the entry point) and is explicit about what curated knowledge is still missing. The newcomer never has to create files, run setup, or change code. Use this for \"I'm new, help me understand this project\", \"where do I start\", \"onboard me\", and for \"explain our auth flow\", \"how does our scheduler work\", \"walk me through our X\". Do NOT use for: generic programming or public-library questions, debugging a specific error or stack trace, or writing/modifying code. This skill teaches an existing system; it does not generate documentation or code, and it does not invent gotchas or assert which files are load-bearing beyond what the sources actually say.",
+      "description_long": "Onboard a newcomer to THIS codebase, or answer a targeted \"how does our X work\" question, by walking curated reading lists and synthesizing the mental model — never by guessing. Works out of the box: with a committed .onboard/topics.yaml it walks that curated path; without one it cold-starts from the repo's own authoritative docs (README, CLAUDE.md / AGENTS.md, ARCHITECTURE.md, docs/, the dependency manifest, the entry point) and says plainly what curated knowledge is still missing. The newcomer never creates files, runs setup, or changes code. Use for \"I'm new, help me understand this project\", \"where do I start\", \"onboard me\", \"explain our auth flow\", \"how does our scheduler work\", \"walk me through our X\". Do NOT use for generic programming or public-library questions, debugging a specific error, or writing/modifying code. It teaches an existing system; it does not generate documentation or code, and it never invents gotchas or asserts a file is load-bearing beyond what the sources actually say.",
       "path": "skills/onboard-our-stack",
       "entry": "SKILL.md",
       "tags": [
@@ -170,7 +171,7 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-06-01T14:10:51+02:00",
+      "updated_at": "2026-08-10T13:09:21+02:00",
       "when": "Fires when someone asks how the team's own system works — broad (\"I'm new, walk me through this project\", \"where do I start\") or targeted (\"how does our scheduler work\"). With a committed .onboard/topics.yaml it walks the curated path; without one it cold-starts from README/ARCHITECTURE/CLAUDE.md/docs and is explicit about the curated gotchas still missing. The newcomer creates nothing and changes no code.",
       "highlights": [
         "Works out of the box: a newcomer just asks — no config to create, no setup, no code changes. The config is a maintainer's one-time committed artifact.",
@@ -258,7 +259,7 @@
     },
     {
       "name": "steelman-then-break",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Pressure-test a design or tech choice in two forced passes — strongest case for, then strongest case against, then a calibrated verdict that's willing to say 'proceed'.",
       "description_long": "Pressure-test a design proposal or technology choice in two separated passes: first the strongest possible case FOR it (steelman — argue the best version, even stronger than the author put it), then a rigorous case AGAINST it (red-team — name the anti-pattern, lead with what breaks first, cite the team's prior scars), then finish with a calibrated verdict. Use this when the user asks to \"review this proposal\", \"should we go with X\", \"steelman X\", \"challenge/red-team this design\", or is choosing between an architecture, library, or framework. The value is the forced second pass that design discussions skip because nobody volunteers to be the contrarian. Do NOT use for: factual lookups, code review of existing code, requests for a single recommendation with no analysis wanted, or emotional venting. Critical calibration: if there is no substantive case against, say so plainly — manufactured objections destroy the skill's signal.",
       "path": "skills/steelman-then-break",
@@ -272,11 +273,11 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-05-29T11:49:14+02:00",
-      "when": "Fires on \"review this proposal\", \"should we go with X\", \"steelman X\", \"red-team this design\", or when choosing between an architecture, library, or framework. It forces the second pass that design discussions skip, and pulls prior failures from references/scars.md so objections argue from the team's own evidence.",
+      "updated_at": "2026-08-10T13:09:21+02:00",
+      "when": "Fires on \"review this proposal\", \"should we go with X\", \"steelman X\", \"red-team this design\", or when choosing between an architecture, library, or framework. It forces the second pass that design discussions skip, and pulls prior failures from the project's .claude/scars.md so objections argue from the team's own evidence.",
       "highlights": [
         "Forced separation: the case-for has no caveats, the case-against leads with what breaks first — no hedging mush.",
-        "Cites the team's own scars (references/scars.md), so the red-team argues from evidence not generic risk.",
+        "Cites the team's own scars (.claude/scars.md in your repo, versioned with your code), so the red-team argues from evidence not generic risk.",
         "Calibrated verdict: willing to conclude 'the steelman holds, proceed' instead of reflexively finding fault.",
         "Built-in guard against the failure mode — manufactured objections destroy the signal, so it says when there's no real case against."
       ],
