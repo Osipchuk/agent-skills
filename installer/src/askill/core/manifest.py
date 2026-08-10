@@ -31,6 +31,11 @@ import yaml
 from askill.core.checksum import skill_checksum
 from askill.core.models import Catalog, CatalogSkill, Library, Registry, RegistrySkill
 
+# The agent skills spec (agentskills.io) caps the frontmatter `description` —
+# the text a host agent matches on — at 1024 chars; longer ones may be truncated
+# or rejected at install time.
+_MAX_DESCRIPTION_CHARS = 1024
+
 
 def parse_frontmatter(text: str) -> dict[str, Any]:
     """Parse the leading ``---``-delimited YAML frontmatter block into a mapping.
@@ -87,6 +92,7 @@ def _skill_common(
     """
     front = _read_frontmatter(skill_dir)
     name = front.get("name", skill_dir.name)
+    _validate_skill_description(name, front)
     meta = load_catalog_meta(name, repo_root)
     data = {
         "name": name,
@@ -98,6 +104,18 @@ def _skill_common(
         "path": skill_dir.relative_to(repo_root).as_posix(),
     }
     return front, meta, data
+
+
+def _validate_skill_description(name: str, front: dict[str, Any]) -> None:
+    """Fail the build on a missing or over-limit SKILL.md ``description``."""
+    description = front.get("description")
+    if not isinstance(description, str) or not description.strip():
+        raise ValueError(f"{name}: SKILL.md frontmatter needs a non-empty description")
+    if len(description) > _MAX_DESCRIPTION_CHARS:
+        raise ValueError(
+            f"{name}: SKILL.md description is {len(description)} chars; "
+            f"hosts cap it at {_MAX_DESCRIPTION_CHARS}"
+        )
 
 
 def build_registry_skill(skill_dir: Path, *, repo_root: Path) -> RegistrySkill:
@@ -186,6 +204,31 @@ def build_catalog(
         key=lambda skill: skill.name,
     )
     return Catalog(schema_version="1.0", library=_library(repo, commit, now), skills=skills)
+
+
+def readme_skills_section(skills: list[CatalogSkill]) -> str:
+    """The README "Available skills" bullet list, one line per skill.
+
+    Rendered from each skill's catalog ``summary`` (the manifest ``description``)
+    so the README can never drift from the library again — the generator splices
+    it between markers via :func:`splice_generated_block`.
+    """
+    return "\n".join(
+        f"- **[`{skill.name}`](skills/{skill.name}/)** — {skill.description}" for skill in skills
+    )
+
+
+def splice_generated_block(text: str, start_marker: str, end_marker: str, payload: str) -> str:
+    """Replace whatever sits between two marker lines with ``payload``.
+
+    Idempotent (splicing the same payload twice is a no-op), so a generated file
+    can be regenerated in place. Raises ``ValueError`` when a marker is absent.
+    """
+    if start_marker not in text or end_marker not in text:
+        raise ValueError(f"marker {start_marker!r} / {end_marker!r} not found in text")
+    head, rest = text.split(start_marker, 1)
+    _discard, tail = rest.split(end_marker, 1)
+    return f"{head}{start_marker}\n{payload}\n{end_marker}{tail}"
 
 
 def build_marketplace_manifests(

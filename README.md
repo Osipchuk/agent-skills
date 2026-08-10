@@ -71,9 +71,15 @@ Implemented: `wizard`, `list`, `info`, `install`, `uninstall` — with `--scope 
 
 ## Available skills
 
-- **[`learning-mode`](skills/learning-mode/)** — turn a Claude Code session into a learn-by-doing tutorial with a spaced-repetition review log.
-- **[`article-translator`](skills/article-translator/)** — translate long-form articles and prose between languages while preserving the author's voice, structure, and formatting.
-- **[`toxic-senior-reviewer`](skills/toxic-senior-reviewer/)** — code review in the voice of a blunt senior dev: sharp criticism only, curt approval when the code is actually good.
+<!-- available-skills:start -->
+- **[`adr-capture`](skills/adr-capture/)** — Catch an architectural decision as it is made and draft an ADR in your team's format, with explicit TODOs for missing mandatory fields. Never auto-commits.
+- **[`article-translator`](skills/article-translator/)** — Translate long-form articles and prose between languages while preserving the author's voice, structure, and formatting.
+- **[`learning-mode`](skills/learning-mode/)** — Turn a Claude Code session into a learn-by-doing coding tutorial with a spaced-repetition review log.
+- **[`onboard-our-stack`](skills/onboard-our-stack/)** — Onboard a newcomer to your codebase or answer a targeted 'how does our X work' question by walking curated reading lists — and cold-starting from the repo's own docs when no curated config exists yet.
+- **[`rubber-duck`](skills/rubber-duck/)** — A thinking partner that guides you to your own answer — listens first, reflects back your assumptions, and only sharpens into pointed questions when you're stuck.
+- **[`steelman-then-break`](skills/steelman-then-break/)** — Pressure-test a design or tech choice in two forced passes — strongest case for, then strongest case against, then a calibrated verdict that's willing to say 'proceed'.
+- **[`toxic-senior-reviewer`](skills/toxic-senior-reviewer/)** — Code reviewer in the voice of a toxic, no-nonsense senior developer — sharp criticism only, no empty praise, curt approval when code is actually good.
+<!-- available-skills:end -->
 
 ## From source (development)
 
