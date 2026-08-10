@@ -1,7 +1,7 @@
 ---
 name: article-translator
 description: Translate articles, essays, blog posts, threads, and other longer-form prose between any pair of languages while preserving the author's voice, register, and rhetorical structure. Use this whenever the user asks to translate, localize, render, or "give me in [language]" any text longer than a few paragraphs — news articles, op-eds, essays, blog posts, longreads, newsletters, technical writeups, conference transcripts, Twitter/X threads, or non-fiction excerpts. Trigger even when the user does not say the word "translate" explicitly — for example "I need this in English for our investors", "rewrite this for a Russian audience", or "make this readable to a German reader" all count. Do not use for single sentences, UI strings, code-only inputs, or short slogans — those are too small to benefit from this workflow.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # Article Translator
@@ -10,16 +10,14 @@ A workflow for translating long-form prose with fidelity, consistency, and a pre
 
 ## When to use
 
-Apply this skill whenever the input is **more than ~3 paragraphs of prose** and the user wants it rendered in another language. Typical inputs: news articles, op-eds, essays, blog posts, longreads, newsletter issues, conference transcripts, technical writeups, threads.
-
-Out of scope: UI copy, code, single sentences, tweet-sized fragments, song lyrics, metered poetry (literary verse translation needs a different toolkit), legal contracts (need specialized terminology and disclaimers).
+Input is more than ~3 paragraphs of prose bound for another language. Out of scope: UI copy, code, single sentences, tweet-sized fragments, song lyrics, metered poetry (verse translation needs a different toolkit), legal contracts (specialized terminology and disclaimers).
 
 ## Core workflow at a glance
 
 1. **Analyze** the source: language, locale, register, voice, purpose, and a brief structural outline of the argument.
 2. **Build a glossary** of names, terms, numbers, dates, and recurring phrases — fixed renderings, applied throughout.
 3. **Decide strategy** on idioms, units, punctuation, and format preservation.
-4. **Translate** in paragraph-sized semantic units, never sentence-by-sentence. Maintain logical flow across paragraph seams.
+4. **Translate** in paragraph-sized semantic units (Phase 4).
 5. **Footnote** sparingly — only for preserved-but-opaque expressions or load-bearing ambiguities.
 6. **Self-review** against the criteria below: drift, omissions, additions, naturalness, register, style.
 
@@ -35,7 +33,7 @@ The output should satisfy all of these criteria together. They are listed in pri
 
 1. **Accuracy.** Every proposition in the source must be present in the target. Nothing added, nothing dropped. Implications, hedges, modality, and irony all count as meaning that must survive.
 2. **Terminological consistency.** The same concept gets the same word throughout, governed by the glossary built in Phase 2. Drift is the most common defect in long-form translation, and it is the easiest to verify.
-3. **Naturalness.** The result must read as if originally written in the target language. If a native reader would never phrase it that way, rewrite. "Translator-ese" is a failure mode, not a neutral default.
+3. **Naturalness.** The result must read as if originally written in the target language. If a native reader would never phrase it that way, rewrite. "Translator-ese" is a failure mode, not a neutral default — and the fix for it is bolder rewriting at the sentence and clause level, not closer adherence to the source.
 4. **Style and register preservation.** Academic stays academic, casual stays casual. Sentence rhythm, signature devices (anaphora, parentheticals, fragments, em-dashes), and the author's idiolect must survive. Resist the urge to "clean up" deliberate quirks.
 5. **Pragmatic equivalence.** Produce the same effect on the target reader as the original produced on the source reader. A joke must remain funny; a polemic must remain pointed.
 6. **Cultural appropriateness.** Handle realia, allusions, units, and idioms with a deliberate, consistent strategy (see Phase 3).
@@ -101,6 +99,7 @@ State the policy — briefly to yourself, and to the user when asked — for:
   1. If the target language has a natural equivalent idiom → use it.
   2. If no equivalent but the figurative meaning carries clearly → paraphrase plainly. Do not invent a clunky calque just to mirror the original's figurativeness.
   3. If the expression is culturally or stylistically load-bearing (a famous quote, an allusion the author is clearly building meaning from, a phrase that is itself the point) → keep it (transliterated or rendered literally) and add a **footnote** explaining it.
+  4. Never invent a target-language idiom that does not actually exist just to "match" the source's idiomatic register.
 - **Units, dates, currencies.** Convert (e.g., miles → km, °F → °C) only when the original is communicating a sense of magnitude that the target audience would otherwise miss. Otherwise preserve and let context carry.
 - **Punctuation and typography.** Switch to target-language conventions: en-dash and em-dash usage, «guillemets» vs "quotes" vs „lower-upper", spaces before punctuation (French), non-breaking spaces, ellipsis style, etc.
 - **Paragraph and section structure.** Preserve. Do not merge or split paragraphs except to avoid genuinely unidiomatic results.
@@ -143,11 +142,13 @@ Use translator footnotes sparingly. Each footnote interrupts reading, so the bar
 
 Do not footnote things the target reader can easily look up, or things with an obvious target-language equivalent — that is avoidance of the actual translation work, not service to the reader. Aim for fewer than ~1% of words requiring footnotes. If more, rethink the cultural adaptation strategy.
 
+Never silently drop a difficult passage or paraphrase it past recognition. If a passage is genuinely ambiguous, resolve it one way and footnote the ambiguity.
+
 ### Phase 6 — Self-review before delivering
 
 Run an explicit pass against the criteria. This is not optional — it is where most defects are caught.
 
-- **Drift check.** For each glossary entry, confirm the chosen rendering was used every time the source term appears. Search the target text for unintended variants.
+- **Drift check.** For each glossary entry, confirm the chosen rendering was used every time the source term appears. Search the target text for unintended variants. Drift typically starts around the 60–70% mark of a long text — check there first.
 - **Omission check.** Walk through the source paragraph by paragraph; confirm every proposition is present in the target.
 - **Addition check.** Did any clarification or interpretation get smuggled in that the source did not have? If yes, either remove it or move it to a footnote.
 - **Naturalness check.** Mentally read the target aloud. Any sentence that sounds translated should be rewritten.
@@ -189,42 +190,15 @@ By default, save the translation as a separate file next to the original. Overri
 - The text is very short (under ~200 words) and a file would be overkill.
 - The user is iterating on a specific passage or sentence rather than translating a whole document.
 
-## Preserving structure and formatting
+## Formatting and special cases
 
-Translation must not break the document mechanically. Apply these rules across all source formats:
-
-- **Headings.** Translate the text; preserve the heading level (`#`, `##`, `###`).
-- **Markdown links** `[text](url)`. Translate the visible text. Leave the URL untouched.
-- **Inline code** (`backticks`) and **fenced code blocks** (```` ``` ````). Do not translate. Identifiers, command names, API names, syntax, error messages — verbatim. Translate code comments only when they are clearly authorial prose, not API-style documentation.
-- **Tables.** Preserve column structure and alignment markers. Translate cell contents and headers.
-- **Blockquotes** (`>`). Preserve the marker. Translate contents.
-- **Lists.** Preserve indentation, bullet/number style, and parallel structure across items more rigorously than in flowing prose.
-- **Footnote markers** and reference numbers. Keep them linked correctly to their targets.
-- **YAML front matter** (`--- ... ---` at the top of Markdown files used by static-site generators). Preserve structure and keys as-is. Translate only the values of user-facing prose fields (`title`, `description`, `summary`, `subtitle`). Never translate: slugs, IDs, dates, tags, layout names, technical flags. When in doubt, leave it.
-- **HTML embeds.** Preserve tag structure and attributes. Translate text content between tags. Leave `alt`, `href`, `class`, `id`, `style` alone unless the value is clearly user-facing prose (then translate `alt` and `title`, never `href`/`class`/`id`).
-- **Inline emphasis** (`*italic*`, `**bold**`). Preserve the marker placement around the equivalent target-language span.
-- **Whitespace and line breaks.** Preserve paragraph breaks exactly. Many publishing pipelines are sensitive to blank-line structure.
-
-When in doubt about a syntactic element, leave it verbatim. Breaking a document's rendering is a worse defect than under-translating an attribute value.
-
-## Special cases
-
-- **Embedded quotations from a third source.** If the quoted text has a canonical published translation in the target language, use it and cite it. Otherwise translate it and mark the passage with a translator's-translation note.
-- **Mixed-language source.** If the source already mixes languages (e.g., English technical terms inside a Russian article), preserve the mixing strategy — do not suddenly translate everything into monolingual target. The mixing is part of the style.
-- **Headlines, pull quotes, captions.** These often need looser, more idiomatic rendering than body text. Treat them as separate translation problems with their own pragmatic goals.
-- **Very long texts (>5000 words).** Build the glossary from the **full** text before translating anything — do not chunk the glossary phase. Then translate in clearly demarcated sections (natural chapters, headings, or 1000–1500-word chunks). Before starting each new chunk: re-read the glossary, and re-read the last paragraph of the previous chunk to lock in cohesion. After every ~1500 words of translation, do a drift check against the glossary — pick three glossary terms and grep the target text so far to confirm they were rendered consistently. Drift typically appears around the 60–70% mark; a mid-text check catches it before the end.
-
-## Anti-patterns to avoid
-
-- Sentence-atomic translation that preserves source syntax at the cost of natural target flow.
-- "Translator-ese" — over-formal, slightly stilted prose that reads exactly like a translation. The fix is bolder rewriting at the sentence and clause level, not closer adherence to the source.
-- Smoothing over the author's deliberate roughness, repetition, or compression.
-- Inventing target-language idioms to "match" the source's idiomatic register. Use only idioms that actually exist.
-- Inflating short, punchy sentences into long explanatory ones.
-- Inconsistent glossary use after the first few paragraphs (drift typically starts around the 60–70% mark of a long text).
-- Excessive footnoting. If more than ~1% of words need footnotes, the cultural strategy is wrong.
-- Silently dropping difficult passages or paraphrasing them past recognition. If a passage is genuinely ambiguous, footnote the ambiguity.
-- Translating titles, names, or technical terms differently in different places. Glossary > memory.
+Mechanical formatting rules (headings, links, code, tables, YAML front matter,
+HTML embeds) and special-case playbooks (embedded quotations, mixed-language
+sources, headlines and pull quotes, very long texts >5000 words) live in
+`references/formatting.md`. Read it before Phase 4 whenever the source is
+anything richer than plain paragraphs. The one rule that never bends: when in
+doubt about a syntactic element, leave it verbatim — breaking the document's
+rendering is worse than under-translating an attribute value.
 
 ## Final note
 
