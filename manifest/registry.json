@@ -3,13 +3,13 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-08-10T11:17:57.704409Z",
-    "commit": "acabea4115a1d95cc935e2d3d9a6450765cc3db4"
+    "generated_at": "2026-08-10T11:42:47.247405Z",
+    "commit": "141080d90cfe9a88188395c875354ef600776ff7"
   },
   "skills": [
     {
       "name": "adr-capture",
-      "version": "0.1.1",
+      "version": "0.2.0",
       "description": "Catch an architectural decision as it is made and draft an ADR in your team's format, with explicit TODOs for missing mandatory fields. Never auto-commits.",
       "path": "skills/adr-capture",
       "entry": "SKILL.md",
@@ -22,12 +22,12 @@
         "claude-code"
       ],
       "dependencies": [],
-      "checksum": "sha256:58ccb0048f0f29511375d6565a58442f7a8ab20bd9071139fd429620b17971b8",
+      "checksum": "sha256:a3c5a8c95b4db565d07672fd23381ec392594959e29b3f20f73cabc78ad73ec8",
       "license": "MIT"
     },
     {
       "name": "article-translator",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "Translate long-form articles and prose between languages while preserving the author's voice, structure, and formatting.",
       "path": "skills/article-translator",
       "entry": "SKILL.md",
@@ -39,7 +39,7 @@
         "claude-code"
       ],
       "dependencies": [],
-      "checksum": "sha256:8472477b1063525175f984f10fee4c47b06aa08b6b6f7cd9af2dbd56b856be69",
+      "checksum": "sha256:aea3f6b5e4cfa1ad3ed5dc87d89b239c76d51a58b7593e8daad6963e55c4d34a",
       "license": "MIT"
     },
     {
@@ -60,7 +60,7 @@
     },
     {
       "name": "onboard-our-stack",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "description": "Onboard a newcomer to your codebase or answer a targeted 'how does our X work' question by walking curated reading lists — and cold-starting from the repo's own docs when no curated config exists yet.",
       "path": "skills/onboard-our-stack",
       "entry": "SKILL.md",
@@ -72,12 +72,12 @@
         "claude-code"
       ],
       "dependencies": [],
-      "checksum": "sha256:850c79e3464aa7fcbe9838377d696536851727ff27aaeb6240675379e3a7ff39",
+      "checksum": "sha256:a393f6af2f9767161333a18877289fad926554cbbc2e8dfe750e6d679d969d40",
       "license": "MIT"
     },
     {
       "name": "rubber-duck",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "A thinking partner that guides you to your own answer — listens first, reflects back your assumptions, and only sharpens into pointed questions when you're stuck.",
       "path": "skills/rubber-duck",
       "entry": "SKILL.md",
@@ -89,7 +89,7 @@
         "claude-code"
       ],
       "dependencies": [],
-      "checksum": "sha256:9584f42378bda535a8d8d7f1715d6555f2465affd7448d23a1b4c6363c0105e9",
+      "checksum": "sha256:975e8134ddc0bc703d9b696928ab08ead0601b08db227a27da91ed41880ae2e4",
       "license": "MIT"
     },
     {
@@ -112,7 +112,7 @@
     },
     {
       "name": "toxic-senior-reviewer",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "Code reviewer in the voice of a toxic, no-nonsense senior developer — sharp criticism only, no empty praise, curt approval when code is actually good.",
       "path": "skills/toxic-senior-reviewer",
       "entry": "SKILL.md",
@@ -123,7 +123,7 @@
         "claude-code"
       ],
       "dependencies": [],
-      "checksum": "sha256:913027309efdfb8cd12bd91ae07bb1bc54c0d451c0422ebdb72bc78b9c5cc0fa",
+      "checksum": "sha256:0d44c5c197ea04fc378aee693c79a2939a64223061724a64b3d98b562045130b",
       "license": "MIT"
     }
   ]

@@ -3,15 +3,15 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-08-10T11:17:57.744248Z",
-    "commit": "acabea4115a1d95cc935e2d3d9a6450765cc3db4"
+    "generated_at": "2026-08-10T11:42:47.291729Z",
+    "commit": "141080d90cfe9a88188395c875354ef600776ff7"
   },
   "skills": [
     {
       "name": "adr-capture",
-      "version": "0.1.1",
+      "version": "0.2.0",
       "description": "Catch an architectural decision as it is made and draft an ADR in your team's format, with explicit TODOs for missing mandatory fields. Never auto-commits.",
-      "description_long": "Catch an architectural or technical decision as it is being made and draft an Architecture Decision Record (ADR) in the team's format, leaving explicit TODOs for fields the conversation did not cover. Never writes or commits without explicit confirmation. Use this when the user asks to \"draft an ADR\", \"record this decision\", \"capture this as an ADR\", AND proactively offer it when the conversation shows a commitment pattern — \"we'll go with X over Y because Z\", \"let's standardize on...\", \"decided to...\", \"we're choosing...\" — paired with a rationale. It assigns the next ADR id, fills what the discussion supports, and flags missing team-mandatory sections as TODO. Do NOT use for: exploratory discussion with no commitment (\"we might try\", \"could consider\", \"what if we\"), non-architectural decisions (scheduling, naming, trivial style), or generating product/requirements specs. When unsure whether a real decision was actually made, ask one question rather than draft.",
+      "description_long": "Catch an architectural or technical decision as it is being made and draft an Architecture Decision Record (ADR) in the team's format, leaving explicit TODOs for fields the conversation did not cover. Never writes or commits without explicit confirmation. Use this when the user asks to \"draft an ADR\", \"record this decision\", \"capture this as an ADR\", AND proactively offer it when the conversation shows a commitment pattern — \"we'll go with X over Y because Z\", \"let's standardize on...\", \"decided to...\", \"we're choosing...\" — paired with a rationale. Do NOT use for: exploratory discussion with no commitment (\"we might try\", \"could consider\", \"what if we\"), non-architectural decisions (scheduling, naming, trivial style), or generating product/requirements specs. When unsure whether a real decision was actually made, ask one question rather than draft.",
       "path": "skills/adr-capture",
       "entry": "SKILL.md",
       "tags": [
@@ -23,7 +23,7 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-08-10T13:09:21+02:00",
+      "updated_at": "2026-08-10T13:39:18+02:00",
       "when": "Fires on an explicit request (\"draft an ADR\", \"record this decision\") and proactively when the conversation shows a commitment plus a rationale (\"we'll go with X over Y because Z\"). It assigns the next id, fills what was said, and flags mandatory regulated sections as TODO. It stays quiet during exploratory discussion and never writes without confirmation.",
       "highlights": [
         "Catches the decision while it's warm — the friction of writing ADRs by hand is exactly why they don't get written.",
@@ -64,7 +64,7 @@
     },
     {
       "name": "article-translator",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "Translate long-form articles and prose between languages while preserving the author's voice, structure, and formatting.",
       "description_long": "Translate articles, essays, blog posts, threads, and other longer-form prose between any pair of languages while preserving the author's voice, register, and rhetorical structure. Use this whenever the user asks to translate, localize, render, or \"give me in [language]\" any text longer than a few paragraphs — news articles, op-eds, essays, blog posts, longreads, newsletters, technical writeups, conference transcripts, Twitter/X threads, or non-fiction excerpts. Trigger even when the user does not say the word \"translate\" explicitly — for example \"I need this in English for our investors\", \"rewrite this for a Russian audience\", or \"make this readable to a German reader\" all count. Do not use for single sentences, UI strings, code-only inputs, or short slogans — those are too small to benefit from this workflow.",
       "path": "skills/article-translator",
@@ -77,7 +77,7 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-05-25T12:20:52+02:00",
+      "updated_at": "2026-08-10T13:41:42+02:00",
       "when": "Fires when you ask to translate, localize, or \"give me in [language]\" any prose longer than a few paragraphs — articles, essays, posts, threads. Not for single sentences, UI strings, or code-only inputs.",
       "highlights": [
         "Builds a glossary first, so names and domain terms stay consistent across a long text.",
@@ -158,9 +158,9 @@
     },
     {
       "name": "onboard-our-stack",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "description": "Onboard a newcomer to your codebase or answer a targeted 'how does our X work' question by walking curated reading lists — and cold-starting from the repo's own docs when no curated config exists yet.",
-      "description_long": "Onboard a newcomer to THIS codebase, or answer a targeted \"how does our X work\" question, by walking curated reading lists and synthesizing the mental model — never by guessing. Works out of the box: with a committed .onboard/topics.yaml it walks that curated path; without one it cold-starts from the repo's own authoritative docs (README, CLAUDE.md / AGENTS.md, ARCHITECTURE.md, docs/, the dependency manifest, the entry point) and says plainly what curated knowledge is still missing. The newcomer never creates files, runs setup, or changes code. Use for \"I'm new, help me understand this project\", \"where do I start\", \"onboard me\", \"explain our auth flow\", \"how does our scheduler work\", \"walk me through our X\". Do NOT use for generic programming or public-library questions, debugging a specific error, or writing/modifying code. It teaches an existing system; it does not generate documentation or code, and it never invents gotchas or asserts a file is load-bearing beyond what the sources actually say.",
+      "description_long": "Onboard a newcomer to THIS codebase, or answer a targeted \"how does our X work\" question, by walking curated reading lists and synthesizing the mental model — never by guessing. Works out of the box: with a committed .claude/onboard/topics.yaml it walks that curated path; without one it cold-starts from the repo's own authoritative docs (README, CLAUDE.md / AGENTS.md, ARCHITECTURE.md, docs/, the dependency manifest, the entry point) and says plainly what curated knowledge is still missing. The newcomer never creates files, runs setup, or changes code. Use for \"I'm new, help me understand this project\", \"where do I start\", \"onboard me\", \"explain our auth flow\", \"how does our scheduler work\", \"walk me through our X\". Do NOT use for generic programming or public-library questions, debugging a specific error, or writing/modifying code. It teaches an existing system; it does not generate documentation or code, and it never invents gotchas or asserts a file is load-bearing beyond what the sources actually say.",
       "path": "skills/onboard-our-stack",
       "entry": "SKILL.md",
       "tags": [
@@ -171,8 +171,8 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-08-10T13:09:21+02:00",
-      "when": "Fires when someone asks how the team's own system works — broad (\"I'm new, walk me through this project\", \"where do I start\") or targeted (\"how does our scheduler work\"). With a committed .onboard/topics.yaml it walks the curated path; without one it cold-starts from README/ARCHITECTURE/CLAUDE.md/docs and is explicit about the curated gotchas still missing. The newcomer creates nothing and changes no code.",
+      "updated_at": "2026-08-10T13:37:09+02:00",
+      "when": "Fires when someone asks how the team's own system works — broad (\"I'm new, walk me through this project\", \"where do I start\") or targeted (\"how does our scheduler work\"). With a committed .claude/onboard/topics.yaml it walks the curated path; without one it cold-starts from README/ARCHITECTURE/CLAUDE.md/docs and is explicit about the curated gotchas still missing. The newcomer creates nothing and changes no code.",
       "highlights": [
         "Works out of the box: a newcomer just asks — no config to create, no setup, no code changes. The config is a maintainer's one-time committed artifact.",
         "Cold-start fallback reads and CITES the repo's own docs rather than refusing; it never invents gotchas or guesses which files are load-bearing.",
@@ -198,7 +198,7 @@
           },
           {
             "kind": "tool",
-            "text": "read .onboard/topics.yaml, then product_vision and request_lifecycle reading lists"
+            "text": "read .claude/onboard/topics.yaml, then product_vision and request_lifecycle reading lists"
           },
           {
             "kind": "tool_out",
@@ -213,9 +213,9 @@
     },
     {
       "name": "rubber-duck",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "A thinking partner that guides you to your own answer — listens first, reflects back your assumptions, and only sharpens into pointed questions when you're stuck.",
-      "description_long": "A thinking partner that helps you reach your OWN answer instead of handing you one. It opens passively — invites you to explain the problem, reflects back the key facts and the assumptions it heard — and escalates to pointed diagnostic questions only when you're stuck or going in circles. Use this when the user wants to reason something out: \"help me think through this\", \"rubber duck this with me\", \"I'm stuck on this bug\", \"talk me through this design\", \"let me think out loud\". Do NOT fire when the user wants a direct answer — \"just tell me the fix\", \"give me the answer\", \"what's the bug\" — that is a different intent and should get a straight reply, not questions. Also not for factual lookups, time-pressured incidents where speed beats learning, or requests to write code. The withholding is the feature, but withholding past usefulness is a failure: there is an explicit escape hatch.",
+      "description_long": "A thinking partner that helps you reach your OWN answer instead of handing you one. Use this when the user wants to reason something out: \"help me think through this\", \"rubber duck this with me\", \"I'm stuck on this bug\", \"talk me through this design\", \"let me think out loud\", \"be my sounding board\", \"am I missing something here\". Do NOT fire when the user wants a direct answer — \"just tell me the fix\", \"give me the answer\", \"what's the bug\" — that intent gets a straight reply, not questions. Also not for factual lookups, time-pressured incidents where speed beats learning, or requests to write code.",
       "path": "skills/rubber-duck",
       "entry": "SKILL.md",
       "tags": [
@@ -226,7 +226,7 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-05-29T11:49:14+02:00",
+      "updated_at": "2026-08-10T13:38:36+02:00",
       "when": "Fires when the user wants to reason something out — \"help me think through this\", \"rubber duck this with me\", \"I'm stuck on this bug\" — not when they want a direct answer. It opens passively and escalates to diagnostic questions only if they're spinning, with an explicit escape hatch when they ask for the answer outright or it's an emergency.",
       "highlights": [
         "Passive-first, teeth-on-demand: a real duck listens; this one only sharpens into questions when you're stuck.",
@@ -306,9 +306,9 @@
     },
     {
       "name": "toxic-senior-reviewer",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "Code reviewer in the voice of a toxic, no-nonsense senior developer — sharp criticism only, no empty praise, curt approval when code is actually good.",
-      "description_long": "Code review in the voice of a toxic senior developer — dry sarcasm without profanity, no fluff, no empty praise. Use this skill whenever the user asks for a code review, says \"how can I improve this\", \"what do you think of this code\", \"take a look at this\", \"rate this solution\", \"critique this\", \"do a code review\", drops a code snippet asking for feedback, or explicitly asks for a \"harsh review\", \"senior-level review\", \"brutal review\", \"toxic review\", \"tear this apart\". The skill focuses on suboptimal code, duplication, over-engineering, bad-practice violations, and weak naming. If the code is genuinely good, the senior gives a curt approval rather than inventing problems.",
+      "description_long": "Code review in the voice of a toxic senior developer — dry sarcasm without profanity, no fluff, no empty praise. Use this skill whenever the user asks for a code review, says \"how can I improve this\", \"what do you think of this code\", \"take a look at this\", \"rate this solution\", \"critique this\", \"do a code review\", drops a code snippet asking for feedback, or explicitly asks for a \"harsh review\", \"senior-level review\", \"brutal review\", \"toxic review\", \"tear this apart\". The skill focuses on suboptimal code, duplication, over-engineering, bad-practice violations, and weak naming. If the code is genuinely good, the senior gives a curt approval rather than inventing problems. Do NOT use for: writing new code from scratch, explaining how existing code works, reviewing design proposals or architecture documents, or when the user asks for a gentle, encouraging, or beginner-friendly review.",
       "path": "skills/toxic-senior-reviewer",
       "entry": "SKILL.md",
       "tags": [
@@ -318,8 +318,8 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-05-25T12:31:43+02:00",
-      "when": "Triggers when the user asks for a code review, drops a code snippet asking\nfor feedback, or explicitly requests a \"harsh\", \"senior-level\", or \"brutal\"\nreview. Also fires on intent phrases like \"how can I improve this\", \"what do\nyou think of this code\", \"rate this solution\", or \"tear this apart\". Does\nnot fire on requests to write new code from scratch or to explain how\nexisting code works.\n",
+      "updated_at": "2026-08-10T13:37:59+02:00",
+      "when": "Triggers when the user asks for a code review, drops a code snippet asking\nfor feedback, or explicitly requests a \"harsh\", \"senior-level\", or \"brutal\"\nreview. Also fires on intent phrases like \"how can I improve this\", \"what do\nyou think of this code\", \"rate this solution\", or \"tear this apart\". Does\nnot fire on requests to write new code from scratch, to explain how existing\ncode works, to review a design proposal or architecture document, or when the\nuser asks for a gentle, encouraging review.\n",
       "highlights": [
         "Sarcastic but clean tone — sharp critique, no profanity, no personal attacks on the author.",
         "Hits the high-impact targets: duplication, over-engineering, weak naming, magic numbers, sloppy error handling, algorithmic inefficiency.",
