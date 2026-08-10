@@ -26,7 +26,7 @@ Guidelines:
 - **`version`** is strict semver; bump it whenever the skill folder's content changes (the checksum changes with it).
 - **`tags`** are kebab-case (≤10) and should reuse the existing tag vocabulary; **`compatible_agents`** must include `claude-code`.
 - **Progressive disclosure**: keep `SKILL.md` focused on the workflow; put bulky templates in `references/` and helper scripts in `scripts/` (dependency-free where possible) and reference them by relative path.
-- **Mutable team data does not live in the skill folder** — installed files are checksummed and overwritten on update. Keep user-editable state in the target project (like `.claude/learning/`, `.claude/scars.md`, `.onboard/topics.yaml`) and ship only a template in `references/`.
+- **Mutable team data does not live in the skill folder** — installed files are checksummed and overwritten on update. Keep user-editable state in the target project (all under `.claude/` — `.claude/learning/`, `.claude/scars.md`, `.claude/onboard/topics.yaml`, `.claude/adr/config.yaml`) and ship only a template in `references/`.
 - **No secrets** in skill files.
 
 You do **not** edit `manifest/registry.json`, `manifest/catalog.json`, `.claude-plugin/*`, or the README "Available skills" block by hand — they are regenerated from the two files above by CI on merge to `main` (and locally via `installer/scripts/generate_registry.py`). CI fails a PR whose generated artifacts are stale: after changing a skill, run from `installer/`:
@@ -34,6 +34,20 @@ You do **not** edit `manifest/registry.json`, `manifest/catalog.json`, `.claude-
 ```bash
 uv run python scripts/generate_registry.py --commit "$(git -C .. rev-parse HEAD)" --schema
 ```
+
+### Eval suites
+
+A skill's behaviour is testable: `evals/<name>/suite.yaml` declares which prompts should (and should not) activate it, plus compliance scenarios that check the agent follows its rules. Suites live outside `skills/`, so editing one never changes a skill's checksum. Full format: [docs/skill-evals-spec.md](../docs/skill-evals-spec.md).
+
+Static validation runs on every PR and needs no API key:
+
+```bash
+cd installer
+uv run python scripts/run_evals.py --validate          # every suite
+uv run python scripts/run_evals.py --validate --strict # what CI runs
+```
+
+`--strict` turns version drift into a failure: **if you change a skill, re-run its suite and bump `version_tested`**, or CI blocks the PR. Skills with no suite yet are reported as `info` and do not fail the build.
 
 ## Developing askill
 

@@ -1,0 +1,82 @@
+# Eval suite for the rubber-duck skill (evals spec §4).
+#
+# Lives OUTSIDE skills/, so it is never installed to a user and never affects
+# the skill's checksum — editing a suite needs no version bump of the skill.
+#
+# rubber-duck is the most behavioural skill in the library: its rules are about
+# what the assistant does NOT say. Few workspace traces, so the deterministic
+# checks here run over the transcript and the git tree, and the judge carries
+# the criteria that only reading the reply can settle.
+
+skill: rubber-duck
+version_tested: 0.2.0
+
+budget:
+  max_turns: 6
+  model: claude-sonnet-4-6
+
+trigger:
+  positive:
+    - id: think-through
+      prompt: "Help me think through this caching design."
+    - id: stuck-on-bug
+      prompt: "I'm stuck on this bug — my test passes locally and fails in CI."
+    - id: sounding-board
+      prompt: "Be my sounding board on this schema for a minute."
+  negative:
+    - id: just-tell-me
+      prompt: "Just tell me the fix for this failing test."
+      # From the description's "Do NOT fire when the user wants a direct answer".
+      covers_non_trigger: true
+    - id: write-code
+      prompt: "Write a retry decorator with exponential backoff."
+    - id: factual-lookup
+      prompt: "What's the default timeout for httpx?"
+
+compliance:
+  - id: opens-without-solving
+    prompt: "Rubber duck this with me — my integration test passes locally but fails in CI."
+    assertions:
+      # Gear 0 listens; it must not produce a patch or a diff.
+      - kind: git
+        expect: clean
+      - kind: transcript
+        pattern: "\\?"
+        expect: present
+      - kind: judge
+        rubric: >
+          The reply must NOT contain the solution or a concrete fix. It should
+          reflect back the facts and the implicit assumptions it heard, then
+          invite the user to continue. Naming a likely cause outright is a
+          failure at this gear, even if the guess is correct.
+
+  - id: one-question-per-turn
+    prompt: "Talk me through this design — I've got a queue, a worker pool, and I think a race."
+    assertions:
+      - kind: git
+        expect: clean
+      - kind: judge
+        rubric: >
+          The reply asks AT MOST ONE question. Two or more questions in a single
+          turn is a failure — the skill's "Never" list forbids it, because it
+          takes the reasoning back from the user.
+
+  - id: escape-hatch-answers-directly
+    turns:
+      - "Help me think through why this query got slow."
+      - "I don't want questions — just tell me the answer."
+      - "Seriously, give me the answer."
+    assertions:
+      - kind: judge
+        rubric: >
+          By the final turn the assistant must have DROPPED the method and
+          answered directly with its best concrete assessment. Continuing to ask
+          questions after the user has asked twice for the answer is the failure
+          this skill explicitly calls out — withholding past usefulness.
+      - kind: transcript
+        pattern: "(?i)(index|scan|query plan|n\\+1|cache)"
+        expect: present
+
+thresholds:
+  trigger_accuracy: 1.0
+  compliance_pass_rate: 1.0

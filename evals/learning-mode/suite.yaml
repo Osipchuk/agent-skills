@@ -1,0 +1,100 @@
+# Eval suite for the learning-mode skill (evals spec §4).
+#
+# Lives OUTSIDE skills/, so it is never installed to a user and never affects
+# the skill's checksum — editing a suite needs no version bump of the skill.
+#
+# learning-mode is the most mechanical skill in the library: its rules leave
+# physical traces (an anchor comment in code, a brief file, a progress row), so
+# almost everything here is checkable without a judge.
+
+skill: learning-mode
+version_tested: 0.2.0
+
+budget:
+  max_turns: 8
+  model: claude-sonnet-4-6
+
+trigger:
+  positive:
+    - id: coach-me
+      prompt: "Coach me on Python decorators while we build this retry helper."
+    - id: let-me-try
+      prompt: "Actually, let me try writing this validator myself — give me a task."
+    - id: what-next
+      prompt: "What should I practice next to get better at async Python?"
+  negative:
+    - id: just-ship
+      prompt: "Write the retry decorator for me, I don't want to practice."
+      # From the description's "Do not use when the user only wants the work
+      # done for them."
+      covers_non_trigger: true
+    - id: factual-question
+      prompt: "What does functools.wraps actually do?"
+    - id: plain-review
+      prompt: "Review this pull request for bugs before I merge it."
+
+compliance:
+  - id: handoff-leaves-the-gap
+    prompt: "Teach me Pydantic validators while we build the User schema."
+    assertions:
+      # The brief must exist — "Handoff artifacts" makes it mandatory.
+      - kind: file_exists
+        path: .claude/learning/active-task.md
+      # And the anchor must be planted at the gap.
+      - kind: grep
+        glob: "**/*.py"
+        pattern: "🎓 LEARNING TASK"
+        expect: present
+      - kind: judge
+        rubric: >
+          The assistant must NOT have written the body of the function it handed
+          off. A stub, a scaffold, or a sibling worked example is allowed; the
+          handed-off gap itself must be left unimplemented for the user.
+
+  - id: one-task-one-anchor
+    prompt: "Teach me FastAPI dependencies while we wire up this endpoint."
+    assertions:
+      - kind: file_exists
+        path: .claude/learning/active-task.md
+      - kind: judge
+        rubric: >
+          Exactly one 🎓 LEARNING TASK anchor was planted across the whole
+          workspace. The skill's "One task = one anchor" rule forbids handing
+          off two stubs at once, even when a second gap looks convenient.
+
+  - id: closeout-strips-the-anchor
+    turns:
+      - "Teach me Pydantic validators while we build the User schema."
+      - "{{submit: user fills the stub with a correct implementation}}"
+      - "Done — review it."
+    assertions:
+      # Close-out step 1 is a hard requirement: no anchor may survive a
+      # completed task, anywhere in the repo.
+      - kind: grep
+        glob: "**/*"
+        pattern: "🎓 LEARNING TASK"
+        expect: absent
+      # Step 3: the brief is deleted, not left stale.
+      - kind: file_absent
+        path: .claude/learning/active-task.md
+      # Step 2: the topic is logged for spaced repetition.
+      - kind: file_exists
+        path: .claude/learning/progress.md
+      - kind: git
+        expect: no_commits
+
+  - id: no-plan-no-unprompted-setup
+    prompt: "Add a retry helper to the http client."
+    assertions:
+      # "do not create the directory unprompted" — a plain dev request in a
+      # repo with no .claude/learning/ must not trigger onboarding.
+      - kind: file_absent
+        path: .claude/learning/plan.md
+      - kind: grep
+        glob: "**/*"
+        pattern: "🎓 LEARNING TASK"
+        expect: absent
+
+thresholds:
+  trigger_accuracy: 1.0
+  compliance_pass_rate: 1.0
