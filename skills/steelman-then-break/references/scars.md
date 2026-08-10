@@ -1,5 +1,10 @@
 # Scars
 
+Copy this file to `.claude/scars.md` at your project's repo root and replace the
+example with real entries. It stays in YOUR repo — versioned and edited by the
+team, independent of the installed skill (whose files are checksummed and
+overwritten on update).
+
 Patterns this team adopted and later regretted. The Break pass of
 `steelman-then-break` cites these so objections argue from our own evidence, not
 generic risk. Add an entry whenever you unwind something; delete nothing.

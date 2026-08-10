@@ -4,37 +4,36 @@ Thanks for considering a contribution! There are two kinds of work here: **skill
 
 ## Adding or editing a skill
 
-A skill is a folder `skills/<name>/` containing at least a `SKILL.md`:
+A skill is split across **two files** (full guide: [docs/skill-authoring.md](../docs/skill-authoring.md), copy-paste scaffolds in [templates/](../templates/)):
 
-```yaml
----
-name: my-skill            # kebab-case, matches the folder name
-description: <one paragraph — what it does AND when it should trigger>
-version: 0.1.0            # strict semver MAJOR.MINOR.PATCH
-summary: <one short line — what it does, ≤1024 chars>
-tags: [example, demo]     # kebab-case, ≤10
-compatible_agents: [claude-code]   # must include claude-code
-license: MIT
----
+- `skills/<name>/SKILL.md` — installed to the user and checksummed. Frontmatter has **exactly three keys**:
 
-# My Skill
+  ```yaml
+  ---
+  name: my-skill            # kebab-case, matches the folder name
+  description: <one trigger-oriented paragraph, ≤1024 chars>
+  version: 0.1.0            # strict semver MAJOR.MINOR.PATCH
+  ---
+  ```
 
-Instructions for the agent…
-```
-
-The first two keys are the **real Claude Code skill format**; the rest is **registry metadata** that the `askill` registry needs. Claude Code ignores unknown frontmatter keys, so both coexist in one file.
+- `catalog/<name>.yaml` — never installed; holds all presentation metadata (`summary`, `tags`, `compatible_agents`, `license`, `when`, `highlights`, `example`).
 
 Guidelines:
 
-- **`name`** is kebab-case (`^[a-z][a-z0-9-]{2,63}$`) and matches the folder name.
-- **`description`** is the long text a host agent matches against to decide whether to activate the skill. Make it concrete: list the phrases and situations that should trigger it, plus explicit non-triggers ("Do not use for…"). This is often well over 1024 chars — which is exactly why the registry uses `summary` instead.
-- **`summary`** is the short, single-line blurb shown in the registry and in `askill list`/`info`. It becomes `RegistrySkill.description`, which is capped at 1024 chars, so keep it to one sentence.
-- **`version`** is strict semver and is the version the registry publishes.
-- **`tags`** are kebab-case (≤10); **`compatible_agents`** must include `claude-code`.
+- **`name`** is kebab-case (`^[a-z][a-z0-9-]{2,63}$`) and matches both the folder name and the catalog filename.
+- **`description`** is the text a host agent matches against to decide whether to activate the skill. Make it concrete: list the phrases and situations that should trigger it, plus explicit non-triggers ("Do not use for…"). **Hard cap: 1024 characters** (the agent skills spec limit; the generator enforces it) — spend the budget on triggers, not on retelling the workflow.
+- **`summary`** (in the catalog yaml) is the short, single-line blurb shown in the registry, in `askill list`/`info`, and in the README skills list. One sentence.
+- **`version`** is strict semver; bump it whenever the skill folder's content changes (the checksum changes with it).
+- **`tags`** are kebab-case (≤10) and should reuse the existing tag vocabulary; **`compatible_agents`** must include `claude-code`.
 - **Progressive disclosure**: keep `SKILL.md` focused on the workflow; put bulky templates in `references/` and helper scripts in `scripts/` (dependency-free where possible) and reference them by relative path.
+- **Mutable team data does not live in the skill folder** — installed files are checksummed and overwritten on update. Keep user-editable state in the target project (like `.claude/learning/`, `.claude/scars.md`, `.onboard/topics.yaml`) and ship only a template in `references/`.
 - **No secrets** in skill files.
 
-You do **not** edit `registry.json` by hand — it is regenerated from skill frontmatter by CI on merge to `main` (and locally via `installer/scripts/generate_registry.py`). Just get the frontmatter right.
+You do **not** edit `manifest/registry.json`, `manifest/catalog.json`, `.claude-plugin/*`, or the README "Available skills" block by hand — they are regenerated from the two files above by CI on merge to `main` (and locally via `installer/scripts/generate_registry.py`). CI fails a PR whose generated artifacts are stale: after changing a skill, run from `installer/`:
+
+```bash
+uv run python scripts/generate_registry.py --commit "$(git -C .. rev-parse HEAD)" --schema
+```
 
 ## Developing askill
 

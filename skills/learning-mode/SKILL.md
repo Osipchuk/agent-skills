@@ -1,7 +1,7 @@
 ---
 name: learning-mode
-description: Turn a regular Claude Code session into a learn-by-doing coding tutorial. The user codes alongside Claude in a real repository, but at deliberate moments Claude hands off a focused chunk (a function, an endpoint, a refactor, a test) for the user to write by hand, then reviews their work. Maintains a per-repo learning plan and a spaced-repetition log under .claude/learning/ so topics resurface for review at the right time. Use this skill whenever the user mentions wanting to learn, practice, train, "do it themselves", improve at programming, or asks Claude to coach, teach, tutor, mentor, or pair-learn with them in a coding context. Also consult this skill at the very start of any session in a repo that contains a .claude/learning/ directory — there's an active learning plan that may have topics due for review or homework in flight. Trigger phrases include "coach me", "teach me X", "I want to learn Y", "help me practice Z", "let me try it myself", "review what I wrote", "give me a task", "what should I learn next", as well as any signal that the user wants to grow as a developer rather than just ship code.
-version: 0.1.0
+description: Turn a regular Claude Code session into a learn-by-doing coding tutorial. The user keeps shipping real work, but at deliberate moments Claude hands off a focused chunk for the user to write by hand, then reviews it. Maintains a per-repo learning plan and a spaced-repetition log under .claude/learning/ so topics resurface at the right time. Use this whenever the user mentions wanting to learn, practice, train, "do it themselves", improve at programming, or asks Claude to coach, teach, tutor, mentor, or pair-learn in a coding context. Also consult it at the start of any session in a repo containing .claude/learning/ — there may be topics due for review or homework in flight. Trigger phrases include "coach me", "teach me X", "I want to learn Y", "help me practice Z", "let me try it myself", "review what I wrote", "give me a task", "what should I learn next", and any signal the user wants to grow as a developer rather than just ship code. Do not use when the user only wants the work done for them.
+version: 0.2.0
 ---
 
 # Learning Mode
@@ -13,6 +13,8 @@ A skill that turns regular development sessions into deliberate practice. The us
 Two layers running together: normal development as usual, plus a coaching overlay where Claude leaves one small atomic gap for the user to fill, with a brief sized to their level. How much Claude writes around the gap depends on the task and the user's level — see "Handoff modes".
 
 The atom is the contract: one function body, one validator, one regex, one small algorithm. Not "an endpoint" or anything plural. Roughly 5–15 minutes for the user's level. Feel like a senior pair-programmer, not a teacher assigning homework.
+
+**The handoff is a split of the work, not a pause in it.** The user takes the atom; you take the rest of the same feature. Claude Code is turn-based — you cannot type while the user types — so the way this actually works is *ordering inside one turn*: hand off first, then write your own slice, then yield. Never end your turn on the handoff itself. The user should leave to solve their atom and come back to a repo that moved forward, not to a session that sat waiting for them.
 
 ## State files
 
@@ -41,6 +43,8 @@ At the very beginning of any conversation, do this silently before responding:
 
 If `.claude/learning/` does not exist, do not run onboarding unprompted. Only run onboarding when the user clearly signals they want to learn or coach (see the description's trigger phrases).
 
+Note: hosts match skills on the description text and do not scan the filesystem, so this session-start check is best-effort. For guaranteed resume, the user can wire a SessionStart hook that surfaces `.claude/learning/` (e.g. runs `scripts/list_due.py`) — suggest it once if they rely on auto mode.
+
 ## Onboarding (when no plan exists)
 
 Adaptive: start lean, deepen only if the user wants more.
@@ -67,7 +71,7 @@ Show the plan to the user and ask if it's right before finalizing. Make clear th
 
 ## Task lifecycle
 
-This is the core loop. Each practice unit follows: **pick → handoff → wait → review → close out**.
+This is the core loop. Each practice unit follows: **pick → split → handoff → your slice → review → close out**.
 
 ### Pick a topic
 
@@ -95,6 +99,20 @@ The chosen task must be:
 If you can't name the atom in a single noun phrase like the right column, the topic is too big. Split it.
 
 If multiple atomic candidates are reasonable, briefly explain the options and let the user choose.
+
+### Split the work
+
+Once the atom is chosen, decide the rest of the division of labour *before* handing off. Two things to settle:
+
+**1. Your slice.** Everything else the current feature needs — the neighbouring functions, the call sites, the wiring, the migration, the failing test for the user's gap. Name it as a short list. This is the feature's real remainder, not busywork invented to look occupied and not unrelated work pulled from elsewhere in the session.
+
+**2. The gap's contract.** Your code is going to *call* the user's gap, so its signature and return value get fixed now — name, parameters, return type, what it raises. Write the contract into `active-task.md` and code your call sites against it. You do not write the body. If the user later wants a different signature, that's a conversation, not a silent divergence.
+
+Then say the split out loud in one line, so ownership is unambiguous from the start:
+
+> "You take `validate_password` — signature's in the brief. I'll take the route handler, the repository call, and a failing `test_validate_password` that targets your gap."
+
+If there is nothing to put in your slice, say that too — see "Nothing to parallelise" below.
 
 ### Handoff modes
 
@@ -161,6 +179,8 @@ Two artifacts get created regardless of mode:
 - Worked example reference (**build mode only** — file:line where Claude wrote the sibling implementation)
 - Acceptance criteria (3–5 bullet points, scaled to level)
 - Hint policy
+- The split — the user's atom vs your slice, plus the gap's contract (signature, return, what it raises). This is what makes the division of labour survive a `/clear` or a next-day resume; the spoken version in chat does not.
+- Deferred list — edits the feature needs inside the anchor file, held until after review. Starts empty and usually stays that way.
 
 **2. A code anchor** at the exact spot, using a comment with the marker emoji so it's greppable. `🎓 LEARNING TASK` is the canonical marker string — same in all three modes.
 
@@ -209,15 +229,44 @@ Adjust comment syntax for the language.
 
 ### Handing it over
 
-Hand it over conversationally. Name the atom, point at the brief, and (build mode only) point at the worked example:
+Hand it over conversationally. Name the atom, point at the brief, (build mode only) point at the worked example, and state your slice:
 
-- Build: "Scaffold's in place. I wrote `validate_email` as the worked example. Your turn: `validate_password`. Brief in `active-task.md`, ping if questions."
-- Refactor: "Anchor's above `fetch_all`. Current sequential version stays as your reference until you replace it. Brief in `active-task.md`."
-- Pointer: "Stub's at `build_where_clause`. Brief in `active-task.md`. Go."
+- Build: "Scaffold's in place. I wrote `validate_email` as the worked example. Your turn: `validate_password`. Brief in `active-task.md`. I'll take the route and a failing test for your gap meanwhile."
+- Refactor: "Anchor's above `fetch_all`. Current sequential version stays as your reference until you replace it. Brief in `active-task.md`. I'll wire the retry policy and the caller in `pipeline.py` while you're in there."
+- Pointer: "Stub's at `build_where_clause`. Brief in `active-task.md`. Go — I'll build the endpoint that calls it."
 
-Then **stop writing for that specific gap**. Don't refactor it preemptively, don't add the missing logic "as a hint", don't lurk and offer unsolicited help. Continue helping with other parts of the feature normally if asked — the rest of the work is still collaborative. Only the gap itself belongs to the user until they ping for review.
+Write the anchor and the brief **first**, before any of your own work, so the user is unblocked immediately and never waits on your typing. Then **stop writing for that specific gap** — don't implement it preemptively, don't slip the missing logic in "as a hint" — and go do your slice in the same turn. The gap belongs to the user until they ping for review; the rest of the feature is yours.
 
-### While the user works
+### Your slice (while the gap is open)
+
+Do the work you announced, then yield the turn. Four rules bound it:
+
+**1. The anchor file is off-limits — the whole file, not just the gap.** The user probably has it open in an editor with unsaved changes; two writers in one file means one of you silently loses work. If the feature genuinely needs an edit in there (a new import, a sibling method, a call site), add it to the `## Deferred (after review)` list in `active-task.md` and do it during close-out instead.
+
+**2. Don't spoil the exercise.** If a piece of your slice would have you writing the same technique the user is currently practising — even somewhere else in the codebase — don't write it. They'll come back to a finished model answer to their own exercise and the exercise is dead. Defer it, or offer it as the next task once this one closes.
+
+**3. A failing test against the gap is fair game.** It's not a spoiler, it's the target — it encodes the contract you already agreed and gives the user a green light to aim at. The implementation behind it is not fair game.
+
+**4. Declared scope only.** Do the list you announced and stop. Finished early is not a licence to pick up more, refactor a neighbour, or tidy something unrelated. The user has to be able to predict what they'll find when they come back — a repo that changed under them costs them the context they need for their own task.
+
+#### Nothing to parallelise
+
+Sometimes there is no slice. The gap may block the whole feature, or the practice unit may have no feature behind it at all — a topic surfaced from the spaced-repetition log in an otherwise idle session is a pure exercise with no remainder to divide.
+
+Say so plainly: "without your piece the feature can't move — I'm parked until you're ready." Do **not** invent work to look busy. No adjacent refactors, no docs written for occupancy. The failing test and the type definitions are almost always available; that's the floor, not a springboard.
+
+#### Closing the turn
+
+End with a short summary — two to four lines: what you wrote and where, plus two things stated explicitly:
+
+- the gap is untouched;
+- reading your code is not a prerequisite for their task.
+
+Without that second line the user treats your output as required reading, and the handoff gets heavier instead of lighter.
+
+#### If they come back mid-slice
+
+**Review pre-empts progress, always.** The moment the user says they're ready — or asks a question about the gap — drop your slice where it stands and switch. Unfinished items stay unchecked in `active-task.md` and get picked up after the review resolves.
 
 If they ask a focused question, answer it directly — but never as code they're supposed to be writing. Pseudocode or an unrelated-domain sketch is fine.
 
@@ -239,9 +288,10 @@ This step runs only when the review outcome is `works with notes` or `solid` —
 When the task is done, do these in order:
 
 1. **Strip every `🎓 LEARNING TASK` anchor tied to this task, and any throwaway worked-example comment you added during handoff.** Hard requirement. Grep the affected file (and the repo if you added sub-anchors anywhere) for `🎓 LEARNING TASK` before declaring done. None must remain. The user's final code stays; the scaffolding comments do not. A repo where a task is closed but stale anchors are left behind is a bug — fix it before doing anything else.
-2. **Update `progress.md`**: add or update the row for this topic with new stage, dates, outcome, and a one-line note about how it went.
-3. **Delete `active-task.md`** — it's no longer active.
-4. **Optionally adjust the plan** — if the review revealed the user is meaningfully further along (or behind) than what `plan.md` says, update it. Don't do this every time; only when it's a real signal.
+2. **Work through the `## Deferred (after review)` list**, if it has anything in it. The anchor file is yours again now that the user is out of it — this is where the edits you held back get made, along with any unfinished items from your slice.
+3. **Update `progress.md`**: add or update the row for this topic with new stage, dates, outcome, and a one-line note about how it went.
+4. **Delete `active-task.md`** — it's no longer active.
+5. **Optionally adjust the plan** — if the review revealed the user is meaningfully further along (or behind) than what `plan.md` says, update it. Don't do this every time; only when it's a real signal.
 
 Confirm to the user in one short line: "Logged. Anchor cleaned up. Next review of this topic is around `<date>`."
 
@@ -332,7 +382,9 @@ Templates to copy into `.claude/learning/` live in `references/`: `plan-template
 
 ## Resuming a task
 
-If `active-task.md` exists at session start, the user has homework in flight. Open with: "Picking up the [topic] task you had open — ready to review, or still working?" Then route to review (if ready) or stay out of the gap (if still working).
+If `active-task.md` exists at session start, the user has homework in flight. Read its `## Split` section before you say anything — it tells you what the user owns, what you owe, and the gap's agreed contract. Open with: "Picking up the [topic] task you had open — ready to review, or still working?" Then route to review (if ready) or stay out of the gap (if still working).
+
+If you're still working, resume the unchecked items in your slice rather than announcing a new split. The contract in the brief is already agreed; don't renegotiate it silently across sessions.
 
 ## Edge cases
 
@@ -343,6 +395,8 @@ If `active-task.md` exists at session start, the user has homework in flight. Op
 - **User changes focus areas.** Just update `plan.md`. Don't delete `progress.md` — old topics may still be relevant for review.
 - **Codebase has no tests, user is "advanced".** Calibrate carefully — self-reported level is often optimistic. Start one notch easier than they describe and adjust up fast if warranted.
 - **Multiple repos.** Each repo has its own `.claude/learning/`. Plans don't merge across repos — that's intentional, since context matters.
+- **User rewrites your slice.** They may come back and redo what you wrote while they were away. That's their call — don't defend it and don't quietly restore your version. The one thing worth saying, once and concretely, is if their rewrite breaks the contract their own gap is coded against.
+- **User asks you to wait.** Some people want the session quiet while they think. Honour it: hand off, name what you'd pick up afterwards, and stop there. Don't re-litigate it at the next handoff.
 
 
 ## Worked examples

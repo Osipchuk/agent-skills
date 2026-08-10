@@ -44,7 +44,11 @@ Frontmatter has exactly three keys:
   AND WHEN to use it. List the concrete phrases/situations that should trigger
   it, plus explicit non-triggers ("Do not use for…"). This is the field a host
   agent matches against — it drives whether the skill fires correctly, so invest
-  the most effort here.
+  the most effort here. **Hard cap: 1024 characters** (the agent skills spec
+  limit; hosts may truncate or reject longer ones — the generator enforces it).
+  Spend the budget on triggers and non-triggers, not on retelling the workflow:
+  a description that summarizes the process tempts the agent to follow it
+  instead of reading the skill body.
 - **`version`** — strict semver `MAJOR.MINOR.PATCH` (e.g. `0.1.0`). Not `0.1`,
   not `v0.1.0`, not `0.1.0a1`.
 
@@ -93,6 +97,7 @@ Run `uv run python scripts/generate_registry.py` from `installer/`. It fails
 loudly if any of these are wrong:
 
 - [ ] `skills/<name>/SKILL.md` exists with frontmatter `name` / `description` / `version`.
+- [ ] `description` is non-empty and at most 1024 characters.
 - [ ] `version` is strict `MAJOR.MINOR.PATCH`.
 - [ ] `catalog/<name>.yaml` exists and has a `summary` (10–1024 chars, single line).
 - [ ] `tags` are kebab-case and ≤10.

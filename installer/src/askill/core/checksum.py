@@ -15,6 +15,14 @@ import io
 import tarfile
 from pathlib import Path
 
+# Local byproducts that appear on disk after normal use (running a skill's
+# scripts, browsing on macOS) but are never part of the published git archive.
+# They must not influence the digest, or a checksum generated on a "dirty"
+# working tree diverges from the clean-tarball one and installs start failing.
+_JUNK_DIRS = {"__pycache__"}
+_JUNK_FILES = {".DS_Store"}
+_JUNK_SUFFIXES = {".pyc", ".pyo"}
+
 
 def skill_checksum(folder: Path) -> str:
     """Return ``sha256:<hex>`` for a skill folder, computed deterministically."""
@@ -22,8 +30,17 @@ def skill_checksum(folder: Path) -> str:
     return f"sha256:{digest}"
 
 
+def _is_junk(path: Path, folder: Path) -> bool:
+    relative = path.relative_to(folder)
+    return (
+        bool(_JUNK_DIRS.intersection(relative.parts))
+        or relative.name in _JUNK_FILES
+        or relative.suffix in _JUNK_SUFFIXES
+    )
+
+
 def _deterministic_tar_bytes(folder: Path) -> bytes:
-    files = sorted(p for p in folder.rglob("*") if p.is_file())
+    files = sorted(p for p in folder.rglob("*") if p.is_file() and not _is_junk(p, folder))
     buffer = io.BytesIO()
     with tarfile.open(fileobj=buffer, mode="w") as tar:
         for path in files:

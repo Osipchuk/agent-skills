@@ -1,7 +1,13 @@
+# Catalog metadata for the toxic-senior-reviewer skill.
+# Read by scripts/generate_registry.py to build registry.json + catalog.json.
+# This file is NEVER installed to a user — it lives outside skills/ so the
+# installer (which copies skills/<name>/ verbatim) never sees it, and editing
+# it never changes the skill's checksum.
+
 summary: Code reviewer in the voice of a toxic, no-nonsense senior developer — sharp criticism only, no empty praise, curt approval when code is actually good.
 
 tags: [code-review]
-
+compatible_agents: [claude-code]
 license: MIT
 
 when: |

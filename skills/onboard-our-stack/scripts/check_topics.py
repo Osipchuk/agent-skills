@@ -9,7 +9,9 @@ Usage:
     python scripts/check_topics.py [--config .onboard/topics.yaml] [--root .]
 
 Exit codes: 0 = OK, 1 = stale/invalid references, 2 = config problem.
-Requires PyYAML (ships in essentially every Python environment).
+Requires PyYAML — the one deviation from the library's stdlib-only convention,
+because topics.yaml is YAML; the script exits with a clear install hint when
+it's missing (`pip install pyyaml`), and CI images typically have it.
 """
 from __future__ import annotations
 

@@ -59,6 +59,24 @@ def test_uninstall_not_installed_exit_1(tmp_path: Path, monkeypatch: pytest.Monk
     assert result.exit_code == 1
 
 
+def test_uninstall_state_write_failure_keeps_files(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """State is written before files are removed: if the state write fails, the
+    skill folder must still be on disk so a re-run can finish the job — the
+    reverse order would leave a ghost record pointing at nothing."""
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    target = _install_state(tmp_path)
+
+    def boom(*_args: object, **_kwargs: object) -> None:
+        raise OSError("disk full")
+
+    monkeypatch.setattr("askill.commands.uninstall.save_state", boom)
+    result = runner.invoke(app, ["uninstall", "learning-mode", "--scope", "user"])
+    assert result.exit_code != 0
+    assert target.exists()
+
+
 def test_uninstall_dry_run_keeps_files(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     target = _install_state(tmp_path)

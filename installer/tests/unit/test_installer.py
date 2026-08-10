@@ -119,6 +119,15 @@ def test_place_skill_resolves_by_path_not_name_search(
     assert (target / "SKILL.md").read_text() == "canonical"
 
 
+def test_corrupt_archive_raises_registry_error(tmp_path: Path, httpx_mock: HTTPXMock) -> None:
+    """Garbage bytes from the archive host must surface as a clean RegistryError
+    (exit 2), not a raw tarfile traceback."""
+    httpx_mock.add_response(url=ARCHIVE_URL, content=b"definitely not a tarball")
+    skill = _skill("learning-mode", "sha256:" + "0" * 64)
+    with pytest.raises(RegistryError, match="archive"):
+        fetch_and_place(skill, LIBRARY, tmp_path / "out")
+
+
 def test_download_404_raises(tmp_path: Path, httpx_mock: HTTPXMock) -> None:
     httpx_mock.add_response(url=ARCHIVE_URL, status_code=404)
     with pytest.raises(RegistryError):

@@ -15,6 +15,24 @@
 - File: `<path/to/file.py>`
 - Anchor: search for `🎓 LEARNING TASK` in the file
 
+## Split
+
+**Your atom:** `<the one thing the user writes>`
+
+**Contract** — agreed at handoff, Claude's code calls this:
+
+```
+<signature, return type, what it raises>
+```
+
+**Claude's slice** — the rest of the feature, written while the gap is open:
+
+- [ ] `<item — file and what it does>`
+- [ ] `<item>`
+
+Unchecked items are resumed after review. Claude does not touch the anchor file
+above while the gap is open.
+
 ## Worked example to mirror
 
 *Include this section in `build` mode only. Delete it for `refactor` or `pointer` mode.*
@@ -47,3 +65,11 @@ Self-checkable bullets, scaled to the user's level on this topic.
 ## When ready
 
 Tell Claude "ready for review" (or any variant). Claude will read the code at the anchor, ask how it felt, and review.
+
+## Deferred (after review)
+
+Claude's bookkeeping, not homework. Edits the feature needs *inside* the anchor
+file, held back so two writers never share one file. Usually empty. Executed
+during close-out.
+
+- [ ] `<deferred edit>`

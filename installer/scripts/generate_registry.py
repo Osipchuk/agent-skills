@@ -13,12 +13,18 @@ models, so a bad input (missing ``catalog/<name>.yaml``, missing ``summary``,
 non-semver ``version``, …) fails loudly here rather than shipping a broken
 manifest.
 
-Two artifacts are produced:
+Artifacts produced:
   - ``registry.json``  — the lean installer manifest (what ``askill`` consumes).
   - ``catalog.json``   — the rich, presentation-oriented manifest a web client
                          (e.g. a Skills Library page) consumes. Carries the long
                          description, ``when``/``highlights``/``example``, and a
                          git-derived per-skill ``updated_at``.
+  - ``.claude-plugin/{marketplace,plugin}.json`` — the bundled Claude Code plugin.
+  - the README "Available skills" block (between the ``available-skills`` markers).
+
+``--check`` writes nothing and exits 1 if any committed artifact no longer
+matches ``skills/`` + ``catalog/`` (ignoring the volatile ``generated_at`` /
+``commit`` / ``updated_at`` fields) — CI runs this on every PR.
 
 The ``*.schema.json`` files are emitted as *sibling* artifacts only — they are
 never referenced from the manifests themselves, because the models use
@@ -35,12 +41,22 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from askill.core.manifest import build_catalog, build_marketplace_manifests, build_registry
+from askill.core.manifest import (
+    build_catalog,
+    build_marketplace_manifests,
+    build_registry,
+    readme_skills_section,
+    splice_generated_block,
+)
 from askill.core.models import Catalog, Registry
 
 DEFAULT_REPO = "https://github.com/Osipchuk/agent-skills"
 # scripts/ -> installer/ -> <repo root>
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+# README block rewritten on every run so "Available skills" can never go stale.
+README_SKILLS_START = "<!-- available-skills:start -->"
+README_SKILLS_END = "<!-- available-skills:end -->"
 
 # Claude Code plugin marketplace: the whole library ships as one bundled plugin.
 # "agent-skills" is a reserved marketplace name, so the marketplace is "askill".
@@ -84,27 +100,33 @@ def _write_json(path: Path, payload: object) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def _write_marketplace(repo_root: Path, skill_names: list[str], owner: str) -> None:
-    """Emit the Claude Code plugin marketplace at the repo root: both
-    ``.claude-plugin/marketplace.json`` and ``.claude-plugin/plugin.json``.
+def _comparable(payload: object, *, normalize: bool) -> object:
+    """A deep copy ready for equality checks; ``normalize`` drops the volatile
+    fields (``library.generated_at``/``commit``, per-skill ``updated_at``) that
+    legitimately differ between a contributor's run and a CI re-run."""
+    data = json.loads(json.dumps(payload))
+    if not normalize or not isinstance(data, dict):
+        return data
+    library = data.get("library")
+    if isinstance(library, dict):
+        library.pop("generated_at", None)
+        library.pop("commit", None)
+    skills = data.get("skills")
+    if isinstance(skills, list):
+        for skill in skills:
+            if isinstance(skill, dict):
+                skill.pop("updated_at", None)
+    return data
 
-    The repo root *is* the plugin (``source: "."``) and the canonical ``skills/``
-    is its skills dir, so nothing is copied — there is no second skill tree to fall
-    out of sync. Any legacy ``plugins/`` mirror from the old layout is removed."""
-    marketplace, plugin = build_marketplace_manifests(
-        skill_names,
-        marketplace_name=MARKETPLACE_NAME,
-        plugin_name=PLUGIN_NAME,
-        owner_name=owner,
-    )
-    shutil.rmtree(repo_root / "plugins", ignore_errors=True)
-    claude_plugin = repo_root / ".claude-plugin"
-    _write_json(claude_plugin / "plugin.json", plugin)
-    _write_json(claude_plugin / "marketplace.json", marketplace)
-    print(
-        f"wrote marketplace '{MARKETPLACE_NAME}' + plugin '{PLUGIN_NAME}' "
-        f"(root .claude-plugin/, {len(skill_names)} skills)"
-    )
+
+def _check_json(path: Path, payload: object, *, normalize: bool) -> str | None:
+    """Return a problem line when ``path`` is missing or stale, else None."""
+    if not path.is_file():
+        return f"{path}: missing"
+    committed = json.loads(path.read_text(encoding="utf-8"))
+    if _comparable(committed, normalize=normalize) != _comparable(payload, normalize=normalize):
+        return f"{path}: stale (does not match skills/ + catalog/)"
+    return None
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -126,6 +148,11 @@ def main(argv: list[str] | None = None) -> int:
         "--schema", action="store_true", help="also write registry.schema.json next to the output"
     )
     parser.add_argument("--owner", default=DEFAULT_OWNER, help="marketplace/plugin owner name")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="write nothing; exit 1 if any committed artifact is stale (CI guard)",
+    )
     args = parser.parse_args(argv)
 
     repo_root: Path = args.repo_root.resolve()
@@ -143,8 +170,6 @@ def main(argv: list[str] | None = None) -> int:
         commit=commit,
         repo_root=repo_root,
     )
-    _write_json(output, registry.model_dump(mode="json", exclude_none=True))
-    print(f"wrote {output} — {len(registry.skills)} skills, commit {commit[:12]}")
 
     def _updated_at(skill_dir: Path) -> datetime | None:
         return _git_last_commit_dt(repo_root, skill_dir.relative_to(repo_root).as_posix())
@@ -156,20 +181,61 @@ def main(argv: list[str] | None = None) -> int:
         repo_root=repo_root,
         updated_at_for=_updated_at,
     )
+    marketplace, plugin = build_marketplace_manifests(
+        [skill.name for skill in registry.skills],
+        marketplace_name=MARKETPLACE_NAME,
+        plugin_name=PLUGIN_NAME,
+        owner_name=args.owner,
+    )
+
     catalog_output = output.with_name("catalog.json")
-    _write_json(catalog_output, catalog.model_dump(mode="json", exclude_none=True))
-    print(f"wrote {catalog_output} — {len(catalog.skills)} skills")
-
-    _write_marketplace(repo_root, [skill.name for skill in registry.skills], args.owner)
-
+    claude_plugin = repo_root / ".claude-plugin"
+    # (path, payload, normalize-volatile-fields-when-checking)
+    artifacts: list[tuple[Path, object, bool]] = [
+        (output, registry.model_dump(mode="json", exclude_none=True), True),
+        (catalog_output, catalog.model_dump(mode="json", exclude_none=True), True),
+        (claude_plugin / "plugin.json", plugin, False),
+        (claude_plugin / "marketplace.json", marketplace, False),
+    ]
     if args.schema:
-        schema_path = output.with_name("registry.schema.json")
-        _write_json(schema_path, Registry.model_json_schema())
-        print(f"wrote {schema_path}")
+        artifacts += [
+            (output.with_name("registry.schema.json"), Registry.model_json_schema(), False),
+            (output.with_name("catalog.schema.json"), Catalog.model_json_schema(), False),
+        ]
 
-        catalog_schema_path = output.with_name("catalog.schema.json")
-        _write_json(catalog_schema_path, Catalog.model_json_schema())
-        print(f"wrote {catalog_schema_path}")
+    readme_path = repo_root / "README.md"
+    readme_text = readme_path.read_text(encoding="utf-8")
+    readme_spliced = splice_generated_block(
+        readme_text,
+        README_SKILLS_START,
+        README_SKILLS_END,
+        readme_skills_section(catalog.skills),
+    )
+
+    if args.check:
+        problems = [
+            problem
+            for path, payload, normalize in artifacts
+            if (problem := _check_json(path, payload, normalize=normalize))
+        ]
+        if readme_spliced != readme_text:
+            problems.append(f"{readme_path}: 'Available skills' block is stale")
+        if problems:
+            print("generated artifacts are out of date — regenerate and commit:", file=sys.stderr)
+            for problem in problems:
+                print(f"  - {problem}", file=sys.stderr)
+            return 1
+        print(f"check OK — {len(artifacts)} artifacts + README match skills/ + catalog/")
+        return 0
+
+    for path, payload, _normalize in artifacts:
+        _write_json(path, payload)
+        print(f"wrote {path}")
+    # Any legacy plugins/ mirror from the old layout is removed; the repo root
+    # *is* the plugin (source: "."), so there is no second skill tree to drift.
+    shutil.rmtree(repo_root / "plugins", ignore_errors=True)
+    readme_path.write_text(readme_spliced, encoding="utf-8")
+    print(f"updated {readme_path} — {len(catalog.skills)} skills, commit {commit[:12]}")
 
     return 0
 

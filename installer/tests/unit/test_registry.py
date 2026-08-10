@@ -12,7 +12,7 @@ from pytest_httpx import HTTPXMock
 
 from askill.core.models import Registry
 from askill.core.registry import load_registry
-from askill.utils.errors import RegistryError
+from askill.utils.errors import RegistryError, UserError
 
 URL = "https://example.com/registry.json"
 
@@ -62,3 +62,10 @@ def test_load_url_connect_error(httpx_mock: HTTPXMock) -> None:
     httpx_mock.add_exception(httpx.ConnectError("boom"), url=URL)
     with pytest.raises(RegistryError):
         load_registry(URL)
+
+
+def test_load_url_plain_http_rejected() -> None:
+    """A plain-HTTP registry would let a MITM swap both the archive host and the
+    checksums that vouch for it — refuse before any request is made."""
+    with pytest.raises(UserError, match="https"):
+        load_registry("http://example.com/registry.json")

@@ -16,6 +16,7 @@ when: >-
 
 highlights:
   - Hands you one atomic piece to write yourself, then reviews it like a senior pair-programmer.
+  - Splits the work instead of stalling — Claude ships the rest of the feature while your piece is open, and never touches your file.
   - Keeps a per-repo learning plan and a spaced-repetition log under .claude/learning/.
   - Resurfaces due topics at the right time, so what you practiced sticks before you forget it.
 
@@ -31,4 +32,4 @@ example:
     - kind: anchor
       text: "[learning-mode] handoff — write `retry` yourself; brief in .claude/learning/active-task.md"
     - kind: assistant
-      text: "Scaffold's in place with `timed` next to it as the worked example. Your turn: write `retry`. Ping me when you want a review."
+      text: "Scaffold's in place with `timed` next to it as the worked example. Your turn: write `retry`. Meanwhile I wired the call sites and left you a red test — your file's untouched. Ping me when you want a review."

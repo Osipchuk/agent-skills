@@ -3,13 +3,13 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-06-01T12:16:21.519909Z",
-    "commit": "fa50db000f8ec1c7aaeb16ccdfeb71265055a6e8"
+    "generated_at": "2026-08-10T11:09:31.360059Z",
+    "commit": "94a068e4fbf67e195f0b4a454955e20884410161"
   },
   "skills": [
     {
       "name": "adr-capture",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Catch an architectural decision as it is made and draft an ADR in your team's format, with explicit TODOs for missing mandatory fields. Never auto-commits.",
       "path": "skills/adr-capture",
       "entry": "SKILL.md",
@@ -22,7 +22,7 @@
         "claude-code"
       ],
       "dependencies": [],
-      "checksum": "sha256:ba54b5114c6805890c48ab4f70308d1b2f853463efb1e060037411b3766be029",
+      "checksum": "sha256:58ccb0048f0f29511375d6565a58442f7a8ab20bd9071139fd429620b17971b8",
       "license": "MIT"
     },
     {
@@ -44,7 +44,7 @@
     },
     {
       "name": "learning-mode",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "Turn a Claude Code session into a learn-by-doing coding tutorial with a spaced-repetition review log.",
       "path": "skills/learning-mode",
       "entry": "SKILL.md",
@@ -55,12 +55,12 @@
         "claude-code"
       ],
       "dependencies": [],
-      "checksum": "sha256:f6239e271258e8a5a95f897c994c538de6ca83996e9459bf588a3e05456f5c27",
+      "checksum": "sha256:86f7becddfa9f89ce7939490ceaa8616229396fb532652b45eb9567d2c8f6e89",
       "license": "MIT"
     },
     {
       "name": "onboard-our-stack",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "description": "Onboard a newcomer to your codebase or answer a targeted 'how does our X work' question by walking curated reading lists — and cold-starting from the repo's own docs when no curated config exists yet.",
       "path": "skills/onboard-our-stack",
       "entry": "SKILL.md",
@@ -72,7 +72,7 @@
         "claude-code"
       ],
       "dependencies": [],
-      "checksum": "sha256:e59a9d4fe703e8eddd2a05b6bff0d12ffdeb0280d54f1fce150a196eaa032330",
+      "checksum": "sha256:850c79e3464aa7fcbe9838377d696536851727ff27aaeb6240675379e3a7ff39",
       "license": "MIT"
     },
     {
@@ -94,7 +94,7 @@
     },
     {
       "name": "steelman-then-break",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Pressure-test a design or tech choice in two forced passes — strongest case for, then strongest case against, then a calibrated verdict that's willing to say 'proceed'.",
       "path": "skills/steelman-then-break",
       "entry": "SKILL.md",
@@ -107,7 +107,7 @@
         "claude-code"
       ],
       "dependencies": [],
-      "checksum": "sha256:97c230c0c1e31f58c2936afb8d5022af0112c5f8089d5adf23a2473bfd42fce7",
+      "checksum": "sha256:463b43c5a7df3f9526992787e151d4b2083eb03ca955936627f80cf0a39a6ac2",
       "license": "MIT"
     },
     {

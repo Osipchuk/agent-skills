@@ -26,6 +26,8 @@ from askill.core.manifest import (
     build_registry_skill,
     load_catalog_meta,
     parse_frontmatter,
+    readme_skills_section,
+    splice_generated_block,
 )
 from askill.core.models import Catalog, CatalogSkill, Registry, RegistrySkill
 
@@ -316,3 +318,64 @@ def test_build_catalog_skips_dirs_without_skill_md(tmp_path: Path) -> None:
         tmp_path / "skills", repo="https://example.com/r", commit="abc", repo_root=tmp_path
     )
     assert [s.name for s in cat.skills] == ["demo-skill"]
+
+
+# --------------------------------------------------------------------------- #
+# SKILL.md description limits (the agent skills spec caps description at 1024)
+# --------------------------------------------------------------------------- #
+
+
+def test_skill_description_over_1024_chars_raises(tmp_path: Path) -> None:
+    """Hosts cap the frontmatter ``description`` at 1024 chars (agentskills.io
+    spec); a longer one may be truncated or rejected at install time, so the
+    build must fail loudly and name the offending skill."""
+    skill_dir = _write_skill(tmp_path, "demo-skill", description="x" * 1025)
+    with pytest.raises(ValueError, match="demo-skill.*1024"):
+        build_registry_skill(skill_dir, repo_root=tmp_path)
+
+
+def test_skill_description_missing_raises(tmp_path: Path) -> None:
+    skill_dir = _write_skill(tmp_path, "demo-skill", description="")
+    with pytest.raises(ValueError, match="demo-skill"):
+        build_registry_skill(skill_dir, repo_root=tmp_path)
+
+
+def test_skill_description_exactly_1024_ok(tmp_path: Path) -> None:
+    skill_dir = _write_skill(tmp_path, "demo-skill", description="x" * 1024)
+    assert build_registry_skill(skill_dir, repo_root=tmp_path).name == "demo-skill"
+
+
+# --------------------------------------------------------------------------- #
+# README "Available skills" block — rendered by the generator between markers
+# --------------------------------------------------------------------------- #
+
+
+def test_readme_skills_section_renders_one_line_per_skill(tmp_path: Path) -> None:
+    _write_skill(tmp_path, "alpha-skill", summary="Does the alpha thing.")
+    _write_skill(tmp_path, "zebra-skill", summary="Does the zebra thing.")
+    cat = build_catalog(
+        tmp_path / "skills", repo="https://example.com/r", commit="abc", repo_root=tmp_path
+    )
+    section = readme_skills_section(cat.skills)
+    assert section.splitlines() == [
+        "- **[`alpha-skill`](skills/alpha-skill/)** — Does the alpha thing.",
+        "- **[`zebra-skill`](skills/zebra-skill/)** — Does the zebra thing.",
+    ]
+
+
+def test_splice_generated_block_replaces_between_markers() -> None:
+    text = "intro\n<!-- s -->\nold body\n<!-- e -->\noutro\n"
+    spliced = splice_generated_block(text, "<!-- s -->", "<!-- e -->", "new body")
+    assert spliced == "intro\n<!-- s -->\nnew body\n<!-- e -->\noutro\n"
+
+
+def test_splice_generated_block_is_idempotent() -> None:
+    text = "a\n<!-- s -->\nx\n<!-- e -->\nb\n"
+    once = splice_generated_block(text, "<!-- s -->", "<!-- e -->", "payload")
+    twice = splice_generated_block(once, "<!-- s -->", "<!-- e -->", "payload")
+    assert once == twice
+
+
+def test_splice_generated_block_missing_markers_raises() -> None:
+    with pytest.raises(ValueError, match="marker"):
+        splice_generated_block("no markers here\n", "<!-- s -->", "<!-- e -->", "x")
