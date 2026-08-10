@@ -1,6 +1,6 @@
 ---
 name: adr-capture
-description: 'Catch an architectural or technical decision as it is being made and draft an Architecture Decision Record (ADR) in the team''s format, leaving explicit TODOs for fields the conversation did not cover. Never writes or commits without explicit confirmation. Use this when the user asks to "draft an ADR", "record this decision", "capture this as an ADR", AND proactively offer it when the conversation shows a commitment pattern — "we''ll go with X over Y because Z", "let''s standardize on...", "decided to...", "we''re choosing..." — paired with a rationale. It assigns the next ADR id, fills what the discussion supports, and flags missing team-mandatory sections as TODO. Do NOT use for: exploratory discussion with no commitment ("we might try", "could consider", "what if we"), non-architectural decisions (scheduling, naming, trivial style), or generating product/requirements specs. When unsure whether a real decision was actually made, ask one question rather than draft.'
+description: 'Catch an architectural or technical decision as it is being made and draft an Architecture Decision Record (ADR) in the team''s format, leaving explicit TODOs for fields the conversation did not cover. Never writes or commits without explicit confirmation. Use this when the user asks to "draft an ADR", "record this decision", "capture this as an ADR", AND proactively offer it when the conversation shows a commitment pattern — "we''ll go with X over Y because Z", "let''s standardize on...", "decided to...", "we''re choosing..." — paired with a rationale. Do NOT use for: exploratory discussion with no commitment ("we might try", "could consider", "what if we"), non-architectural decisions (scheduling, naming, trivial style), or generating product/requirements specs. When unsure whether a real decision was actually made, ask one question rather than draft.'
 version: 0.2.0
 ---
 
@@ -27,8 +27,9 @@ ask one question to confirm before drafting. Do not draft on ambiguity.
 ## Drafting workflow
 
 1. **Config.** Read optional `.claude/adr/config.yaml` for `adr_dir` (default
-   `docs/adr/`), the id format, and the list of `mandatory_sections`. Otherwise
-   use the defaults baked into `references/adr-template.md`.
+   `docs/adr/`), the id format, and the list of `mandatory_sections` — see
+   `references/config.example.yaml` for the schema. Otherwise use the defaults
+   baked into `references/adr-template.md`.
 
 2. **Next id.** Scan `adr_dir` for the highest existing ADR number and
    increment. Slugify the decision title for the filename, e.g.
