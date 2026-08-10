@@ -3,19 +3,19 @@ name: onboard-our-stack
 description: >-
   Onboard a newcomer to THIS codebase, or answer a targeted "how does our X
   work" question, by walking curated reading lists and synthesizing the mental
-  model — never by guessing. Works out of the box: if a maintainer has committed
-  .onboard/topics.yaml it uses that curated path; if not, it cold-starts from the
-  repo's own authoritative docs (README, CLAUDE.md / AGENTS.md, ARCHITECTURE.md,
-  docs/, the dependency manifest, the entry point) and is explicit about what
-  curated knowledge is still missing. The newcomer never has to create files, run
-  setup, or change code. Use this for "I'm new, help me understand this project",
-  "where do I start", "onboard me", and for "explain our auth flow", "how does
-  our scheduler work", "walk me through our X". Do NOT use for: generic
-  programming or public-library questions, debugging a specific error or stack
-  trace, or writing/modifying code. This skill teaches an existing system; it
-  does not generate documentation or code, and it does not invent gotchas or
-  assert which files are load-bearing beyond what the sources actually say.
-version: 0.2.0
+  model — never by guessing. Works out of the box: with a committed
+  .onboard/topics.yaml it walks that curated path; without one it cold-starts
+  from the repo's own authoritative docs (README, CLAUDE.md / AGENTS.md,
+  ARCHITECTURE.md, docs/, the dependency manifest, the entry point) and says
+  plainly what curated knowledge is still missing. The newcomer never creates
+  files, runs setup, or changes code. Use for "I'm new, help me understand this
+  project", "where do I start", "onboard me", "explain our auth flow", "how does
+  our scheduler work", "walk me through our X". Do NOT use for generic
+  programming or public-library questions, debugging a specific error, or
+  writing/modifying code. It teaches an existing system; it does not generate
+  documentation or code, and it never invents gotchas or asserts a file is
+  load-bearing beyond what the sources actually say.
+version: 0.2.1
 ---
 
 # onboard-our-stack

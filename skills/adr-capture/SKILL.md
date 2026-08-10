@@ -1,7 +1,7 @@
 ---
 name: adr-capture
-description: 'Catch an architectural or technical decision as it is being made and draft an Architecture Decision Record (ADR) in the team''s format, leaving explicit TODOs for fields the conversation did not cover. Never writes or commits without explicit confirmation. Use this when the user asks to "draft an ADR", "record this decision", "capture this as an ADR", AND proactively offer it when the conversation shows a commitment pattern — "we''ll go with X over Y because Z", "let''s standardize on...", "decided to...", "we''re choosing..." — paired with a rationale. It assigns the next ADR id, fills what the discussion supports, and flags team-mandatory sections (e.g. regulatory impact, data classification, rollback plan) as TODO when missing. Do NOT use for: exploratory discussion with no commitment ("we might try", "could consider", "what if we"), non-architectural decisions (scheduling, naming, trivial style), or generating product/requirements specs. When unsure whether a real decision was actually made, ask one question rather than draft.'
-version: 0.1.0
+description: 'Catch an architectural or technical decision as it is being made and draft an Architecture Decision Record (ADR) in the team''s format, leaving explicit TODOs for fields the conversation did not cover. Never writes or commits without explicit confirmation. Use this when the user asks to "draft an ADR", "record this decision", "capture this as an ADR", AND proactively offer it when the conversation shows a commitment pattern — "we''ll go with X over Y because Z", "let''s standardize on...", "decided to...", "we''re choosing..." — paired with a rationale. It assigns the next ADR id, fills what the discussion supports, and flags missing team-mandatory sections as TODO. Do NOT use for: exploratory discussion with no commitment ("we might try", "could consider", "what if we"), non-architectural decisions (scheduling, naming, trivial style), or generating product/requirements specs. When unsure whether a real decision was actually made, ask one question rather than draft.'
+version: 0.1.1
 ---
 
 # adr-capture
@@ -48,5 +48,7 @@ ask one question to confirm before drafting. Do not draft on ambiguity.
    never set any status past Proposed on the user's behalf — that is a human
    approval step.
 
-See `references/adr-template.md` for the section structure and the
-bank-specific mandatory fields.
+See `references/adr-template.md` for the section structure and a worked example
+of a regulated team's mandatory-section set. Teams define their own set in
+`.adr/config.yaml`; the template's regulated sections are a default to replace,
+not a requirement.

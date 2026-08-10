@@ -13,12 +13,12 @@ when: >-
   Fires on "review this proposal", "should we go with X", "steelman X",
   "red-team this design", or when choosing between an architecture, library, or
   framework. It forces the second pass that design discussions skip, and pulls
-  prior failures from references/scars.md so objections argue from the team's
-  own evidence.
+  prior failures from the project's .claude/scars.md so objections argue from
+  the team's own evidence.
 
 highlights:
   - "Forced separation: the case-for has no caveats, the case-against leads with what breaks first — no hedging mush."
-  - "Cites the team's own scars (references/scars.md), so the red-team argues from evidence not generic risk."
+  - "Cites the team's own scars (.claude/scars.md in your repo, versioned with your code), so the red-team argues from evidence not generic risk."
   - "Calibrated verdict: willing to conclude 'the steelman holds, proceed' instead of reflexively finding fault."
   - "Built-in guard against the failure mode — manufactured objections destroy the signal, so it says when there's no real case against."
 
