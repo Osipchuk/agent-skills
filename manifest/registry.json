@@ -3,8 +3,8 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-08-10T12:24:54.616082Z",
-    "commit": "d9cb34f8aad2aae13ee343f247381e7bc0772020"
+    "generated_at": "2026-08-10T13:07:00.702083Z",
+    "commit": "cd9171ab1ca79df06f4cf2d92a75052bee0c8899"
   },
   "skills": [
     {
@@ -44,7 +44,7 @@
     },
     {
       "name": "learning-mode",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "description": "Turn a Claude Code session into a learn-by-doing coding tutorial with a spaced-repetition review log.",
       "path": "skills/learning-mode",
       "entry": "SKILL.md",
@@ -55,7 +55,7 @@
         "claude-code"
       ],
       "dependencies": [],
-      "checksum": "sha256:86f7becddfa9f89ce7939490ceaa8616229396fb532652b45eb9567d2c8f6e89",
+      "checksum": "sha256:6066446107e8accf1c6b5dfa980059cdff2f90c43b30dce4571a12b61652d5b4",
       "license": "MIT"
     },
     {

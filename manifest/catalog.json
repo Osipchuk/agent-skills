@@ -3,8 +3,8 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-08-10T12:24:54.676013Z",
-    "commit": "d9cb34f8aad2aae13ee343f247381e7bc0772020"
+    "generated_at": "2026-08-10T13:07:00.762318Z",
+    "commit": "cd9171ab1ca79df06f4cf2d92a75052bee0c8899"
   },
   "skills": [
     {
@@ -23,7 +23,7 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-08-10T13:39:18+02:00",
+      "updated_at": "2026-08-10T14:25:53+02:00",
       "when": "Fires on an explicit request (\"draft an ADR\", \"record this decision\") and proactively when the conversation shows a commitment plus a rationale (\"we'll go with X over Y because Z\"). It assigns the next id, fills what was said, and flags mandatory regulated sections as TODO. It stays quiet during exploratory discussion and never writes without confirmation.",
       "highlights": [
         "Catches the decision while it's warm — the friction of writing ADRs by hand is exactly why they don't get written.",
@@ -113,7 +113,7 @@
     },
     {
       "name": "learning-mode",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "description": "Turn a Claude Code session into a learn-by-doing coding tutorial with a spaced-repetition review log.",
       "description_long": "Turn a regular Claude Code session into a learn-by-doing coding tutorial. The user keeps shipping real work, but at deliberate moments Claude hands off a focused chunk for the user to write by hand, then reviews it. Maintains a per-repo learning plan and a spaced-repetition log under .claude/learning/ so topics resurface at the right time. Use this whenever the user mentions wanting to learn, practice, train, \"do it themselves\", improve at programming, or asks Claude to coach, teach, tutor, mentor, or pair-learn in a coding context. Also consult it at the start of any session in a repo containing .claude/learning/ — there may be topics due for review or homework in flight. Trigger phrases include \"coach me\", \"teach me X\", \"I want to learn Y\", \"help me practice Z\", \"let me try it myself\", \"review what I wrote\", \"give me a task\", \"what should I learn next\", and any signal the user wants to grow as a developer rather than just ship code. Do not use when the user only wants the work done for them.",
       "path": "skills/learning-mode",

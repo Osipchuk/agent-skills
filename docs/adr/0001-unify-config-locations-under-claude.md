@@ -27,6 +27,24 @@ All per-skill team data lives under `.claude/`. `.adr/config.yaml` becomes
 `.claude/onboard/topics.yaml`. The scars log and the learning directory already
 conform and are unchanged.
 
+One directory, but **two kinds of data inside it**, and they differ in who owns
+them:
+
+| | Team-owned | Developer-owned |
+|---|---|---|
+| Files | `.claude/scars.md`, `.claude/onboard/topics.yaml`, `.claude/adr/config.yaml` | `.claude/learning/` |
+| One truth per… | repository | person |
+| Reviewed in PRs | yes | no |
+| Version control | commit it | gitignore it by default |
+
+The distinction was implicit before this ADR and the unification smudged it, by
+putting both kinds in one place. It is what decides whether a path belongs in
+`.gitignore`: a learning plan holds one developer's goals, self-rated level and
+a dated record of what they got wrong. It collides between developers — the
+design has no per-user namespacing — and in a public repo it publishes more than
+most people expect. A solo developer may still choose to commit it; the default
+must be the safe one.
+
 ## Alternatives considered
 
 - **Keep per-skill top-level dot-directories** — rejected: it leaves four skills
@@ -77,10 +95,12 @@ what signal (user reports? install telemetry we do not have?) would trigger it.>
   instead of silently falling back? That would turn the quiet failure above into
   a loud one for the cost of a few lines per skill.
 - ~~This repo gitignores all of `.claude/`~~ — **resolved.** The blanket ignore
-  contradicted what three of our own skills tell users to do (commit the topics
-  file, version the scars log, keep the learning plan in Git), so it was narrowed
-  to `.claude/settings.local.json` and `.claude/*.local.json`. The general trap
-  remains for adopting teams: should the docs warn that a blanket `.claude/`
-  ignore silently disables the curated paths?
+  contradicted what two of our own skills tell users to do (commit the topics
+  file, version the scars log), so it was narrowed to the machine-local entries
+  plus `.claude/learning/`, per the ownership split above. Fixing it also
+  corrected learning-mode 0.2.1, which had promised its state "gets versioned in
+  Git" — true only for a solo developer who opts in, and misleading everywhere
+  else. The general trap remains for adopting teams: should the docs warn that a
+  blanket `.claude/` ignore silently disables the curated paths?
 - Does this warrant a migration note in the README, or is the install base small
   enough to skip it?

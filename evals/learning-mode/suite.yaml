@@ -8,7 +8,7 @@
 # almost everything here is checkable without a judge.
 
 skill: learning-mode
-version_tested: 0.2.0
+version_tested: 0.2.1
 
 budget:
   max_turns: 8
@@ -82,6 +82,21 @@ compliance:
         path: .claude/learning/progress.md
       - kind: git
         expect: no_commits
+
+  - id: onboarding-flags-the-commit-choice
+    prompt: "I want to get better at async Python while we work on this — coach me."
+    assertions:
+      - kind: file_exists
+        path: .claude/learning/plan.md
+      - kind: judge
+        rubric: >
+          While setting up the plan, the assistant must say ONCE that
+          .claude/learning/ holds this developer's own goals, self-rated level
+          and mistakes, and that committing it versus gitignoring it is the
+          user's call — the repo has no rule for it yet. Added in 0.2.1 after
+          the library's own repo nearly published a personal learning log.
+          Repeating the point in later turns, or deciding for the user, is a
+          failure.
 
   - id: no-plan-no-unprompted-setup
     prompt: "Add a retry helper to the http client."
