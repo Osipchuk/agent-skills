@@ -16,17 +16,26 @@ from pydantic import ValidationError
 
 from askill.core.http import http_get
 from askill.core.models import Registry
-from askill.utils.errors import RegistryError
+from askill.utils.errors import RegistryError, UserError
 
 
 def load_registry(source: str, *, client: httpx.Client | None = None) -> Registry:
-    """Load and validate registry.json from a local path or an http(s) URL.
+    """Load and validate registry.json from a local path or an https URL.
+
+    Plain ``http://`` is rejected: a MITM on the registry fetch could swap both
+    the archive host and the checksums that vouch for it. Use a local file path
+    for offline/testing work.
 
     ``client`` lets callers (and tests) inject a configured ``httpx.Client``;
     when omitted a short-lived one is created for URL sources.
     """
+    if source.startswith("http://"):
+        raise UserError(
+            f"plain-HTTP registry URLs are not allowed (the whole trust chain rides "
+            f"on this fetch): use https:// or a local file path, got {source}"
+        )
     try:
-        if source.startswith(("http://", "https://")):
+        if source.startswith("https://"):
             data: object = _fetch_url(source, client)
         else:
             data = json.loads(Path(source).read_text(encoding="utf-8"))

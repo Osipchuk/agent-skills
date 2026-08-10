@@ -22,9 +22,11 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 # Shared validation helpers
 # --------------------------------------------------------------------------- #
 
-_SEMVER_RE = re.compile(r"\d+\.\d+\.\d+")
-_CHECKSUM_RE = re.compile(r"sha256:[0-9a-f]{64}")
-_KEBAB_RE = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
+# Anchored even though every call site uses fullmatch(): a future .match()/
+# .search() caller must not silently weaken the validation.
+_SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
+_CHECKSUM_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
+_KEBAB_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 
 
 def _ensure_strict_semver(value: str) -> str:

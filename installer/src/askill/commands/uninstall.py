@@ -28,7 +28,10 @@ def uninstall(
         if dry_run:
             report_action(json_mode, "would-uninstall", name, existing.version, resolved, target)
             return
-        remove_tree(target)
+        # State first, files second: if the state write fails the skill is still
+        # intact on disk and the command can simply be re-run. The reverse order
+        # would leave a ghost record pointing at files that are already gone.
         del state.skills[name]
         save_state(state, resolved, root)
+        remove_tree(target)
         report_action(json_mode, "uninstalled", name, existing.version, resolved, target)

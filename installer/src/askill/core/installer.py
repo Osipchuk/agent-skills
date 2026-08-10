@@ -80,10 +80,15 @@ def extracted_archive(data: bytes) -> Iterator[Path]:
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         extracted = Path(tmpdir)
-        with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
-            # filter="data" blocks path-traversal / absolute members; the tarfile
-            # extraction filters are always present on our 3.12+ floor.
-            tar.extractall(extracted, filter="data")
+        try:
+            with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
+                # filter="data" blocks path-traversal / absolute members; the tarfile
+                # extraction filters are always present on our 3.12+ floor.
+                tar.extractall(extracted, filter="data")
+        except (tarfile.TarError, EOFError) as exc:
+            # Garbage or truncated bytes from the archive host: a clean error
+            # (exit 2), not a raw tarfile traceback.
+            raise RegistryError(f"skill archive is not a valid tar.gz: {exc}") from exc
         yield extracted
 
 

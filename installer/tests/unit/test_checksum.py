@@ -48,3 +48,20 @@ def test_checksum_depends_on_filename(tmp_path: Path) -> None:
     a = _make_skill(tmp_path / "a", {"SKILL.md": "x"})
     b = _make_skill(tmp_path / "b", {"OTHER.md": "x"})
     assert skill_checksum(a) != skill_checksum(b)
+
+
+def test_checksum_ignores_local_junk(tmp_path: Path) -> None:
+    """``__pycache__``/``*.pyc``/``.DS_Store`` appear on disk after normal use
+    (running a skill's scripts, browsing on macOS) but are never in the published
+    git archive — a locally generated checksum must match the clean-tree one."""
+    files = {"SKILL.md": "x", "scripts/run.py": "print(1)"}
+    clean = _make_skill(tmp_path / "clean", files)
+    dirty = _make_skill(
+        tmp_path / "dirty",
+        files
+        | {
+            "scripts/__pycache__/run.cpython-312.pyc": "bytecode",
+            ".DS_Store": "finder junk",
+        },
+    )
+    assert skill_checksum(dirty) == skill_checksum(clean)
