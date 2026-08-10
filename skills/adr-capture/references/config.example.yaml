@@ -8,8 +8,14 @@ id_format: "NNNN"             # zero-padded width of the numeric id in filenames
 
 # Headings every draft must carry. Any the conversation did not cover get a
 # literal <TODO: ...> — the skill never invents their content.
+#
+# With no config at all the default is `Rollback plan` alone. Declare a set here
+# only if your team really reviews those things; headings nobody fills turn
+# every ADR into a wall of dead TODOs. Pick what your decisions actually touch:
+#
+#   regulated / closed-contour: Regulatory impact, Data classification,
+#                               Security review status, Rollback plan
+#   product team:               Cost impact, Rollback plan
+#   a published library:        Impact on installed users, Rollback plan
 mandatory_sections:
-  - Regulatory impact
-  - Data classification
-  - Security review status
   - Rollback plan

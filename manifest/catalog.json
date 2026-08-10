@@ -3,13 +3,13 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-08-10T11:42:47.291729Z",
-    "commit": "141080d90cfe9a88188395c875354ef600776ff7"
+    "generated_at": "2026-08-10T12:24:54.676013Z",
+    "commit": "d9cb34f8aad2aae13ee343f247381e7bc0772020"
   },
   "skills": [
     {
       "name": "adr-capture",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Catch an architectural decision as it is made and draft an ADR in your team's format, with explicit TODOs for missing mandatory fields. Never auto-commits.",
       "description_long": "Catch an architectural or technical decision as it is being made and draft an Architecture Decision Record (ADR) in the team's format, leaving explicit TODOs for fields the conversation did not cover. Never writes or commits without explicit confirmation. Use this when the user asks to \"draft an ADR\", \"record this decision\", \"capture this as an ADR\", AND proactively offer it when the conversation shows a commitment pattern — \"we'll go with X over Y because Z\", \"let's standardize on...\", \"decided to...\", \"we're choosing...\" — paired with a rationale. Do NOT use for: exploratory discussion with no commitment (\"we might try\", \"could consider\", \"what if we\"), non-architectural decisions (scheduling, naming, trivial style), or generating product/requirements specs. When unsure whether a real decision was actually made, ask one question rather than draft.",
       "path": "skills/adr-capture",

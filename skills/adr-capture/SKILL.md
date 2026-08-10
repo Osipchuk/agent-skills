@@ -1,7 +1,7 @@
 ---
 name: adr-capture
 description: 'Catch an architectural or technical decision as it is being made and draft an Architecture Decision Record (ADR) in the team''s format, leaving explicit TODOs for fields the conversation did not cover. Never writes or commits without explicit confirmation. Use this when the user asks to "draft an ADR", "record this decision", "capture this as an ADR", AND proactively offer it when the conversation shows a commitment pattern — "we''ll go with X over Y because Z", "let''s standardize on...", "decided to...", "we''re choosing..." — paired with a rationale. Do NOT use for: exploratory discussion with no commitment ("we might try", "could consider", "what if we"), non-architectural decisions (scheduling, naming, trivial style), or generating product/requirements specs. When unsure whether a real decision was actually made, ask one question rather than draft.'
-version: 0.2.0
+version: 0.3.0
 ---
 
 # adr-capture
@@ -49,7 +49,8 @@ ask one question to confirm before drafting. Do not draft on ambiguity.
    never set any status past Proposed on the user's behalf — that is a human
    approval step.
 
-See `references/adr-template.md` for the section structure and a worked example
-of a regulated team's mandatory-section set. Teams define their own set in
-`.claude/adr/config.yaml`; the template's regulated sections are a default to
-replace, not a requirement.
+See `references/adr-template.md` for the section structure. The team declares
+its mandatory sections in `.claude/adr/config.yaml`; with no config the
+default is `Rollback plan` alone. Do not add heavier headings (regulatory
+impact, data classification, security review) unless the team declared them —
+an ADR full of TODOs nobody will fill teaches the team to ignore the section.

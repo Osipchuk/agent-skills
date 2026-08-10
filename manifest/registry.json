@@ -3,13 +3,13 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-08-10T11:42:47.247405Z",
-    "commit": "141080d90cfe9a88188395c875354ef600776ff7"
+    "generated_at": "2026-08-10T12:24:54.616082Z",
+    "commit": "d9cb34f8aad2aae13ee343f247381e7bc0772020"
   },
   "skills": [
     {
       "name": "adr-capture",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Catch an architectural decision as it is made and draft an ADR in your team's format, with explicit TODOs for missing mandatory fields. Never auto-commits.",
       "path": "skills/adr-capture",
       "entry": "SKILL.md",
@@ -22,7 +22,7 @@
         "claude-code"
       ],
       "dependencies": [],
-      "checksum": "sha256:a3c5a8c95b4db565d07672fd23381ec392594959e29b3f20f73cabc78ad73ec8",
+      "checksum": "sha256:e01884b843a0b799828095a14acf88812d410b57c6a43726289198270d0f1f0e",
       "license": "MIT"
     },
     {

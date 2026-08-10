@@ -1,11 +1,18 @@
 # ADR template
 
-Base structure is MADR (Markdown Any Decision Records). The sections below the
-`---` are an **example** of a team's mandatory additions — this set fits a
-regulated/closed-contour environment; replace it with your team's own list via
-`mandatory_sections` in `.claude/adr/config.yaml`. Whatever the set, the rule is
-the same: the skill must leave a `<TODO: ...>` for any mandatory section the
-conversation did not cover, and must never invent their content.
+Base structure is MADR (Markdown Any Decision Records). Below the `---` sits the
+team's **mandatory** set, declared in `mandatory_sections` in
+`.claude/adr/config.yaml`.
+
+With no config, the default is deliberately minimal: **`Rollback plan` only**.
+It is the section humans skip most often and it is meaningful for almost any
+decision. Anything heavier — regulatory impact, data classification, security
+review — is a real requirement for some teams and pure noise for others, so it
+is opt-in rather than a default that produces TODOs nobody will ever fill. A
+regulated team's set is shown as a commented example below.
+
+Whatever the set, the rule is the same: leave a `<TODO: ...>` for any mandatory
+section the conversation did not cover, and never invent their content.
 
 Filename: `<NNNN>-<slug>.md` (e.g. `0042-vector-store.md`).
 
@@ -38,22 +45,9 @@ necessary now. 2-5 sentences.>
 - (−) <cost / risk accepted>
 
 ---
-<!-- Example mandatory set (regulated team) — replace via
+<!-- The team's mandatory set, from mandatory_sections in
      .claude/adr/config.yaml. Do not delete a configured heading; fill it or
-     leave the TODO. -->
-
-## Regulatory impact
-
-<TODO: which regulation(s) this touches; whether a control owner must review.>
-
-## Data classification
-
-<TODO: classification of any data this decision touches (public / internal /
-confidential / restricted) and where it is processed or stored.>
-
-## Security review status
-
-<TODO: required / not required; ticket link if raised.>
+     leave the TODO. Default when there is no config: Rollback plan only. -->
 
 ## Rollback plan
 
@@ -63,3 +57,20 @@ confidential / restricted) and where it is processed or stored.>
 
 - <unresolved item>
 ```
+
+## Heavier sets are opt-in
+
+A regulated or closed-contour team would declare something like this in
+`.claude/adr/config.yaml`, and the skill would then require all four headings:
+
+```yaml
+mandatory_sections:
+  - Regulatory impact          # which regulation(s); who signs off?
+  - Data classification        # public / internal / confidential / restricted
+  - Security review status     # required or not; ticket link if raised
+  - Rollback plan
+```
+
+A product team might instead pick `Cost impact` and `Rollback plan`; a library
+like this one picks `Impact on installed skills` and `Rollback plan`. The set is
+the team's call — the skill only enforces whatever they declared.

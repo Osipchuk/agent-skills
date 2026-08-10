@@ -13,6 +13,9 @@ htmlcov/
 .DS_Store
 **/.installed.json
 
-# Local-only — Claude Code session state (not the agent instructions: CLAUDE.md
-# and docs/skills-library-spec.md are tracked and published).
-.claude/
+# Machine-local Claude Code state only. The rest of .claude/ is deliberately
+# tracked: three of this library's own skills tell users to COMMIT what they put
+# there (.claude/onboard/topics.yaml, .claude/scars.md, .claude/learning/), and a
+# blanket ignore would contradict our own instructions — see docs/adr/0001.
+.claude/settings.local.json
+.claude/*.local.json
