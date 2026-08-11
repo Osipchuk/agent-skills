@@ -1,0 +1,19 @@
+# adr-capture config for THIS repo (schema: skills/adr-capture/references/config.example.yaml).
+#
+# NOTE: .claude/ is currently listed in this repo's .gitignore, so this file is
+# local-only until that is narrowed. See ADR-0001's open questions.
+
+adr_dir: docs/adr/
+id_format: "NNNN"
+
+# The default set baked into the skill's template targets a regulated
+# environment (regulatory impact, data classification, security review). None of
+# that applies to a public library of agent skills, and leaving those headings in
+# produces TODOs nobody will ever fill.
+#
+# What every architectural decision here DOES touch is the users who already ran
+# `askill install`: paths, frontmatter and folder contents are a public contract,
+# and changing one forces a version bump, a new checksum, and a reinstall.
+mandatory_sections:
+  - Impact on installed skills
+  - Rollback plan

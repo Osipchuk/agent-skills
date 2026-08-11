@@ -15,8 +15,9 @@ when: |
   for feedback, or explicitly requests a "harsh", "senior-level", or "brutal"
   review. Also fires on intent phrases like "how can I improve this", "what do
   you think of this code", "rate this solution", or "tear this apart". Does
-  not fire on requests to write new code from scratch or to explain how
-  existing code works.
+  not fire on requests to write new code from scratch, to explain how existing
+  code works, to review a design proposal or architecture document, or when the
+  user asks for a gentle, encouraging review.
 
 highlights:
   - Sarcastic but clean tone — sharp critique, no profanity, no personal attacks on the author.

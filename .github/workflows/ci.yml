@@ -42,3 +42,20 @@ jobs:
       - name: Generated artifacts match skills/ + catalog/
         working-directory: installer
         run: uv run python scripts/generate_registry.py --schema --check
+
+  # Static validation of the eval suites — no LLM, no API key, so it can run on
+  # every PR. --strict makes version drift a merge blocker: editing a skill
+  # without re-running and re-stamping its suite fails here (evals spec §8.1).
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        working-directory: installer
+        run: uv sync
+      - name: Eval suites are valid and current
+        working-directory: installer
+        run: uv run python scripts/run_evals.py --validate --strict

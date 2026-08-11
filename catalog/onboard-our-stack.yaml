@@ -12,7 +12,7 @@ license: MIT
 when: >-
   Fires when someone asks how the team's own system works — broad ("I'm new,
   walk me through this project", "where do I start") or targeted ("how does our
-  scheduler work"). With a committed .onboard/topics.yaml it walks the curated
+  scheduler work"). With a committed .claude/onboard/topics.yaml it walks the curated
   path; without one it cold-starts from README/ARCHITECTURE/CLAUDE.md/docs and
   is explicit about the curated gotchas still missing. The newcomer creates
   nothing and changes no code.
@@ -34,6 +34,6 @@ example:
     - { kind: user, text: "I just joined and I'm looking at this repo for the first time. Where do I start?" }
   output:
     - { kind: anchor, text: "[onboard-our-stack] broad intent, curated config present, walking onboarding_path" }
-    - { kind: tool, text: "read .onboard/topics.yaml, then product_vision and request_lifecycle reading lists" }
+    - { kind: tool, text: "read .claude/onboard/topics.yaml, then product_vision and request_lifecycle reading lists" }
     - { kind: tool_out, text: "onboarding_path: product_vision, getting_started, request_lifecycle, ..." }
     - { kind: assistant, text: "Let's go in order; I'll pause between each. First the why: this is an empathy-first chat companion, not a calorie tracker, and 'stay silent unless there's something worth saying' drives the UX. Next, getting it running locally (I'll read the runbook so the commands are current). Then the one story that ties it together: a meal message hits the webhook, middleware rehydrates your state from the DB, the handler calls the agent which runs a tool-call loop and reaches the DB only through the repository, then streams the reply back. One global landmine up front: ARCHITECTURE.md still says 'two LLM calls' — that's stale, trust the v2 agent. Want me to go deeper on the request flow before we hit the subsystems?" }

@@ -1,0 +1,21 @@
+# Copy this to `.claude/adr/config.yaml` at your repo root and edit — or skip
+# the file entirely to use the defaults baked into references/adr-template.md.
+# A maintainer authors it once and commits it; adr-capture reads it before
+# drafting.
+
+adr_dir: docs/adr/            # where ADRs live; scanned for the next id
+id_format: "NNNN"             # zero-padded width of the numeric id in filenames
+
+# Headings every draft must carry. Any the conversation did not cover get a
+# literal <TODO: ...> — the skill never invents their content.
+#
+# With no config at all the default is `Rollback plan` alone. Declare a set here
+# only if your team really reviews those things; headings nobody fills turn
+# every ADR into a wall of dead TODOs. Pick what your decisions actually touch:
+#
+#   regulated / closed-contour: Regulatory impact, Data classification,
+#                               Security review status, Rollback plan
+#   product team:               Cost impact, Rollback plan
+#   a published library:        Impact on installed users, Rollback plan
+mandatory_sections:
+  - Rollback plan

@@ -30,6 +30,7 @@ A library of reusable **skills** for AI agents (Claude Code first), plus a CLI i
 2. Example skills under [skills/](skills/): [learning-mode](skills/learning-mode/), [article-translator](skills/article-translator/), [toxic-senior-reviewer](skills/toxic-senior-reviewer/).
 3. [installer/](installer/) — the `askill` package (uv, src-layout). **Built:** the deterministic core (pydantic models, registry loading from path/URL, scope resolution, read+write state, §13.3 checksum, archive install), the commands `list`/`info`/`install`/`uninstall`/`wizard`, registry/catalog + marketplace generation with CI, and the `install.sh` bootstrap. **Not yet built:** `update`/`outdated`/`search`/`validate`/`self-update`.
 4. [manifest/registry.json](manifest/registry.json) (lean installer manifest) + [manifest/catalog.json](manifest/catalog.json) (rich web/presentation manifest) — auto-generated from the skills and committed by CI on merge to `main`.
+5. [evals/](evals/) — per-skill test suites (`evals/<name>/suite.yaml`): trigger tests (should the skill fire on this prompt?) and compliance scenarios (does the agent follow its rules?). Spec: [docs/skill-evals-spec.md](docs/skill-evals-spec.md) (**in Russian**). **Built:** the deterministic core (`installer/src/askill/evals/`) and `scripts/run_evals.py --validate`, which CI runs with `--strict` on every PR. **Not yet built:** the transport layer, so no scenario is actually executed against an agent yet.
 
 ## Authoring skills (what the examples actually do)
 

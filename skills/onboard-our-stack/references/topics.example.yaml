@@ -1,4 +1,4 @@
-# Copy this to `.onboard/topics.yaml` at your repo root and edit. A MAINTAINER
+# Copy this to `.claude/onboard/topics.yaml` at your repo root and edit. A MAINTAINER
 # authors this once and commits it; newcomers never create it. If it is absent,
 # onboard-our-stack cold-starts from the repo's own docs instead of refusing.
 #

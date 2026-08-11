@@ -13,6 +13,12 @@ htmlcov/
 .DS_Store
 **/.installed.json
 
-# Local-only — Claude Code session state (not the agent instructions: CLAUDE.md
-# and docs/skills-library-spec.md are tracked and published).
-.claude/
+# Under .claude/ we track what the TEAM owns and ignore what a DEVELOPER owns —
+# see docs/adr/0001. Tracked: .claude/scars.md, .claude/onboard/topics.yaml,
+# .claude/adr/config.yaml (one truth per repo, reviewed in PRs; our own skills
+# tell users to commit them, so a blanket ignore would contradict us).
+.claude/settings.local.json
+.claude/*.local.json
+# Ignored: one developer's goals, self-rated level and dated record of what they
+# got wrong. It collides between developers and is nobody else's business.
+.claude/learning/

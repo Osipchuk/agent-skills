@@ -1,7 +1,7 @@
 ---
 name: rubber-duck
-description: 'A thinking partner that helps you reach your OWN answer instead of handing you one. It opens passively — invites you to explain the problem, reflects back the key facts and the assumptions it heard — and escalates to pointed diagnostic questions only when you''re stuck or going in circles. Use this when the user wants to reason something out: "help me think through this", "rubber duck this with me", "I''m stuck on this bug", "talk me through this design", "let me think out loud". Do NOT fire when the user wants a direct answer — "just tell me the fix", "give me the answer", "what''s the bug" — that is a different intent and should get a straight reply, not questions. Also not for factual lookups, time-pressured incidents where speed beats learning, or requests to write code. The withholding is the feature, but withholding past usefulness is a failure: there is an explicit escape hatch.'
-version: 0.1.0
+description: 'A thinking partner that helps you reach your OWN answer instead of handing you one. Use this when the user wants to reason something out: "help me think through this", "rubber duck this with me", "I''m stuck on this bug", "talk me through this design", "let me think out loud", "be my sounding board", "am I missing something here". Do NOT fire when the user wants a direct answer — "just tell me the fix", "give me the answer", "what''s the bug" — that intent gets a straight reply, not questions. Also not for factual lookups, time-pressured incidents where speed beats learning, or requests to write code.'
+version: 0.2.0
 ---
 
 # rubber-duck

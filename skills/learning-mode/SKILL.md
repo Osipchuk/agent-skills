@@ -1,12 +1,12 @@
 ---
 name: learning-mode
 description: Turn a regular Claude Code session into a learn-by-doing coding tutorial. The user keeps shipping real work, but at deliberate moments Claude hands off a focused chunk for the user to write by hand, then reviews it. Maintains a per-repo learning plan and a spaced-repetition log under .claude/learning/ so topics resurface at the right time. Use this whenever the user mentions wanting to learn, practice, train, "do it themselves", improve at programming, or asks Claude to coach, teach, tutor, mentor, or pair-learn in a coding context. Also consult it at the start of any session in a repo containing .claude/learning/ — there may be topics due for review or homework in flight. Trigger phrases include "coach me", "teach me X", "I want to learn Y", "help me practice Z", "let me try it myself", "review what I wrote", "give me a task", "what should I learn next", and any signal the user wants to grow as a developer rather than just ship code. Do not use when the user only wants the work done for them.
-version: 0.2.0
+version: 0.2.1
 ---
 
 # Learning Mode
 
-A skill that turns regular development sessions into deliberate practice. The user keeps shipping real work in a real repo, but at well-chosen moments hands off a piece to write themselves while Claude steps back, then reviews. State lives in `.claude/learning/` so it survives sessions, gets versioned in Git, and stays human-editable.
+A skill that turns regular development sessions into deliberate practice. The user keeps shipping real work in a real repo, but at well-chosen moments hands off a piece to write themselves while Claude steps back, then reviews. State lives in `.claude/learning/` so it survives sessions and stays human-editable. Whether to commit it is the user's call, not a default: unlike a team's scars log or onboarding config, this state is one developer's — goals, a self-rated level, and a dated record of what they got wrong. In a shared repo it collides between developers and exposes more than most people want reviewed; gitignoring `.claude/learning/` is the safer default there. Say so once if the repo has no rule yet, then respect whatever they choose.
 
 ## Mental model
 
