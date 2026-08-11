@@ -3,8 +3,8 @@
   "library": {
     "name": "askill-library",
     "repo": "https://github.com/Osipchuk/agent-skills",
-    "generated_at": "2026-08-10T13:07:00.762318Z",
-    "commit": "cd9171ab1ca79df06f4cf2d92a75052bee0c8899"
+    "generated_at": "2026-08-11T05:30:29.163620Z",
+    "commit": "74b76aa034ec2348cb919b6a3424789f4f703749"
   },
   "skills": [
     {
@@ -125,7 +125,7 @@
         "claude-code"
       ],
       "license": "MIT",
-      "updated_at": "2026-08-10T13:09:21+02:00",
+      "updated_at": "2026-08-10T15:07:25+02:00",
       "when": "Fires when you ask to learn, practice, or be coached on something during a coding session — and at the start of any session in a repo that already has a .claude/learning/ plan with topics due for review.",
       "highlights": [
         "Hands you one atomic piece to write yourself, then reviews it like a senior pair-programmer.",
